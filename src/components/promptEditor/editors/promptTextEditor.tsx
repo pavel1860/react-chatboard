@@ -1,0 +1,149 @@
+import {$getRoot, $getSelection, $createParagraphNode, $createTextNode, TextNode} from 'lexical';
+import {useEffect, useState} from 'react';
+
+import {LexicalComposer} from '@lexical/react/LexicalComposer';
+import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
+import {ContentEditable} from '@lexical/react/LexicalContentEditable';
+import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
+
+
+// import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { $createAgentActionNode, AgentActionNode } from './nodes/AgentActionNode';
+
+
+// Lexical React plugins are React components, which makes them
+// highly composable. Furthermore, you can lazy load plugins if
+// desired, so you don't pay the cost for plugins until you
+// actually use them.
+function MyCustomAutoFocusPlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  console.log('AutoFocus!')
+
+  useEffect(() => {
+    // Focus the editor when the effect fires!
+    editor.focus();
+  }, [editor]);
+
+  return null;
+}
+
+
+function OnChangePlugin({ onChange } : any) {
+  const [editor] = useLexicalComposerContext();
+  useEffect(() => {
+    return editor.registerUpdateListener(({editorState}) => {
+      onChange(editorState);
+    });
+  }, [editor, onChange]);
+
+  return null;
+}
+
+
+function OnChangeInitialTextPlugin ({initialText, isCompact} : {initialText: string, isCompact: boolean}) {
+  const [editor] = useLexicalComposerContext();    
+  const [expandText, setExpandText] = useState(false);
+
+  useEffect(() => {
+      // const isHeading = screen.title ? true : false;
+      editor.update(() => {
+          const root = $getRoot();
+          root.clear();          
+              root.append(
+                  $createParagraphNode().append(
+                      $createTextNode(expandText || !isCompact  ? initialText : initialText.slice(0,200)+'...'),
+                  )
+              )          
+          // $wrapLeafNodesInElements(root, () => $createHeadingNode("h1"));
+      })
+  },[initialText, expandText, isCompact])
+
+  return initialText?.length > 200 && isCompact ? <button 
+    // className="bg-blue-500 hover:bg-blue-700 text-white py-0 px-2 rounded-full"
+    className=" text-blue-600 hover:text-blue-500 py-0 px-2 rounded-full"
+    onClick={()=>{setExpandText(!expandText)}}>{expandText ? 'hide':'expand'}
+    </button> : null
+}
+
+
+// Catch any errors that occur during Lexical updates and log them
+// or throw them as needed. If you don't throw them, Lexical will
+// try to recover gracefully without losing user data.
+function onError(error: any) {
+  console.error(error);
+}
+
+export default function PromptTextEditor({text, paragraphLabel, notEditable, isCompact, onChangeText}: {text: string, onChangeText?: (text:string)=>void, paragraphLabel?: string | undefined, notEditable?: boolean | undefined, isCompact?: boolean | undefined}) {
+
+  const theme = {
+    // Theme styling goes here
+    ltr: 'ltr',
+    rtl: 'rtl',
+    paragraph: 'editor-paragraph',
+  }
+  
+
+  if (paragraphLabel){
+    theme.paragraph = paragraphLabel
+  }
+
+  const initialConfig = {
+    namespace: 'MyEditor',
+    editable: notEditable ? false : true,
+    // theme: {...theme},
+    theme,
+    onError,
+    // nodes: [
+    //   AgentActionNode,
+    //   {
+    //     replace: TextNode,
+    //     with: (node: TextNode) => {
+    //       return $createAgentActionNode(node.__text) 
+    //     }
+    //   }
+    // ]
+  };
+
+  
+
+  const [editorState, setEditorState] = useState();
+
+
+  // function onChange(editorState) {
+  //   // Call toJSON on the EditorState object, which produces a serialization safe string
+  //   const root = $getRoot();
+  //   const currenText = root.getAllTextNodes().map(textNode => textNode.getTextContent()).join(' ')
+  //   const editorStateJSON = editorState.toJSON();
+  //   // However, we still have a JavaScript object, so we need to convert it to an actual string with JSON.stringify
+  //   setEditorState(JSON.stringify(editorStateJSON));
+  //   onChangeText && onChangeText(currenText)
+  // }
+
+  return (
+    <LexicalComposer initialConfig={initialConfig}>
+      <OnChangeInitialTextPlugin initialText={text} isCompact={isCompact || false}/>
+      <PlainTextPlugin
+        contentEditable={<ContentEditable />}
+        placeholder={<div>Enter some text...</div>}
+        ErrorBoundary={LexicalErrorBoundary}
+      />
+      <HistoryPlugin />
+      <MyCustomAutoFocusPlugin />
+      <OnChangePlugin onChange={(editorState: any) => {
+      // Call toJSON on the EditorState object, which produces a serialization safe string
+        editorState.read(()=>{
+            const root = $getRoot();
+            const currenText = root.getAllTextNodes().map(textNode => textNode.getTextContent()).join('\n')
+            const editorStateJSON = editorState.toJSON();
+            // However, we still have a JavaScript object, so we need to convert it to an actual string with JSON.stringify
+            setEditorState(JSON.stringify(editorStateJSON) as any);
+            onChangeText && onChangeText(currenText)
+        })
+    }}/>
+      
+    </LexicalComposer>
+  );
+}
