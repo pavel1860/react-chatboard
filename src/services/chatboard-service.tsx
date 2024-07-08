@@ -68,11 +68,11 @@ export interface IOAssetClass {
 }
 
 
-export interface AssetItem {
+export interface AssetItem<I, O, M> {
     id: string
-    input: any
-    output: any
-    metadata: any    
+    input: I
+    output: O
+    metadata: M    
 }
 
 
@@ -111,7 +111,8 @@ export async function postRequest(endpoint: string, { arg }: any ){
         },
         body: JSON.stringify(arg) // Convert the data to JSON format
     };
-    const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}`, options)
+    // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}`, options)
+    const res = await fetch(`/api/chatboard/${endpoint}`, options)
     if (!res.ok){
         throw new Error("Failed to fetch chatboard metadata.");        
     }
@@ -121,8 +122,8 @@ export async function postRequest(endpoint: string, { arg }: any ){
 
 
 export async function getChatboardMetadata(cb: any) {
-    // const res = await fetch("/chatboard/metadata")
-    const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/metadata`)
+    // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/metadata`)
+    const res = await fetch(`/api/chatboard/metadata`)
     if (!res.ok){
         throw new Error("Failed to fetch chatboard metadata.");        
     }
@@ -141,7 +142,8 @@ export async function getRagDocumentsApi(namespace: string, cb: any){
             namespace
         }) // Convert the data to JSON format
     };
-    const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/get_rag_document`, options)
+    // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/get_rag_document`, options)
+    const res = await fetch(`/api/chatboard/get_rag_document`, options)
     if (!res.ok){
         throw new Error("Failed to fetch chatboard metadata.");        
     }
@@ -181,6 +183,16 @@ export function useProfilePartitionService(profile: string | null, partition: st
 
 
 
+export function useProfileService() {
+    const { data, error, isLoading} = useSWR('get_profile', (url: string) => fetcher(url, { }));
+
+    return {
+        data,
+        error,
+        isLoading
+    }
+}
+
 
 export function useAssetDocumentsService(asset: string){
 
@@ -199,7 +211,8 @@ export async function fetcher(endpoint: string, data: any){
     Object.keys(data).forEach((k: string) => {
         params.set(k, data[k])
     })
-    const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}?${params.toString()}`)
+    // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}?${params.toString()}`)
+    const res = await fetch(`/api/chatboard/${endpoint}?${params.toString()}`)
     if (!res.ok){
         throw new Error("Failed to fetch chatboard metadata.");
     }

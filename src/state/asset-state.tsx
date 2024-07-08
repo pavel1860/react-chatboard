@@ -1,4 +1,13 @@
-import { AssetItem, IAssetClass, IError, IParameter, IProfileClass, useAssetDocumentsService, useAssetPartitionService, useProfilePartitionService } from "@/services/chatboard-service";
+import { 
+    AssetItem, 
+    IAssetClass, 
+    IError, 
+    IParameter, 
+    IProfileClass, 
+    useAssetDocumentsService, 
+    useAssetPartitionService, 
+    useProfilePartitionService
+ } from "../services/chatboard-service";
 import React, { use, useEffect } from "react";
 import { useChatboard } from "./chatboard-state";
 import { useRouter } from 'next/navigation';

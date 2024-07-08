@@ -4,7 +4,13 @@ import React, { useEffect } from 'react'
 import { useLayout } from './promptLayoutContext'
 import { MessageType } from '../messages'
 import { ExampleType } from '../types'
-import { useAddExampleService, useDeleteExample, useEditExampleService, useGetExamples, useGetNamespaces } from '@/services/chatboard-service'
+import { 
+    useAddExampleService, 
+    useDeleteExample, 
+    useEditExampleService, 
+    useGetExamples, 
+    useGetNamespaces
+} from '../../../services/chatboard-service'
 
 
 

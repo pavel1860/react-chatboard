@@ -1,5 +1,5 @@
-import { useAddExampleService } from "@/services/chatboard-service";
-import { useChatboard } from "@/state/chatboard-state";
+import { useAddExampleService } from "../../services/chatboard-service";
+import { useChatboard } from "../../state/chatboard-state";
 import React, { use, useEffect, useState } from "react";
 
 

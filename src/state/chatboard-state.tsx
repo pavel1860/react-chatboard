@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 // import { getChatboardMetadata } from '@/services/metadata-service'
-import { IMetadataResponse, getChatboardMetadata, getRagDocumentsApi } from '@/services/chatboard-service'
+import { 
+  IMetadataResponse, 
+  getChatboardMetadata, 
+  getRagDocumentsApi, 
+  useProfileService
+} from '../services/chatboard-service'
                                       
 
 
@@ -34,6 +39,9 @@ export function ChatboardProvider({children}: {children: any}) {
         setDocuments(data)
       })
     }
+
+
+    // const profile = useProfileService()
     
   
     return (

@@ -6,7 +6,7 @@ import useSWRMutation from 'swr/mutation'
 // import { GET_EXAMPLES, GET_RUNS, GET_RUN_TREE } from '../../../graphql/runQueries'
 // import { useRouter } from 'next/router'
 import { ExampleStateType, useExampleState } from './useExamples'
-import { useGetRuns, useGetTree } from '@/services/chatboard-service'
+import { useGetRuns, useGetTree } from '../../../services/chatboard-service'
 
 
 
