@@ -108,9 +108,9 @@ export const useAssetPartition = (assetName: string, metadata: IAssetClass | nul
 
 
 
-interface AssetContextType {
+interface AssetContextType<I, O, M> {
     metadata: IAssetClass | null
-    assetList: AssetItem[] | null 
+    assetList: AssetItem<I, O, M>[] | null 
     assetLoading: boolean
     assetError: IError | null
     partitions: {[key: string] :IParameter} | undefined
@@ -124,7 +124,7 @@ interface AssetContextType {
     removeProfileFilter: (profile: string) => void    
 }
 
-const AssetContext = React.createContext<AssetContextType>({
+const AssetContext = React.createContext<AssetContextType<any, any, any>>({
     metadata: null,
     assetList: null,
     partitions: {},
@@ -214,6 +214,7 @@ export const AssetProvider = ({children, assetName}: {children: any, assetName:s
             assetList,
             assetLoading,
             assetError,
+            //@ts-ignore
         }} displayName="asset-context">
             {children}
         </AssetContext.Provider>

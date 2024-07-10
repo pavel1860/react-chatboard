@@ -1,5 +1,6 @@
-import { IRagSpaces, MetadataClass } from "@/services/metadata-service"
-import { useRag } from "@/state/rag-state";
+//@ts-nocheck
+import { IRagSpaces } from "../../services/chatboard-service";
+import { useRag } from "../../state/rag-state";
 import Link from "next/link";
 import { JSONTree } from 'react-json-tree'
 
@@ -25,7 +26,7 @@ export default function RagDocumentCard(props: RagDocumentCardProps){
 
     const fieldsComps = Object.keys(props.metadata).reduce((acc: any, field: string) => {
         if (classParameters[field].isVisible){
-            // if (typeof props.metadata[field] == 'object'){
+            
             if (classParameters[field].type == 'object' || classParameters[field].type == 'array'){
                 acc.push(
                     <div><span className="px-1 bg-red-300 border border-red-500 rounded-md">{field}</span><JSONTree data={props.metadata[field]} /></div>

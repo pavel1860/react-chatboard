@@ -1,6 +1,7 @@
-import { metadata } from "@/app/layout";
-import { IRagSpaces, MetadataClass } from "@/services/metadata-service"
-import { useRag } from "@/state/rag-state";
+// import { metadata } from "@/app/layout";
+// import { IRagSpaces, MetadataClass } from "@/services/metadata-service"
+import { IRagSpaces, MetadataClass } from "../../services/chatboard-service";
+import { useRag } from "../../state/rag-state";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -44,8 +45,10 @@ export const RagMetadataClass = () => {
                             }}
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                         />
+                        {/* @ts-ignore */}
                         <label for="vue-checkbox" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
                             {key}
+                            {/* @ts-ignore */}
                             <span className="px-1 bg-red-300 border border-red-500 rounded-md">{prop.type}</span>
                         </label>
                     </div>

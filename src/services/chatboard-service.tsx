@@ -1,6 +1,6 @@
 import useSWR, {useSWRConfig} from 'swr';
 import useSWRMutation from 'swr/mutation';
-
+import { EndpointHook, fetcher } from "./fetcher";
 
 
 export interface IProperty {
@@ -121,34 +121,47 @@ export async function postRequest(endpoint: string, { arg }: any ){
 
 
 
-export async function getChatboardMetadata(cb: any) {
-    // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/metadata`)
-    const res = await fetch(`/api/chatboard/metadata`)
-    if (!res.ok){
-        throw new Error("Failed to fetch chatboard metadata.");        
+export function useChatboardMetadata(): EndpointHook<any> {
+    const url = `/api/chatboard/metadata`
+    const { data, error, isLoading } = useSWR(url, (url: string) => fetcher(url, {}))
+
+    return {
+        data,
+        error,
+        isLoading
     }
-    cb((await res.json()).metadata as IMetadataResponse)
 }
 
 
 
-export async function getRagDocumentsApi(namespace: string, cb: any){
-    const options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json' // Specify the content type
-        },
-        body: JSON.stringify({
-            namespace
-        }) // Convert the data to JSON format
-    };
-    // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/get_rag_document`, options)
-    const res = await fetch(`/api/chatboard/get_rag_document`, options)
-    if (!res.ok){
-        throw new Error("Failed to fetch chatboard metadata.");        
-    }
-    cb(await res.json())
-}
+// export async function getChatboardMetadata(cb: any) {
+//     // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/metadata`)
+//     const res = await fetch(`/api/chatboard/metadata`)
+//     if (!res.ok){
+//         throw new Error("Failed to fetch chatboard metadata.");        
+//     }
+//     cb((await res.json()).metadata as IMetadataResponse)
+// }
+
+
+
+// export async function getRagDocumentsApi(namespace: string, cb: any){
+//     const options = {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json' // Specify the content type
+//         },
+//         body: JSON.stringify({
+//             namespace
+//         }) // Convert the data to JSON format
+//     };
+//     // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/get_rag_document`, options)
+//     const res = await fetch(`/api/chatboard/get_rag_document`, options)
+//     if (!res.ok){
+//         throw new Error("Failed to fetch chatboard metadata.");        
+//     }
+//     cb(await res.json())
+// }
 
 
 
@@ -206,34 +219,29 @@ export function useAssetDocumentsService(asset: string){
 }
 
 
-export async function fetcher(endpoint: string, data: any){
-    const params = new URLSearchParams()
-    Object.keys(data).forEach((k: string) => {
-        params.set(k, data[k])
-    })
-    // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}?${params.toString()}`)
-    const res = await fetch(`/api/chatboard/${endpoint}?${params.toString()}`)
-    if (!res.ok){
-        throw new Error("Failed to fetch chatboard metadata.");
-    }
-    return await res.json()
-}
+// export async function fetcher(endpoint: string, data: any){
+//     const params = new URLSearchParams()
+//     Object.keys(data).forEach((k: string) => {
+//         params.set(k, data[k])
+//     })
+//     // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}?${params.toString()}`)
+//     const res = await fetch(`/api/chatboard/${endpoint}?${params.toString()}`)
+//     if (!res.ok){
+//         throw new Error("Failed to fetch chatboard metadata.");
+//     }
+//     return await res.json()
+// }
 
 
 
-export function useGetRuns(limit: number, offset: number, runNames: string[]){
+export function useGetRuns(limit: number, offset: number, runNames: string[]) : EndpointHook<any>{
     const fetchRuns = (url: string) => fetcher(url, { limit, offset, runNames });
     const { data, error, isLoading } = useSWR('get_runs', fetchRuns);
-    // const { mutate }
-    const RunListStatus = { data, error, isLoading }
-    // const getRunList = async () => {
-    //     return await mutate('get_runs')
-    // }
-    // return [getRunList, RunListStatus] as const
+    
     return {
-        runs: data,
-        error: error,
-        loading: isLoading
+        data,
+        error,
+        isLoading
     }
 }
 
@@ -242,9 +250,7 @@ export function useGetTree(id: string){
 
     const fetchTree = (url: string) => fetcher(url, { run_id: id });
     const { data, error, isLoading } = useSWR('get_run_tree', fetchTree);
-    // const getRunTree = async () => {}
-    // const runTreeStatus = async () => {}
-    // return [getRunTree, runTreeStatus] as const
+
     return {
         runTree: data,
         error: error,
@@ -253,8 +259,7 @@ export function useGetTree(id: string){
 }
 
 export function useAddExampleService(){
-    // postRequest("upsert_rag_document")
-    // const { data, mutate, error, isLoading } = useSWR('upsert_rag_document', (url: string) => postRequest(url, {}));
+    
     const { data, error, trigger, isMutating } = useSWRMutation('upsert_rag_document', postRequest)
 
     return {
@@ -271,9 +276,6 @@ export function useAddExampleService(){
         loading: isMutating
     }
 
-    // const addExamples = async () => {}
-    // const addExamplesStatus = async () => {}
-    // return [addExamples, addExamplesStatus] as const
 }
 
 

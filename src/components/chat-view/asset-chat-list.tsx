@@ -1,15 +1,15 @@
 
 import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { AssetCard } from "../assets/assetCard";
+import AssetCard from "../assets/assetCard";
 import { AssetItem } from "../../services/chatboard-service";
 
 
-interface ChatListProps {
-    assetList: AssetItem[]
+interface ChatListProps <I, O, M>{
+    assetList: AssetItem<I, O, M>[]
 }
 
-export default function ChatList({assetList}: ChatListProps) {
+export default function ChatList<I, O, M>({assetList}: ChatListProps<I, O, M>) {
     const [ data, setData ] = useState( assetList );
     const MAX_DATA = 1000;
     const hasMore = data.length < MAX_DATA;
@@ -46,7 +46,7 @@ export default function ChatList({assetList}: ChatListProps) {
                 inverse={true}
                 >
                 {
-                    data.map( (asset: AssetItem) => (
+                    data.map( (asset: AssetItem<I, O, M>) => (
                         <AssetCard asset={asset}/>
                     ))
                 }

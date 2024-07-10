@@ -178,30 +178,14 @@ const useRunListState = (): RunListStateType => {
 
     // const [getRunList, RunListStatus] = useGetRuns(150, 0, Array.from(runNamesFilter))
     const {
-        runs,
+        data: runs,
         error,
-        loading,
+        isLoading: loading,
     } = useGetRuns(150, 0, Array.from(runNamesFilter))
 
-    
-
-
-    // useEffect(() => {
-    //     getRunList({
-    //         variables: {
-    //             limit: 50,
-    //             offset: 0,
-    //             runNames: Array.from(runNamesFilter)
-    //         }
-        
-    //     })
-    // },  [runNamesFilter])
 
 
     return {
-        // runsList: RunListStatus.data?.runs || [], 
-        // error: RunListStatus.error,
-        // loading: RunListStatus.loading,
         runsList: runs || [],
         error: error,
         loading: loading,
@@ -219,14 +203,6 @@ interface RunsContextType {
 }
 
 
-// const fetcher = (url: string) => fetch(url).then((res) => res.json())
-
-const fetcher = (url: string) => axios.post(
-    url,
-    {
-        name:"test"
-    }
-).then((res) => res.data)
 
 
 
@@ -236,19 +212,6 @@ const RunsContext = React.createContext<RunsContextType>({} as RunsContextType)
 
 export const RunsContextProvider = ({ children, id }: any) => {
 
-    // const { data, error } = useSWR('/ai/get_runs', fetcher)
-    // const getRuns = useSWRMutation('/ai/get_runs', fetcher)
-
-    // const [getRunList, RunListStatus] = useLazyQuery(GET_RUNS, {
-    //     variables: {
-    //            limit: 50,
-    //            offset: 0
-    //       }
-    // })
-
-    // const [runsFilters, setRunsFilters] = React.useState<any>([])
-
-
     const runListState = useRunListState()
     
 
@@ -256,14 +219,7 @@ export const RunsContextProvider = ({ children, id }: any) => {
 
     const exampleState = useExampleState()
 
-    
 
-
-    // const getRun = (id: string) => {
-    //     if (getRunList.data){
-    //         return getRunList.data.find((run: any) => run.id == id)
-    //     }
-    // }
 
     return (
         <RunsContext.Provider value={{ 

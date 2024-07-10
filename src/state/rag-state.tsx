@@ -1,7 +1,9 @@
+// @ts-nocheck TODO - Fix the types
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useChatboard } from "./chatboard-state";
-import { MetadataClass, IParameter } from "@/services/chatboard-service";
+import { MetadataClass, IParameter } from "../services/chatboard-service";
+import { useRagDocumentsEndpoint } from "../services/rag-service";
 
 
 
@@ -138,13 +140,16 @@ const useMetadataClass = () => {
 const RagContext = createContext<{
     classParameters: {[key: string]: IParameterConfig}
     setParameter: (key: string, isVisible: boolean) => void
+    documents: any
+    loading: boolean
+    error: any
 }>({} as any)
 
 
-export function RagContextProvider({children, namespace}: {children: any, namespace: string}){
+export function RagContextProvider({children, namespace}: {children: any, namespace: string | null}){
 
     const {
-        getRagDocuments,
+        // getRagDocuments,
         metadata
     } = useChatboard()
 
@@ -154,6 +159,9 @@ export function RagContextProvider({children, namespace}: {children: any, namesp
         setMetadataClass,
         setParameter
     } = useMetadataClass()
+
+
+    const ragDocumentService = useRagDocumentsEndpoint(namespace)
 
 
     useEffect(()=>{
@@ -170,12 +178,15 @@ export function RagContextProvider({children, namespace}: {children: any, namesp
     // useEffect(()=>{
     //     console.log("dasdjdff;lkasj", currMetadataClass)
     // }, [currMetadataClass])
-    useEffect(()=>{
-        getRagDocuments(namespace)
-    }, [namespace])
+    // useEffect(()=>{
+    //     getRagDocuments(namespace)
+    // }, [namespace])
 
     return (
         <RagContext.Provider value={{
+            documents: ragDocumentService.data || [],
+            loading: ragDocumentService.isLoading,
+            error: ragDocumentService.error,
             classParameters,
             setParameter
         }}>

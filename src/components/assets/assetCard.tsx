@@ -90,7 +90,7 @@ export const InputCard = ({input, metadata}: {input: any, metadata: any}) => {
     } = useAssetItemMetadata(classMetadata?.asset_class.input_class)
 
     
-    const inputTime = Date(metadata.asset_input_date)
+    const inputTime = new Date(metadata.asset_input_date)
     return (
         <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto">
             {Object.keys(fieldLookup).length && getFieldComps(input, fieldLookup)}
@@ -121,7 +121,7 @@ export const OutputCard = ({output, metadata}: {output: any, metadata: any}) => 
 
 
 
-export default function AssetCard({asset}: {asset: AssetItem}){
+export default function AssetCard<I, O, M>({asset}: {asset: AssetItem<I, O, M>}){
 
 
     const [isTraceOpen, setIsTraceOpen] = useState(false)

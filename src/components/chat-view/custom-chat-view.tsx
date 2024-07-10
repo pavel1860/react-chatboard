@@ -9,9 +9,11 @@ interface ChatListProps<I, O, M> {
     messages: AssetItem<I, O, M>[]
     inputMessageComp: (input: I, metadata: M) => React.ReactNode
     outputMessageComp: (output: O, metadata: M) => React.ReactNode
+    width?: string
+    height?: string
 }
 
-export default function ChatList<I, O, M>({messages, inputMessageComp, outputMessageComp}: ChatListProps<I,O,M>) {
+export default function ChatList<I, O, M>({messages, inputMessageComp, outputMessageComp, width, height}: ChatListProps<I,O,M>) {
     const [ data, setData ] = useState( messages );
     const MAX_DATA = 1000;
     const hasMore = data.length < MAX_DATA;
@@ -36,7 +38,14 @@ export default function ChatList<I, O, M>({messages, inputMessageComp, outputMes
     }
 
     return (
-        <div id="scrollableDiv" style={{width: "1000px", height: "100vh", overflowY: "scroll", display: "flex", flexDirection: "column-reverse", margin: "auto"}} className="bg-body-tertiary p-3">
+        <div id="scrollableDiv" style={{
+                // width: width || "1000px", 
+                height: height || "100vh", 
+                overflowY: "scroll", 
+                display: "flex", 
+                flexDirection: "column-reverse", 
+                margin: "auto"
+            }} className="bg-body-tertiary p-3">
             <InfiniteScroll
                 dataLength={ data.length }
                 next={fetchData}

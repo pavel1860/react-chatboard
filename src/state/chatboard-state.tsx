@@ -1,9 +1,10 @@
+// @ts-nocheck TODO - Fix the types
 import { createContext, useContext, useEffect, useState } from 'react';
 // import { getChatboardMetadata } from '@/services/metadata-service'
 import { 
   IMetadataResponse, 
-  getChatboardMetadata, 
   getRagDocumentsApi, 
+  useChatboardMetadata, 
   useProfileService
 } from '../services/chatboard-service'
                                       
@@ -27,28 +28,30 @@ export function ChatboardProvider({children}: {children: any}) {
     })
     const [documents, setDocuments] = useState([])
 
-    useEffect(()=>{
-      getChatboardMetadata((data: IMetadataResponse)=>{
-          setMetadata(data)
-      })
-    }, [])
+
+    const chatboardMetadata = useChatboardMetadata()
+
+    // useEffect(()=>{
+    //   getChatboardMetadata((data: IMetadataResponse)=>{
+    //       setMetadata(data)
+    //   })
+    // }, [])
 
 
     const getRagDocuments = (namespace: string) => {
       getRagDocumentsApi(namespace, (data: any)=>{
         setDocuments(data)
       })
-    }
-
-
+    }    
     // const profile = useProfileService()
     
   
     return (
       <ChatboardContext.Provider value={{ 
-        metadata,
+        metadata: chatboardMetadata.data || null,
         documents,
         getRagDocuments,
+        //@ts-ignore
       }} displayName="Chatbot-context">
         {children}
       </ChatboardContext.Provider>

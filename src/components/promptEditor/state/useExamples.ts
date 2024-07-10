@@ -1,3 +1,4 @@
+//@ts-nocheck
 // import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import React, { useEffect } from 'react'
 // import { ADD_EXAMPLES, DELETE_EXAMPLE, EDIT_EXAMPLE, GET_EXAMPLES, GET_NAMESPACES, GET_RUNS, GET_RUN_TREE } from '../../../graphql/runQueries'

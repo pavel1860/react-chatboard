@@ -78,7 +78,7 @@ export const MetadataFieldCard = ({ field, data, onEdit, depth, path }: { field:
             return (
                 <div className="flex">                
                     <Input
-                        value={data}
+                        value={`${data}`}
                         label={field}
                         type="number"
                         onChange={(e)=>{setLocalData(e.target.value)}}
