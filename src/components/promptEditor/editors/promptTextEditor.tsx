@@ -69,6 +69,20 @@ function OnChangeInitialTextPlugin ({initialText, isCompact} : {initialText: str
 }
 
 
+function OnChangeEditablePlugin ({notEditable} : {notEditable : boolean}) {
+  const [editor] = useLexicalComposerContext();    
+  useEffect(() => {
+      editor.update(() => {
+          editor.setEditable(!notEditable)
+      })
+  },[notEditable])
+
+  return null
+
+  
+}
+
+
 // Catch any errors that occur during Lexical updates and log them
 // or throw them as needed. If you don't throw them, Lexical will
 // try to recover gracefully without losing user data.
@@ -125,6 +139,7 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <OnChangeInitialTextPlugin initialText={text} isCompact={isCompact || false}/>
+      <OnChangeEditablePlugin notEditable={notEditable === undefined ? false : notEditable }/>
       <PlainTextPlugin
         contentEditable={<ContentEditable />}
         placeholder={<div>Enter some text...</div>}

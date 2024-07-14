@@ -7,13 +7,16 @@ import { AssetItem } from "../../services/chatboard-service";
 
 interface ChatListProps<I, O, M> {
     messages: AssetItem<I, O, M>[]
-    inputMessageComp: (input: I, metadata: M) => React.ReactNode
-    outputMessageComp: (output: O, metadata: M) => React.ReactNode
+    messageComp: (message: AssetItem<I, O, M>) => React.ReactNode
+    leftIconComp?: (message: AssetItem<I, O, M>) => React.ReactNode
+    isInputCheck: (message: AssetItem<I, O, M>) => boolean
+    // inputMessageComp: (input: I, metadata: M) => React.ReactNode
+    // outputMessageComp: (output: O, metadata: M) => React.ReactNode
     width?: string
     height?: string
 }
 
-export default function ChatList<I, O, M>({messages, inputMessageComp, outputMessageComp, width, height}: ChatListProps<I,O,M>) {
+export default function ChatList<I, O, M>({messages, messageComp, isInputCheck, width, height, leftIconComp}: ChatListProps<I,O,M>) {
     const [ data, setData ] = useState( messages );
     const MAX_DATA = 1000;
     const hasMore = data.length < MAX_DATA;
@@ -58,11 +61,14 @@ export default function ChatList<I, O, M>({messages, inputMessageComp, outputMes
                 >
                 {
                     data.map( (message: AssetItem<I, O, M>) => (
-                        <MessageCard 
-                            message={message} 
-                            inputMessageComp={inputMessageComp}
-                            outputMessageComp={outputMessageComp}
-                        />
+                        <div key={message.id}>
+                            <MessageCard 
+                                message={message} 
+                                messageComp={messageComp}
+                                leftIconComp={leftIconComp}
+                                role={isInputCheck(message) ? "input" : "output"}
+                            />
+                        </div>
                     ))
                 }
             </InfiniteScroll>

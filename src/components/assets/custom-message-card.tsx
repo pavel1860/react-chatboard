@@ -138,32 +138,45 @@ export const TimeCard = ({time, light}: TimeCardProps) => {
 
 interface MessageCardProps <I,O,M> {
     message: AssetItem<I, O, M>
-    inputMessageComp: (input: I, metadata: M) => React.ReactNode
-    outputMessageComp: (output: O, metadata: M) => React.ReactNode
+    role: "input" | "output"
+    // inputMessageComp: (input: I, metadata: M) => React.ReactNode
+    // outputMessageComp: (output: O, metadata: M) => React.ReactNode
+    messageComp: (message: AssetItem<I, O, M>) => React.ReactNode
+    leftIconComp?: (message: AssetItem<I, O, M>) => React.ReactNode
 
 
 }
 
 
-export default function MessageCard<I,O,M>({message, inputMessageComp, outputMessageComp}: MessageCardProps <I,O,M>){
+export default function MessageCard<I,O,M>({message, messageComp, role, leftIconComp}: MessageCardProps <I,O,M>){
 
 
     const [isTraceOpen, setIsTraceOpen] = useState(false)
 
-    console.log("fdsf")
+    let comp = undefined
+    if (role == "input"){
+        comp = <div className="flex">
+            {leftIconComp && leftIconComp(message)}
+            <div className="w-[700px] bg-gray-200 text-gray-900 p-3 rounded-lg">
+                {messageComp(message) }            
+            </div>
+        </div>
+    } else {
+        comp = <div className="flex ml-auto">
+                {leftIconComp && leftIconComp(message)}
+                <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto">
+                {messageComp(message)}
+            </div>
+        </div>
+    }
+
     return (
         <div className="w-full mx-auto p-4">
             <div className="flex mb-4">
-            <div className="w-[700px] bg-gray-200 text-gray-900 p-3 rounded-lg">
-                {message.input ? inputMessageComp(message.input, message.metadata) :
-                    // <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto flex">
-                        <><Bug /> <span className="px-2">No Input</span></>
-                    // </div>
-                }
-                </div>
+                {comp}
             </div>
-            <div className="flex">
-            <button onClick={()=>setIsTraceOpen(!isTraceOpen)} className="border-1 text-gray-400 px-2 rounded-lg mb-2 ml-auto">{isTraceOpen ? "Close Trace" : "Open Trace"}</button>
+            {/* <div className="flex">
+                <button onClick={()=>setIsTraceOpen(!isTraceOpen)} className="border-1 text-gray-400 px-2 rounded-lg mb-2 ml-auto">{isTraceOpen ? "Close Trace" : "Open Trace"}</button>
             </div>
             {isTraceOpen && 
                 <div className="bg-slate-100">
@@ -173,16 +186,16 @@ export default function MessageCard<I,O,M>({message, inputMessageComp, outputMes
                     </DagRouterProvider>
                 </RunsContextProvider>
                 </div>
-                }
+                } */}
             
-                <div className="flex mb-4">
+                {/* <div className="flex mb-4">
                 {
-                    message.output ?
+                    message.metadata ?
                         
                         <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto">
-                            {outputMessageComp(message.output, message.metadata)}
+                            {messageComp(message)}
                         </div> : <><Bug/> <span className="px-2">No Input</span></>}
-                </div>    
+                </div>     */}
                 
                 
                     

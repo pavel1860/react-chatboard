@@ -165,7 +165,7 @@ export function RagContextProvider({children, namespace}: {children: any, namesp
 
 
     useEffect(()=>{
-        if (namespace && metadata.rag_spaces.length){
+        if (namespace && metadata?.rag_spaces.length){
             const meta = metadata.rag_spaces.find(n => n.namespace == namespace)
             if (!meta){
                 throw new Error("metdata could not be found in response")

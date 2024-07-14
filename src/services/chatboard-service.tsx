@@ -73,6 +73,9 @@ export interface AssetItem<I, O, M> {
     input: I
     output: O
     metadata: M    
+    asset_input_date?: string
+    asset_output_date: string
+    asset_update_ts: number
 }
 
 
