@@ -1,4 +1,4 @@
-import { useRunMetadata } from "../../../state/chatboard-state"
+import { useRunMetadata } from "../../../state/metadata-state"
 import { JSONTree } from "react-json-tree"
 import RagDocumentTable from "../../rag/rag-document-table2"
 
@@ -59,13 +59,15 @@ export function OutputCard({output, runName, runType} : OutputCardProps){
 
     if (isArray){
 
-        return (<RagDocumentTable 
-                                
+        return (
+            <RagDocumentTable
                 classParameters={metadataClass}
                 data={output.output}
                 onClick={(item)=>{
                     console.log("Open Drawer:", item)
                 }}
+                getItemId={(item: any, idx: number) => `${idx}`}
+                getItemMetadata={(item: any, key: string, idx: number) => item[key]}
             />)
         return <div>{output.output.map((item: any) => <div>output item</div>)}</div>
     }

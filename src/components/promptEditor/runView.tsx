@@ -274,10 +274,7 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
     const {
         collapsed,
         toggleCollapse,
-    } = useRunState(run.id)
-
-
-    
+    } = useRunState(run.id)    
 
     depth = depth || 0
     // const {states} = useStateGraph(run, data.states)
