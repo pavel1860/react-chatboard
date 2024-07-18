@@ -139,18 +139,15 @@ export default function RagDocumentTable({ namespace, metadata, classParameters,
             //     ) : null
             // }
             classNames={{
-                base: "max-h-[520px] overflow-scroll",
-                table: "min-h-[400px]",
+                base: "max-h-[820px] overflow-scroll",
+                table: "min-h-[800px]",
             }}
         >
             <TableHeader>
                 {columns.map((column) => (
                     <TableColumn key={column.name}>{column.name}</TableColumn>
                 ))}
-                {/* <TableColumn key="name">Name</TableColumn>
-                <TableColumn key="height">Height</TableColumn>
-                <TableColumn key="mass">Mass</TableColumn>
-                <TableColumn key="birth_year">Birth year</TableColumn> */}
+                
             </TableHeader>
             <TableBody>
                 {data.map((item: any, idx: number) => (
