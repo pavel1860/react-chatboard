@@ -4,12 +4,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useChatboard } from "./chatboard-state";
 import { MetadataClass, IParameter } from "../services/chatboard-service";
 import { useRagDocumentsEndpoint } from "../services/rag-service";
-import { 
-    IMetadataResponse, 
-    getRagDocumentsApi, 
-    useChatboardMetadata, 
+import {
+    IMetadataResponse,
+    getRagDocumentsApi,
+    useChatboardMetadata,
     useProfileService
-  } from '../services/chatboard-service'
+} from '../services/chatboard-service'
 
 
 
@@ -20,17 +20,55 @@ import {
 // }
 
 
-interface IParameterConfig extends IParameter{
+export interface IParameterConfig extends IParameter {
     isVisible: boolean
+}
+
+
+export type ClassParametersType = {
+    [key: string]: IParameterConfig;
 }
 
 
 
 
+const filterDocumentProperties = (documents: any[], classParameters: ClassParametersType) => {
+
+    if (Object.entries(classParameters).length == 0){
+        return []
+    }
+
+    return documents.map((doc: any) => {
+        return {
+            ...doc,
+            metadata: Object.keys(doc.metadata).reduce((acc: any, field: string) => {
+                
+                if (!classParameters[field]){
+                    throw new Error("field not found in classParameters");
+                    
+                }
+                if (classParameters[field].isVisible){
+                    
+                    if (classParameters[field].type == 'object' || classParameters[field].type == 'array'){
+                        acc[field] = doc.metadata[field]                        
+                    } else {
+                        acc[field] = doc.metadata[field]                        
+                    }
+                    
+                }                        
+                return acc        
+            },{})
+        }
+
+        
+    })
+}
+
+
 const useLocalStorage = (namespace: string) => {
 
     // const [mainKey, setMainKey] = useState(namespace)  
-    
+
     // useEffect(()=>{
     //     setMainKey(namespace)
     // }, [namespace])
@@ -38,18 +76,18 @@ const useLocalStorage = (namespace: string) => {
 
     return {
         // mainKey,
-        getItem: (key: string) => {            
+        getItem: (key: string) => {
             if (!namespace) {
                 return
             }
             let localMetadata: any = localStorage.getItem(namespace)
-            if (localMetadata == null){
+            if (localMetadata == null) {
                 localMetadata = {}
                 localStorage.setItem(namespace, JSON.stringify(localMetadata))
             } else {
                 localMetadata = JSON.parse(localMetadata)
-            }            
-            if (!localMetadata[key]){
+            }
+            if (!localMetadata[key]) {
                 localMetadata[key] = {}
                 localStorage.setItem(namespace, JSON.stringify(localMetadata))
             }
@@ -60,9 +98,9 @@ const useLocalStorage = (namespace: string) => {
                 return
             }
             let localMetadata: any = localStorage.getItem(namespace)
-            if (localMetadata){
+            if (localMetadata) {
                 localMetadata = JSON.parse(localMetadata)
-                if (!localMetadata[key]){
+                if (!localMetadata[key]) {
                     localMetadata[key] = {}
                 }
                 localMetadata[key] = value
@@ -75,7 +113,7 @@ const useLocalStorage = (namespace: string) => {
 
 
 
-const useMetadataClass = (namespace: string) => {
+const useRagMetadataClass = (namespace: string) => {
 
     // const [ currMetadataClass, setCurrMetadata ] = useState<MetadataClass | undefined>()
 
@@ -83,21 +121,21 @@ const useMetadataClass = (namespace: string) => {
         data: metadata
     } = useChatboardMetadata()
 
-    const [classParameters, setCurrMetadata]  = useState<{[key: string]: IParameterConfig}>({})
+    const [classParameters, setCurrMetadata] = useState<{ [key: string]: IParameterConfig }>({})
     const [currNamespace, setCurrNamespace] = useState<string | null>()
 
     const storage = useLocalStorage(currNamespace)
 
 
-    useEffect(()=>{
-        if (namespace && metadata?.rag_spaces.length){
+    useEffect(() => {
+        if (namespace && metadata?.rag_spaces.length) {
             const meta = metadata.rag_spaces.find(n => n.namespace == namespace)
-            if (!meta){
+            if (!meta) {
                 throw new Error("metdata could not be found in response")
             }
             const metadataClass = meta?.metadata_class
-            const serverMetadata = Object.keys(metadataClass.function.parameters.properties).reduce((acc: {[key: string]: IParameterConfig}, key: string)=>{
-                const prop = metadataClass.function.parameters.properties[key];
+            const serverMetadata = Object.keys(metadataClass.properties).reduce((acc: { [key: string]: IParameterConfig }, key: string) => {
+                const prop = metadataClass.properties[key];
                 acc[key] = {
                     // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
                     isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
@@ -118,15 +156,15 @@ const useMetadataClass = (namespace: string) => {
 
 
 
-        // let localMetadata: any = localStorage.getItem(namespace)
-        // if (localMetadata == null){
-        //     localMetadata = {}
-        //     localStorage.setItem(namespace, JSON.stringify(localMetadata))
-        // }
-        // localMetadata = JSON.parse(localMetadata)        
+    // let localMetadata: any = localStorage.getItem(namespace)
+    // if (localMetadata == null){
+    //     localMetadata = {}
+    //     localStorage.setItem(namespace, JSON.stringify(localMetadata))
+    // }
+    // localMetadata = JSON.parse(localMetadata)        
 
-        
-    
+
+
     // const setMetadataClass = (namespace: string, metadataClass: MetadataClass) => {
     //     // let localMetadata: any = localStorage.getItem(namespace)
     //     // if (localMetadata == null){
@@ -150,7 +188,7 @@ const useMetadataClass = (namespace: string) => {
 
 
     const setParameter = (key: string, isVisible: boolean) => {
-        
+
         const tmpMeta = {
             ...classParameters
         }
@@ -166,13 +204,13 @@ const useMetadataClass = (namespace: string) => {
         //         localMetadata[key]["isVisible"] = isVisible
         //         localStorage.setItem(currNamespace, JSON.stringify(localMetadata))
         //     }
-            
+
         // }
         const field = storage.getItem(key)
         field.isVisible = isVisible
         storage.setItem(key, field)
         setCurrMetadata(tmpMeta)
-        
+
     }
 
 
@@ -186,7 +224,7 @@ const useMetadataClass = (namespace: string) => {
 
 
 const RagContext = createContext<{
-    classParameters: {[key: string]: IParameterConfig}
+    classParameters: { [key: string]: IParameterConfig }
     setParameter: (key: string, isVisible: boolean) => void
     documents: any
     loading: boolean
@@ -194,24 +232,28 @@ const RagContext = createContext<{
 }>({} as any)
 
 
-export function RagContextProvider({children, namespace}: {children: any, namespace: string | null}){
+export function RagContextProvider({ children, namespace }: { children: any, namespace: string | null }) {
 
     // const {
     //     // getRagDocuments,
     //     metadata
     // } = useChatboard()
 
-    
+
 
     // const [ currMetadataClass, setCurrMetadata ] = useState<MetadataClass | undefined>()
     const {
         classParameters,
         // setMetadataClass,
         setParameter
-    } = useMetadataClass(namespace)
+    } = useRagMetadataClass(namespace)
 
 
-    const ragDocumentService = useRagDocumentsEndpoint(namespace)
+    const {
+        data,
+        isLoading,
+        error
+    } = useRagDocumentsEndpoint(namespace)
 
 
     // useEffect(()=>{
@@ -234,9 +276,12 @@ export function RagContextProvider({children, namespace}: {children: any, namesp
 
     return (
         <RagContext.Provider value={{
-            documents: ragDocumentService.data || [],
-            loading: ragDocumentService.isLoading,
-            error: ragDocumentService.error,
+            // documents: ragDocumentService.data || [],
+            // loading: ragDocumentService.isLoading,
+            // error: ragDocumentService.error,
+            documents: (classParameters && data && filterDocumentProperties(data, classParameters)) || [],
+            loading: isLoading,
+            error: error,
             classParameters,
             setParameter
         }}>

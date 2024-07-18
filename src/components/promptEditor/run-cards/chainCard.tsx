@@ -1,8 +1,8 @@
-import { useRunTree } from "./state/runsContext"
-import { ErrorPopup, InputPopup, OutputPopup, RunJsonPopup } from "./stateJsonView"
-import { ScoreComponent } from "./statsViews"
-import { TimelineView } from "./timelineView"
-import { RunProps } from "./types"
+import { useRunTree } from "../state/runsContext"
+import { ErrorPopup, InputPopup, OutputPopup, RunJsonPopup } from "../stateJsonView"
+import { ScoreComponent } from "../statsViews"
+import { TimelineView } from "../timelineView"
+import { RunProps } from "../types"
 
 
 

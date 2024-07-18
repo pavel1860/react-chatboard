@@ -18,9 +18,9 @@ export function useRagNamespacesEndpoint(): EndpointHook<any>{
 
 
 
-export function useRagDocumentsEndpoint(namespace: string | null): EndpointHook<any>{
-    const url = `/api/chatboard/rag_documents`   
-    const { data, error, isLoading } = useSWR(namespace ? [url, namespace] : null, ([url, namespace]) => fetcher(url, { namespace }));
+export function useRagDocumentsEndpoint(namespace: string | null, limit: number=10, offset: number = 0): EndpointHook<any>{
+    const url = `/chatboard/rag_documents/${namespace}`   
+    const { data, error, isLoading } = useSWR(namespace ? [url, namespace, limit, offset] : null, ([url, namespace, limit, offset]) => fetcher(url, { limit, offset }));
 
     return { 
         data,

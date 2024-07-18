@@ -22,11 +22,13 @@ import { ErrorPopup, InputPopup, JsonState, OutputPopup, RunJsonPopup } from './
 import { ExampleKeyButton, ExampleStateButton, ExampleValueButton } from './examplesView';
 // import { BsTerminal } from 'react-icons/bs';
 import { RunProps, RunTreeProps, RunType } from './types';
-import { ChainRun } from './chainCard';
-import { PromptRun } from './promptCard';
-import { LlmRun } from './llmRun';
-import { ToolRun } from './toolCard';
+import { ChainRun } from './run-cards/chainCard';
+import { PromptRun } from './run-cards/promptCard';
+import { LlmRun } from './run-cards/llmRun';
+import { ToolRun } from './run-cards/toolCard';
 import { EditExampleForm } from './editExampleForm';
+import { InputCard, OutputCard } from './run-cards/io-cards';
+import { useRunMetadata } from '../../state/chatboard-state';
 // import { roundTo } from '../utils/math';
 
 
@@ -274,6 +276,9 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
         toggleCollapse,
     } = useRunState(run.id)
 
+
+    
+
     depth = depth || 0
     // const {states} = useStateGraph(run, data.states)
     let comp = null
@@ -288,12 +293,15 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
         comp = <ToolRun run={run} parentRun={parentRun}/>
     }
     
-
+    
     return (
         <div             
             style={{paddingLeft: (depth) * 30, marginBottom: 10}}
             >
             {comp}
+            {run.inputs?.input && <div>
+                <InputCard input={run.inputs.input} />
+            </div>}
             <div className="flex h-full">
                 {run.child_runs && <div 
                     className="w-4 ml-3 bg-slate-400 cursor-pointer min-h-full hover:bg-slate-500 shadow-sm"
@@ -303,6 +311,9 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
                     {!collapsed && run.child_runs?.map((chiledRun: any, i: number) => <RunTree key={i} run={chiledRun} depth={depth || 1} parentRun={run}/>)}
                 </div>
             </div>
+            {run.outputs?.output?.output && <div>
+                <OutputCard output={run.outputs.output} runName={run.name} runType={run.run_type} />
+            </div>}
         </div>
     )
 
@@ -405,7 +416,7 @@ export const RunView = ({ runId }: any) => {
     } else if (currentDisplay == DisplayType.JSON){
         comp = <RunJsonView run={run}/>
     }
-    console.log("$$$$$$$$$$$$", currentDisplay, setCurrentDisplay)
+    // console.log("$$$$$$$$$$$$", currentDisplay, setCurrentDisplay)
     return (
         <div>
             <RunViewToolbar />

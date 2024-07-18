@@ -1,5 +1,6 @@
 // import { metadata } from "@/app/layout";
 // import { IRagSpaces, MetadataClass } from "@/services/metadata-service"
+import { ClassParametersType, IParameterConfig } from "@/src/state/rag-state2";
 import { IRagSpaces, MetadataClass } from "../../services/chatboard-service";
 import { useRag } from "../../state/rag-state";
 import Link from "next/link";
@@ -18,17 +19,24 @@ interface RagNamespaceCardProps {
 
 
 // export const RagMetadataClass = ({metadataClass}: {metadataClass: MetadataClass}) => {
-export const RagMetadataClass = () => {
 
-    const {
-        classParameters,
-        setParameter
-    } = useRag()
+interface RagMetadataClassProps {
+    classParameters: ClassParametersType
+    setParameter: (key: string, isVisible: boolean) => void
+}
+
+export const RagMetadataClass = ({classParameters, setParameter}: RagMetadataClassProps) => {
+
+    // const {
+    //     classParameters,
+    //     setParameter
+    // } = useRag()
     
 
     console.log("#########", classParameters)
     return (
         <div>
+            class parameters
             {/* <span>{metadataClass.function.name}</span> */}
             {classParameters && Object.keys(classParameters).map((key: string)=>{
                 const prop = classParameters[key]

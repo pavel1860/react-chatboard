@@ -1,9 +1,9 @@
 import { Button } from "@nextui-org/react"
-import { useRunState } from "./state/runsContext"
-import { RunProps } from "./types"
-import { ErrorPopup } from "./stateJsonView"
-import { GeneratedMessage, Message, MessageType } from "./messages"
-import { ExampleKeyButton, ExampleValueButton } from "./examplesView"
+import { useRunState } from "../state/runsContext"
+import { RunProps } from "../types"
+import { ErrorPopup } from "../stateJsonView"
+import { GeneratedMessage, Message, MessageType } from "../messages"
+import { ExampleKeyButton, ExampleValueButton } from "../examplesView"
 
 
 

@@ -3,12 +3,13 @@ import { IRagSpaces } from "../../services/chatboard-service";
 import { useRag } from "../../state/rag-state";
 import Link from "next/link";
 import { JSONTree } from 'react-json-tree'
-
+import { ClassParametersType } from "@/src/state/rag-state2";
 
 
 interface RagDocumentCardProps {
     namespace: IRagSpaces
     metadata: any
+    classParameters: ClassParametersType
 }
 
 
@@ -17,23 +18,26 @@ interface RagDocumentCardProps {
 
 
 
-export default function RagDocumentCard(props: RagDocumentCardProps){
+export default function RagDocumentCard({ metadata, classParameters, }: RagDocumentCardProps){
 
 
-    const {
-        classParameters
-    } = useRag()    
+    // const {
+    //     classParameters
+    // } = useRag()    
 
-    const fieldsComps = Object.keys(props.metadata).reduce((acc: any, field: string) => {
+    console.log("#######", classParameters)
+
+    const fieldsComps = Object.keys(metadata).reduce((acc: any, field: string) => {
+        console.log("field", field)
         if (classParameters[field].isVisible){
             
             if (classParameters[field].type == 'object' || classParameters[field].type == 'array'){
                 acc.push(
-                    <div><span className="px-1 bg-red-300 border border-red-500 rounded-md">{field}</span><JSONTree data={props.metadata[field]} /></div>
+                    <div><span className="px-1 bg-red-300 border border-red-500 rounded-md">{field}</span><JSONTree data={metadata[field]} /></div>
                 )    
             } else {
                 acc.push(
-                    <div><span className="px-1 bg-red-300 border border-red-500 rounded-md">{field}</span>{props.metadata[field]}</div>        
+                    <div><span className="px-1 bg-red-300 border border-red-500 rounded-md">{field}</span>{metadata[field]}</div>        
                 )
             }
             

@@ -1,5 +1,5 @@
-import { ErrorPopup, InputPopup, RunJsonPopup } from "./stateJsonView"
-import { RunProps } from "./types"
+import { ErrorPopup, InputPopup, RunJsonPopup } from "../stateJsonView"
+import { RunProps } from "../types"
 
 
 

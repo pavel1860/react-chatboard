@@ -11,6 +11,10 @@ export interface IProperty {
 //     type: string
 //     properties?: {[key: string]: { type: string}}
 // }
+
+
+
+
 export interface IParameter {
     type: "string" | "number" | "object";
     properties?: { [key: string]: IParameter };
@@ -97,10 +101,42 @@ export interface IProfileClass {
 
 
 
+
+
+
+interface PydanticV2Definition {
+    [key: string]: any
+    title: string
+    type: string
+}
+
+interface PydanticV2Ref {
+    $ref: string
+}
+
+
+export interface PydanticV2BaseModel {
+    $defs: {[key: string]: PydanticV2Definition}
+    properties: {[key: string]: PydanticV2Ref | IParameter} 
+}
+
+
+export interface PromptOutputClass {
+    type: string
+    properties: PydanticV2BaseModel
+}
+
+export interface IPromptClass {
+    name: string
+    output_class: PromptOutputClass 
+}
+
+
 export interface IMetadataResponse {
     rag_spaces: IRagSpaces[]
     assets: IAssetClass[]
     profiles: IProfileClass[]
+    prompts: IPromptClass[]
 }
 
 
@@ -115,7 +151,7 @@ export async function postRequest(endpoint: string, { arg }: any ){
         body: JSON.stringify(arg) // Convert the data to JSON format
     };
     // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}`, options)
-    const res = await fetch(`/api/chatboard/${endpoint}`, options)
+    const res = await fetch(`/chatboard/${endpoint}`, options)
     if (!res.ok){
         throw new Error("Failed to fetch chatboard metadata.");        
     }
@@ -125,7 +161,7 @@ export async function postRequest(endpoint: string, { arg }: any ){
 
 
 export function useChatboardMetadata(): EndpointHook<any> {
-    const url = `/api/chatboard/metadata`
+    const url = `/chatboard/metadata`
     const { data, error, isLoading } = useSWR(url, (url: string) => fetcher(url, {}))
 
     return {
@@ -239,7 +275,7 @@ export function useAssetDocumentsService(asset: string){
 
 export function useGetRuns(limit: number, offset: number, runNames: string[]) : EndpointHook<any>{
     const fetchRuns = (url: string) => fetcher(url, { limit, offset, runNames });
-    const { data, error, isLoading } = useSWR('get_runs', fetchRuns);
+    const { data, error, isLoading } = useSWR('chatboard/get_runs', fetchRuns);
     
     return {
         data,
@@ -249,10 +285,11 @@ export function useGetRuns(limit: number, offset: number, runNames: string[]) : 
 }
 
 
-export function useGetTree(id: string){
+export function useGetTree(id: string | null){
 
-    const fetchTree = (url: string) => fetcher(url, { run_id: id });
-    const { data, error, isLoading } = useSWR('get_run_tree', fetchTree);
+    const { data, error, isLoading } = useSWR(id ? ['chatboard/get_run_tree'] : null, 
+        ([url]) => fetcher(url, { run_id: id })
+    );
 
     return {
         runTree: data,
