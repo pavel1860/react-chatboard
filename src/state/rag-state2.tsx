@@ -29,6 +29,8 @@ import {
 const RagContext = createContext<{
     classParameters: { [key: string]: IParameterConfig }
     setParameter: (key: string, isVisible: boolean) => void
+    page: number,
+    setPage: (page: number) => void
     documents: any
     loading: boolean
     error: any
@@ -55,7 +57,9 @@ export function RagContextProvider({ children, namespace }: { children: any, nam
     const {
         data,
         isLoading,
-        error
+        error,
+        page,
+        setPage,
     } = useRagDocumentsEndpoint(namespace)
 
 
@@ -83,6 +87,8 @@ export function RagContextProvider({ children, namespace }: { children: any, nam
             // loading: ragDocumentService.isLoading,
             // error: ragDocumentService.error,
             documents: (classParameters && data && filterDocumentProperties(data, classParameters)) || [],
+            page,
+            setPage,
             loading: isLoading,
             error: error,
             classParameters,

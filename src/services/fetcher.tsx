@@ -11,6 +11,12 @@ export interface EndpointHook<T> {
 }
 
 
+export interface PaginatableEndpointHook<T> extends EndpointHook<T> {
+    page: number
+    setPage: (page: number) => void
+}
+
+
 function replaceParams(url: string , params: {[key: string]: any}) {
     return url.replace(/{(\w+)}/g, function(match, key) {
         return typeof params[key] !== 'undefined' ? params[key] : match;
@@ -18,6 +24,19 @@ function replaceParams(url: string , params: {[key: string]: any}) {
 }
 
 
+
+
+export async function fetchWithResponse(url: string) {
+    const res = await fetch(`/api/${url}`)
+    if (!res.ok){
+        const error = new Error("Failed to fetch chatboard metadata.") as any;
+        // error.info = await res.json()
+        error.info = await res.text()
+        error.status = res.status
+        throw error
+    }
+    return await res.json()
+}
 
 
 export async function fetcher(endpoint: string, data: any){
@@ -34,6 +53,9 @@ export async function fetcher(endpoint: string, data: any){
     }
     return await res.json()
 }
+
+
+
 
 
 

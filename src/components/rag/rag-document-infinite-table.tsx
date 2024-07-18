@@ -1,4 +1,4 @@
-import { ClassParametersType } from "@/src/state/rag-state2";
+import { ClassParametersType } from "../../state/rag-state2";
 import { IRagSpaces } from "../../services/chatboard-service";
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
 import { useAsyncList } from "@react-stately/data";
@@ -8,6 +8,7 @@ import Link from "next/link";
 import { JSONTree } from 'react-json-tree'
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
 import React, { useEffect } from "react";
+import { getRagDocumentsApi } from "../../services/rag-service";
 
 
 
@@ -85,7 +86,7 @@ export default function RagDocumentTable({ namespace, metadata, classParameters,
         return columns
     }
 
-
+    const [currentPage, setCurrentPage] = React.useState(0);
     const [columns, setColumns] = React.useState<{ name: string, type: string }[]>(() => getTableColumns(classParameters));
 
 
@@ -95,28 +96,30 @@ export default function RagDocumentTable({ namespace, metadata, classParameters,
     }, [classParameters])
 
 
-    // let list = useAsyncList({
-    //     async load({ signal, cursor }) {
+    let list = useAsyncList({
+        async load({ signal, cursor }) {
 
-    //         if (cursor) {
-    //             setIsLoading(false);
-    //         }
+            if (cursor) {
+                setIsLoading(false);
+            }
 
-    //         // If no cursor is available, then we're loading the first page.
-    //         // Otherwise, the cursor is the next URL to load, as returned from the previous page.
-    //         const res = await fetch(cursor || "https://swapi.py4e.com/api/people/?search=", { signal });
-    //         let json = await res.json();
+            // If no cursor is available, then we're loading the first page.
+            // Otherwise, the cursor is the next URL to load, as returned from the previous page.
+            // const res = await fetch(cursor || "https://swapi.py4e.com/api/people/?search=", { signal });
+            let json = await getRagDocumentsApi(namespace, cursor || 0);
+            // let json = await res.json();
+            setCurrentPage(currentPage + 1);
 
-    //         setHasMore(json.next !== null);
+            setHasMore(json.length !== 0);
 
-    //         return {
-    //             items: json.results,
-    //             cursor: json.next,
-    //         };
-    //     },
-    // });
+            return {
+                items: json,
+                cursor: cursor ? cursor + 1 : 1,
+            };
+        },
+    });
 
-    // const [loaderRef, scrollerRef] = useInfiniteScroll({ hasMore, onLoadMore: list.loadMore });
+    const [loaderRef, scrollerRef] = useInfiniteScroll({ hasMore, onLoadMore: list.loadMore });
 
 
     if (columns.length == 0) {
@@ -130,14 +133,14 @@ export default function RagDocumentTable({ namespace, metadata, classParameters,
             isHeaderSticky
             aria-label="Example table with infinite pagination"
             selectionMode="single"
-            // baseRef={scrollerRef}
-            // bottomContent={
-            //     hasMore ? (
-            //         <div className="flex w-full justify-center">
-            //             <Spinner ref={loaderRef} color="white" />
-            //         </div>
-            //     ) : null
-            // }
+            baseRef={scrollerRef}
+            bottomContent={
+                hasMore ? (
+                    <div className="flex w-full justify-center">
+                        <Spinner ref={loaderRef} color="white" />
+                    </div>
+                ) : null
+            }
             classNames={{
                 base: "max-h-[820px] overflow-scroll",
                 table: "min-h-[800px]",
@@ -149,7 +152,7 @@ export default function RagDocumentTable({ namespace, metadata, classParameters,
                 ))}
                 
             </TableHeader>
-            <TableBody>
+            {/* <TableBody>
                 {data.map((item: any, idx: number) => (
                     <TableRow key={getItemId ? getItemId(item, idx) : item.id} onClick={() => {
                         if (onClick) {
@@ -170,19 +173,37 @@ export default function RagDocumentTable({ namespace, metadata, classParameters,
                         )}
                     </TableRow>
                 ))}
-            </TableBody>
+            </TableBody> */}
 
-            {/* <TableBody
+            <TableBody
                 isLoading={isLoading}
                 items={list.items}
                 loadingContent={<Spinner color="white" />}
             >
                 {(item) => (
-                    <TableRow key={item.name}>
-                        {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                    // <TableRow key={item.name}>
+                    //     {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                    // </TableRow>
+                    <TableRow key={item.id} onClick={() => {
+                        if (onClick) {
+                            onClick(item)
+                        }
+                    }}>
+                        {columns.map((column, colIdx: number) => {
+                            // console.log("column", column, getKeyValue(item.metadata, column.name))
+                            return (
+                                <TableCell key={column.name}>{
+                                    getTableDataComponent(
+                                        getKeyValue(item.metadata, column.name), column.type, column.enum)
+                                }
+                                </TableCell>
+
+                            )
+                        }
+                        )}
                     </TableRow>
                 )}
-            </TableBody> */}
+            </TableBody>
         </Table>
 
     )

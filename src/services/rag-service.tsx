@@ -1,12 +1,16 @@
 import useSWR from "swr";
-import { EndpointHook, fetcher } from "./fetcher";
+import { EndpointHook, fetcher, fetchWithResponse, PaginatableEndpointHook } from "./fetcher";
+import useSWRInfinite from 'swr/infinite'
 
 
 
 
-export function useRagNamespacesEndpoint(): EndpointHook<any>{
+
+export function useRagNamespacesEndpoint(): EndpointHook<any> {
     const url = `/api/chatboard/rag_namespaces`
     const { data, error, isLoading } = useSWR(url, (url: string) => fetcher(url, {}));
+
+
 
     return {
         data,
@@ -18,13 +22,44 @@ export function useRagNamespacesEndpoint(): EndpointHook<any>{
 
 
 
-export function useRagDocumentsEndpoint(namespace: string | null, limit: number=10, offset: number = 0): EndpointHook<any>{
-    const url = `/chatboard/rag_documents/${namespace}`   
-    const { data, error, isLoading } = useSWR(namespace ? [url, namespace, limit, offset] : null, ([url, namespace, limit, offset]) => fetcher(url, { limit, offset }));
+export async function getRagDocumentsApi(namespace: string, page: number, pageSize: number=10) {
+    const res = await fetch(`/api/chatboard/rag_documents/${namespace}?page=${page}&pageSize=${pageSize}`)
+    if (!res.ok){
+        const error = new Error("Failed to fetch chatboard metadata.") as any;
+        error.info = await res.text()
+        error.status = res.status
+        throw error
+    }
+    let json = await res.json()
+    return json
+    return {
+        results: json,
+        next: json.length ? `/chatboard/rag_documents/${namespace}?page=${page+1}&pageSize=${pageSize}` : null
+    } 
+}
 
-    return { 
-        data,
+
+export function useRagDocumentsEndpoint(namespace: string | null, pageSize: number = 10, pageIndex: number = 0): PaginatableEndpointHook<any> {
+    // const { data, error, isLoading } = useSWR(namespace ? [url, namespace, limit, offset] : null, ([url, namespace, limit, offset]) => fetcher(url, { limit, offset }));
+    const getKey = (pageIndex: number, previousPageData: any) => {
+        if (previousPageData && !previousPageData.length) return null // reached the end
+        return `/chatboard/rag_documents/${namespace}?page=${pageIndex}&pageSize=${pageSize}`                    // SWR key
+    }
+
+    const { data, error, isLoading, isValidating, mutate, size, setSize } = useSWRInfinite(
+        getKey, fetchWithResponse
+    )
+
+    const nextPage = (cb) => {
+        setSize(size + 1)
+        cb()    
+    }
+
+    return {
+        data: data ? data.flat() : data,
         error,
-        isLoading
+        isLoading,
+        page: size,
+        setPage: setSize,
     }
 }

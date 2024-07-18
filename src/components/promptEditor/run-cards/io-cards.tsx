@@ -1,6 +1,6 @@
 import { useRunMetadata } from "../../../state/metadata-state"
 import { JSONTree } from "react-json-tree"
-import RagDocumentTable from "../../rag/rag-document-table2"
+import RagDocumentTable from "../../rag/rag-document-infinite-table"
 
 
 
