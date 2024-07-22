@@ -13,7 +13,8 @@ import {
 import { 
     useRagMetadataClass, 
     filterDocumentProperties,
-    IParameterConfig
+    IParameterConfig,
+    useRunMetadata,
 } from "./metadata-state";
 
 
@@ -104,3 +105,54 @@ export const useRag = () => {
     return useContext(RagContext)
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+export function useRagDocuments(namespace: string) {
+
+    // const {
+    //     classParameters,
+    //     // setMetadataClass,
+    //     setParameter
+    // } = useRunMetadata("prompt", promptName)
+    const {
+        classParameters,
+        setParameter,
+        promptName,
+        promptRagName,
+    } = useRagMetadataClass(namespace)
+
+    const addDocument = (inputs: any, metadata: any) => {
+
+    }
+
+
+    const {
+        data,
+        isLoading,
+        error,
+        // page,
+        // setPage
+    } = useRagDocumentsEndpoint(namespace)
+
+
+    return {
+        documents: (classParameters && data && filterDocumentProperties(data, classParameters)) || [],
+        addDocument,
+        // page,
+        // setPage,
+        loading: isLoading,
+        error: error,
+        classParameters,
+        setParameter
+    }
+}

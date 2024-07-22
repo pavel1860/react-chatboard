@@ -75,7 +75,7 @@ const useLocalStorage = (namespace: string) => {
 
 
 
-const useMetadataClass = (namespace: string) => {
+export const useMetadataClass = (namespace: string) => {
 
     // const [ currMetadataClass, setCurrMetadata ] = useState<MetadataClass | undefined>()
 
@@ -111,44 +111,6 @@ const useMetadataClass = (namespace: string) => {
     }, [namespace, metadata])
 
 
-
-
-
-
-
-
-
-        // let localMetadata: any = localStorage.getItem(namespace)
-        // if (localMetadata == null){
-        //     localMetadata = {}
-        //     localStorage.setItem(namespace, JSON.stringify(localMetadata))
-        // }
-        // localMetadata = JSON.parse(localMetadata)        
-
-        
-    
-    // const setMetadataClass = (namespace: string, metadataClass: MetadataClass) => {
-    //     // let localMetadata: any = localStorage.getItem(namespace)
-    //     // if (localMetadata == null){
-    //     //     localMetadata = {}
-    //     //     localStorage.setItem(namespace, JSON.stringify(localMetadata))
-    //     // }
-    //     // localMetadata = JSON.parse(localMetadata)        
-
-    //     const serverMetadata = Object.keys(metadataClass.function.parameters.properties).reduce((acc: {[key: string]: IParameterConfig}, key: string)=>{
-    //         const prop = metadataClass.function.parameters.properties[key];
-    //         acc[key] = {
-    //             // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
-    //             isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
-    //             ...prop
-    //         }
-    //         return acc
-    //     }, {})
-    //     setCurrNamespace(namespace)
-    //     setCurrMetadata(serverMetadata)
-    // }
-
-
     const setParameter = (key: string, isVisible: boolean) => {
         
         const tmpMeta = {
@@ -156,18 +118,6 @@ const useMetadataClass = (namespace: string) => {
         }
         tmpMeta[key].isVisible = isVisible
 
-        // if (currNamespace){
-        //     let localMetadata: any = localStorage.getItem(currNamespace)
-        //     if (localMetadata){
-        //         localMetadata = JSON.parse(localMetadata)
-        //         if (!localMetadata[key]){
-        //             localMetadata[key] = {}
-        //         }
-        //         localMetadata[key]["isVisible"] = isVisible
-        //         localStorage.setItem(currNamespace, JSON.stringify(localMetadata))
-        //     }
-            
-        // }
         const field = storage.getItem(key)
         field.isVisible = isVisible
         storage.setItem(key, field)

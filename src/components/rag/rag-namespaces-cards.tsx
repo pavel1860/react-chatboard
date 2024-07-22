@@ -5,6 +5,7 @@ import { IRagSpaces, MetadataClass } from "../../services/chatboard-service";
 import { useRag } from "../../state/rag-state";
 import Link from "next/link";
 import { useState } from "react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
 
 
 
@@ -27,10 +28,41 @@ interface RagMetadataClassProps {
 
 export const RagMetadataClass = ({classParameters, setParameter}: RagMetadataClassProps) => {
 
-    // const {
-    //     classParameters,
-    //     setParameter
-    // } = useRag()
+    const selectedKeys = Object.keys(classParameters).reduce((acc: string[], key: string)=> classParameters[key].isVisible ? [...acc, key] : acc, [])
+
+    return (
+        <div>
+            <Dropdown>
+                <DropdownTrigger>
+                    <Button 
+                    variant="bordered" 
+                    className="capitalize"
+                    >
+                    Columns
+                    </Button>
+                </DropdownTrigger>
+                <DropdownMenu 
+                    aria-label="Multiple selection example"
+                    variant="flat"
+                    closeOnSelect={false}
+                    disallowEmptySelection
+                    selectionMode="multiple"
+                    selectedKeys={selectedKeys}
+                    onAction={(key) => {
+                        // @ts-ignore
+                        setParameter(key, !classParameters[key].isVisible)
+                    }}                    
+                >
+                    {classParameters && Object.keys(classParameters).map((key: string)=>{
+                        const prop = classParameters[key]
+                        return (
+                            <DropdownItem key={key}>{key}</DropdownItem>
+                        )
+                    })}                    
+                </DropdownMenu>
+                </Dropdown>            
+        </div>
+    )
     
 
     console.log("#########", classParameters)

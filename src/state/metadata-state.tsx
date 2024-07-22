@@ -19,6 +19,36 @@ export type ClassParametersType = {
 
 
 
+export interface ColumnMetadata {
+    name: string
+    type: string
+    enum?: string[]
+    index?: boolean
+    isSortable: boolean
+}
+
+
+export const getTableColumns = (classParameters: ClassParametersType): ColumnMetadata[] => {
+    const columns = Object.keys(classParameters).reduce((acc: any, field: string) => {
+        if (classParameters[field].isVisible) {
+            acc.push({
+                name: field,
+                type: classParameters[field].type,
+                enum: classParameters[field].enum,
+                index: classParameters[field].index,
+                isSortable: classParameters[field].index ? true : false
+            }
+
+            )
+        }
+        return acc
+    }, [])
+    return columns
+}
+
+
+
+
 
 export const filterDocumentProperties = (documents: any[], classParameters: ClassParametersType) => {
 
@@ -101,6 +131,55 @@ const useLocalStorage = (namespace: string) => {
 
 
 
+export const processPydanticMetadata = (metadataClass, storage) => {
+    const schema = metadataClass.schema
+    const isArray = metadataClass.type === "array"
+    let serverMetadata = undefined
+    if (metadataClass.pydantic_version === "v2"){
+        serverMetadata = Object.keys(schema.properties).reduce((acc: { [key: string]: IParameterConfig }, key: string) => {
+            let prop = schema.properties[key]
+            if (prop.$ref) {
+                const ref_key = prop.$ref.split("/").slice(-1)[0]
+                prop = schema.$defs[ref_key]
+            } else if (prop.allOf){
+                if (prop.allOf.length == 1 && prop.allOf[0].$ref){
+                    const ref_key = prop.allOf[0].$ref.split("/").slice(-1)[0]
+                    prop = schema.$defs[ref_key]
+                } else {
+                    throw new Error("allOf length is not 1")
+                }
+            }
+            acc[key] = {
+                // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
+                isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
+                ...prop
+            }
+            return acc
+        }, {})
+        
+    } else {
+        serverMetadata = Object.keys(schema.function.parameters.properties).reduce((acc: { [key: string]: IParameterConfig }, key: string) => {
+            let prop = schema.function.parameters.properties[key];                    
+            acc[key] = {
+                // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
+                isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
+                ...prop
+            }
+            return acc
+        }, {})
+        
+    }
+
+    return {
+        serverMetadata, 
+        isArray
+    }
+}
+
+
+
+
+
 export const useRagMetadataClass = (namespace: string) => {
 
     // const [ currMetadataClass, setCurrMetadata ] = useState<MetadataClass | undefined>()
@@ -111,6 +190,8 @@ export const useRagMetadataClass = (namespace: string) => {
 
     const [classParameters, setCurrMetadata] = useState<{ [key: string]: IParameterConfig }>({})
     const [currNamespace, setCurrNamespace] = useState<string | null>()
+    const [currPromptName, setCurrPromptName] = useState<string | null>()
+    const [currPromptRagName, setCurrPromptRagName] = useState<string | null>()
 
     const storage = useLocalStorage(currNamespace)
 
@@ -121,16 +202,24 @@ export const useRagMetadataClass = (namespace: string) => {
             if (!meta) {
                 throw new Error("metdata could not be found in response")
             }
+            setCurrPromptName(meta.prompt_name)
+            setCurrPromptRagName(meta.prompt_rag)
             const metadataClass = meta?.metadata_class
-            const serverMetadata = Object.keys(metadataClass.properties).reduce((acc: { [key: string]: IParameterConfig }, key: string) => {
-                const prop = metadataClass.properties[key];
-                acc[key] = {
-                    // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
-                    isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
-                    ...prop
-                }
-                return acc
-            }, {})
+            const {serverMetadata, isArray} = processPydanticMetadata(metadataClass, storage)
+            
+            // const serverMetadata = Object.keys(metadataClass.properties || metadataClass.function.parameters.properties).reduce((acc: { [key: string]: IParameterConfig }, key: string) => {
+            //     let prop = metadataClass.properties ? metadataClass.properties[key] : metadataClass.function.parameters.properties[key];
+            //     if (prop.$ref) {
+            //         const ref_key = prop.$ref.split("/").slice(-1)[0]
+            //         prop = metadataClass.properties.$defs[ref_key]
+            //     }
+            //     acc[key] = {
+            //         // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
+            //         isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
+            //         ...prop
+            //     }
+            //     return acc
+            // }, {})
             setCurrNamespace(namespace)
             setCurrMetadata(serverMetadata)
         }
@@ -207,6 +296,8 @@ export const useRagMetadataClass = (namespace: string) => {
         // setMetadataClass,
         classParameters,
         setParameter,
+        promptName: currPromptName,
+        promptRagName: currPromptRagName,
     }
 }
 
@@ -218,7 +309,7 @@ export const useRagMetadataClass = (namespace: string) => {
 
 
 export const useRunMetadata = (runType: string, promptName: string) => {
-    
+
     const {
         data: metadata,
         isLoading,
@@ -226,51 +317,64 @@ export const useRunMetadata = (runType: string, promptName: string) => {
     } = useChatboardMetadata()
 
     const [metadataClass, setMetadataClass] = useState<PydanticV2BaseModel | null>(null)
+    const [namespace, setNamespace] = useState<string | null>(null)
     const [isArray, setIsArray] = useState(false)
 
     const storage = useLocalStorage(promptName)
 
     useEffect(() => {
-        if (metadata) {
+        if (metadata && promptName) {
             if (runType === 'prompt') {
 
                 const promptMetadataRecord = metadata.prompts.find(p => p.name === promptName)
 
                 if (!promptMetadataRecord) {
-                    throw new Error("prompt metadata could not be found in response")
+                    return
+                    // throw new Error("prompt metadata could not be found in response")
                 }
 
+
+                setNamespace(promptMetadataRecord.namespace || promptName)
+
                 const metadataClass = promptMetadataRecord.output_class
-                const serverMetadata = Object.keys(metadataClass.properties.properties).reduce((acc: { [key: string]: IParameterConfig }, key: string) => {
-                    let prop = metadataClass.properties.properties[key];
-                    if (prop.$ref){
-                        const ref_key = prop.$ref.split("/").slice(-1)[0]
-                        prop = metadataClass.properties.$defs[ref_key]
-                    }
+                const {serverMetadata, isArray} = processPydanticMetadata(metadataClass, storage)
+                // const serverMetadata = Object.keys(metadataClass.properties?.properties).reduce((acc: { [key: string]: IParameterConfig }, key: string) => {
+                //     let prop = metadataClass.properties.properties[key];
+                //     if (prop.$ref) {
+                //         const ref_key = prop.$ref.split("/").slice(-1)[0]
+                //         prop = metadataClass.properties.$defs[ref_key]
+                //     }
 
-                    acc[key] = {
-                        // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
-                        isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
-                        ...prop
-                    }
-                    return acc
-                }, {})
+                //     acc[key] = {
+                //         // isVisible: localMetadata && localMetadata[key] ? localMetadata[key].isVisible : true,
+                //         isVisible: storage.getItem(key)?.isVisible !== undefined ? storage.getItem(key).isVisible : true,
+                //         ...prop
+                //     }
+                //     return acc
+                // }, {})
 
-                setIsArray(promptMetadataRecord.output_class?.type === "array")
+                setIsArray(isArray)
                 setMetadataClass(serverMetadata)
 
 
 
             }
         }
-    }, [metadata])
+    }, [metadata, promptName])
 
 
     return {
         isArray,
+        namespace,
         metadataClass,
         error,
         loading: isLoading
     }
 
 }
+
+
+
+
+
+

@@ -313,7 +313,6 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
             </div>}
         </div>
     )
-
 }
 
 

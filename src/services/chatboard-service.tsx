@@ -129,6 +129,7 @@ export interface PromptOutputClass {
 export interface IPromptClass {
     name: string
     output_class: PromptOutputClass 
+    namespace: string
 }
 
 
