@@ -29,7 +29,15 @@ import { ClassParametersType, ColumnMetadata, getTableColumns, useRunMetadata } 
 
 
 
-export const useRunRagListExample = (promptName: string, ragNamespace: string, inputField: string) => {
+export const useRunRagListExample = (
+        promptName: string, 
+        ragNamespace: string,        
+        inputField: string,
+        onSave?: (data: any, error: any) => void, 
+        exampleId?: string, 
+        renderInput?: (data: any) => any, 
+        renderOutput?: (data: any)=>any
+    ) => {
 
     const { run, error, loading } = useRunTree()
 
@@ -41,6 +49,8 @@ export const useRunRagListExample = (promptName: string, ragNamespace: string, i
 
     const {
         addDocument,
+        saving,
+        savingError,
         // classParameters,
     } = useRagDocuments(ragNamespace) // for the rag documents, (key value)
 
@@ -79,11 +89,37 @@ export const useRunRagListExample = (promptName: string, ragNamespace: string, i
         setData(tempData)
     }
 
+    const addRag = () => {
+        if (data){
+            const inputs: any = []
+            const outputs = []
+            for (let i = 0; i < data.length; i++){
+                const { input, ...output } = data[i]
+                inputs.push(input)                
+                outputs.push(output)
+            }
+            if (renderInput){
+                
+            }
+            
+            const inputsArg = renderInput ? renderInput(inputs) : {[inputField]: inputs}    
+            const outputArg = renderOutput ? renderOutput(outputs) : outputs
+            addDocument(inputsArg, outputArg, exampleId, onSave)
+            // addDocument(JSON.stringify(inputs), JSON.stringify(outputs))            
+        }
+        
+    }
+
     return {
         data,
         columns,
         classParameters,
         addDocument,
-        onChange
+        onChange,
+        addRag,
+        loading,
+        error,
+        saving,
+        savingError
     }
 }

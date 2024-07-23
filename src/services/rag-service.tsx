@@ -78,6 +78,23 @@ export function useRagDocumentsEndpoint(namespace: string | null, pageSize: numb
 
 
 
+
+
+export async function addDocumentEndpoint(namespace: string, input: any, output: any, id?: string) {
+    return await fetch(`/api/chatboard/rag_documents/upsert_rag_document`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            namespace,
+            input,
+            output,
+            id: id
+        })
+    })
+}
+
 // export function useRagDocumentsEndpoint(namespace: string | null, pageSize: number = 10, pageIndex: number = 0): PaginatableEndpointHook<any> {
 //     // const { data, error, isLoading } = useSWR(namespace ? [url, namespace, limit, offset] : null, ([url, namespace, limit, offset]) => fetcher(url, { limit, offset }));
 //     const getKey = (pageIndex: number, previousPageData: any) => {

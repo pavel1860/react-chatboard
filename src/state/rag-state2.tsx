@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useChatboard } from "./chatboard-state";
 import { MetadataClass, IParameter } from "../services/chatboard-service";
-import { useRagDocumentsEndpoint } from "../services/rag-service";
+import { useRagDocumentsEndpoint, addDocumentEndpoint } from "../services/rag-service";
 import {
     IMetadataResponse,
     getRagDocumentsApi,
@@ -131,8 +131,25 @@ export function useRagDocuments(namespace: string) {
         promptRagName,
     } = useRagMetadataClass(namespace)
 
-    const addDocument = (inputs: any, metadata: any) => {
+    const [saving, setSaving] = useState(false)
+    const [savingError, setSavingError] = useState(null)
 
+    const addDocument = (inputs: any, metadata: any, id?: string, cb?:(data: any, error: any) => void) => {
+        const addDocumentAsync = async () => {
+            try {
+                setSaving(true)
+                const res = await addDocumentEndpoint(namespace, inputs, metadata, id)
+                setSaving(false)
+                cb && cb(res, null)
+            } catch (e) {
+                setSaving(false)
+                setSavingError(e)  
+                cb && cb(null, e)              
+            }
+            
+        }
+        addDocumentAsync()
+        
     }
 
 
@@ -152,6 +169,8 @@ export function useRagDocuments(namespace: string) {
         // setPage,
         loading: isLoading,
         error: error,
+        saving,
+        savingError,
         classParameters,
         setParameter
     }
