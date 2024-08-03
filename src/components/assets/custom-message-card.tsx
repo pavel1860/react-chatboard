@@ -156,18 +156,18 @@ export default function MessageCard<I,O,M>({message, messageComp, role, leftIcon
     let comp = undefined
     if (role == "input"){
         comp = <div className="flex">
-            {leftIconComp && leftIconComp(message)}
-            <div className="w-[700px] bg-gray-200 text-gray-900 p-3 rounded-lg">
-                {messageComp(message) }            
-            </div>
-        </div>
+                    {leftIconComp && leftIconComp(message)}
+                    <div className="w-[700px] bg-gray-200 text-gray-900 p-3 rounded-lg shadow-sm">
+                        {messageComp(message) }            
+                    </div>
+                </div>
     } else {
         comp = <div className="flex ml-auto">
-                {leftIconComp && leftIconComp(message)}
-                <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto">
-                {messageComp(message)}
-            </div>
-        </div>
+                    {leftIconComp && leftIconComp(message)}
+                    <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto shadow-sm">
+                        {messageComp(message)}
+                    </div>
+                </div>
     }
 
     return (
