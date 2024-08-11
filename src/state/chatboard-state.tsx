@@ -15,6 +15,8 @@ import {
 const ChatboardContext = createContext<{
   metadata: IMetadataResponse,
   documents: any,
+  loading: boolean,
+  error: any,
   getRagDocuments: (namespace: string) => void
 }>({} as any);
 
@@ -52,6 +54,8 @@ export function ChatboardProvider({children}: {children: any}) {
     return (
       <ChatboardContext.Provider value={{ 
         metadata: chatboardMetadata.data || null,
+        loading: chatboardMetadata.isLoading,
+        error: chatboardMetadata.error,
         documents,
         getRagDocuments,
         //@ts-ignore

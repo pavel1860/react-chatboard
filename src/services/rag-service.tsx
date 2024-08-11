@@ -11,7 +11,6 @@ export function useRagNamespacesEndpoint(): EndpointHook<any> {
     const { data, error, isLoading } = useSWR(url, (url: string) => fetcher(url, {}));
 
 
-
     return {
         data,
         error,
