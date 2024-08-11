@@ -21,7 +21,7 @@ export function useRagNamespacesEndpoint(): EndpointHook<any> {
 
 
 
-export async function getRagDocumentsApi(namespace: string, page: number, pageSize: number=10, sortField: string = undefined, sortOrder: string = undefined) {
+export async function getRagDocumentsApi(namespace: string, page: number, pageSize: number=10, sortField: string | undefined = undefined, sortOrder: string | undefined = undefined) {
     const params = new URLSearchParams()
     params.set('page', page.toString())
     params.set('pageSize', pageSize.toString())

@@ -14,18 +14,16 @@ interface ChatListProps<I, O, M> {
     // outputMessageComp: (output: O, metadata: M) => React.ReactNode
     width?: string
     height?: string
+    fetchMore: () => void
 }
 
-export default function ChatList<I, O, M>({messages, messageComp, isInputCheck, width, height, leftIconComp}: ChatListProps<I,O,M>) {
-    const [ data, setData ] = useState( messages );
+export default function InfiniteChat<I, O, M>({messages, messageComp, isInputCheck, width, height, leftIconComp, fetchMore}: ChatListProps<I,O,M>) {
     const MAX_DATA = 1000;
-    const hasMore = data.length < MAX_DATA;
 
-    useEffect(()=>{
-        setData(messages)
-    }, [messages])
+    const hasMore = messages.length < MAX_DATA;
 
-    function fetchData( limit=10 ){
+
+    // function fetchData( limit=10 ){        
         // const start = data.length + 1;
         // const end = (data.length + limit) >= MAX_DATA 
         //             ? MAX_DATA 
@@ -38,7 +36,7 @@ export default function ChatList<I, O, M>({messages, messageComp, isInputCheck, 
     
         // // fake delay to simulate a time-consuming network request
         // setTimeout( () => setData( newData ), 1500 );
-    }
+    // }
 
     return (
         <div id="scrollableDiv" style={{
@@ -50,8 +48,8 @@ export default function ChatList<I, O, M>({messages, messageComp, isInputCheck, 
                 margin: "auto"
             }} className="bg-body-tertiary p-3">
             <InfiniteScroll
-                dataLength={ data.length }
-                next={fetchData}
+                dataLength={ messages.length }
+                next={fetchMore}
                 hasMore={hasMore}
                 loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
                 endMessage={<p className="text-center m-5">That&apos;s all folks!🐰🥕</p>}
@@ -60,7 +58,7 @@ export default function ChatList<I, O, M>({messages, messageComp, isInputCheck, 
                 inverse={true}
                 >
                 {
-                    data.map( (message: AssetItem<I, O, M>) => (
+                    messages.map( (message: AssetItem<I, O, M>) => (
                         <div key={message.id}>
                             <MessageCard 
                                 message={message} 
