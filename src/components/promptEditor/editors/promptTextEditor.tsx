@@ -146,12 +146,13 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
         ErrorBoundary={LexicalErrorBoundary}
       />
       <HistoryPlugin />
-      <MyCustomAutoFocusPlugin />
+      {/* <MyCustomAutoFocusPlugin /> */}
       <OnChangePlugin onChange={(editorState: any) => {
       // Call toJSON on the EditorState object, which produces a serialization safe string
         editorState.read(()=>{
             const root = $getRoot();
-            const currenText = root.getAllTextNodes().map(textNode => textNode.getTextContent()).join('\n')
+            // const currenText = root.getAllTextNodes().map(textNode => textNode.getTextContent()).join('\n')
+            const currenText = root.getAllTextNodes().map(textNode => textNode.getTextContent()).join('')
             const editorStateJSON = editorState.toJSON();
             // However, we still have a JavaScript object, so we need to convert it to an actual string with JSON.stringify
             setEditorState(JSON.stringify(editorStateJSON) as any);
