@@ -8,7 +8,7 @@ import React from "react"
 export interface ListProps {
     loading: boolean
     error?: any
-    items?: {key: string, title: string, description?: string, href?: string}[]
+    items?: {key: string, title: string, value:string, description?: string, href?: string}[]
     onSelectionChange?: (item: any) => void
 }
 

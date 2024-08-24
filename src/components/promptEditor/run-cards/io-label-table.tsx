@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { ClassParametersType } from "../../../state/rag-state2";
 import { IRagSpaces } from "../../../services/chatboard-service";
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";

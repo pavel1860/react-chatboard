@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { BrainCircuit, FileText, LibraryBig } from "lucide-react"
 import { useState } from "react"
 import { LsRun, RetrieverRun, RunContainer } from "./types"

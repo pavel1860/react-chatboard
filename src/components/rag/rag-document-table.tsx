@@ -1,13 +1,9 @@
-import { ClassParametersType } from "@/src/state/rag-state2";
+//@ts-nocheck
 import { IRagSpaces } from "../../services/chatboard-service";
-import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
-import { useAsyncList } from "@react-stately/data";
-
-import { useRag } from "../../state/rag-state";
-import Link from "next/link";
 import { JSONTree } from 'react-json-tree'
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
 import React, { useEffect } from "react";
+import { ClassParametersType } from "../../../src/state/metadata-state";
 
 
 

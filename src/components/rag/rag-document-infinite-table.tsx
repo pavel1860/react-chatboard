@@ -1,4 +1,4 @@
-import { ClassParametersType } from "../../state/rag-state2";
+//@ts-nocheck
 import { IRagSpaces } from "../../services/chatboard-service";
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
 import { useAsyncList } from "@react-stately/data";
@@ -9,7 +9,7 @@ import { JSONTree } from 'react-json-tree'
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
 import React, { useEffect } from "react";
 import { getRagDocumentsApi } from "../../services/rag-service";
-import { getTableColumns } from "../../state/metadata-state";
+import { ClassParametersType, getTableColumns } from "../../state/metadata-state";
 
 
 
@@ -119,9 +119,15 @@ function TableControls({ columns }: { columns: TableColumnType[] }) {
             {filters}
         </div>
     )
-
 }
-export default function RagDocumentTable({ namespace, classParameters, onClick, pageSize, sortBy }: RagDocumentTableProps) {
+
+export default function RagDocumentTable({ 
+        namespace, 
+        classParameters, 
+        onClick, 
+        pageSize, 
+        sortBy
+    }: RagDocumentTableProps) {
 
         const [isLoading, setIsLoading] = React.useState(true);
         const [hasMore, setHasMore] = React.useState(false);

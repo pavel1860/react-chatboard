@@ -1,11 +1,8 @@
-// import { metadata } from "@/app/layout";
-// import { IRagSpaces, MetadataClass } from "@/services/metadata-service"
-import { ClassParametersType, IParameterConfig } from "@/src/state/rag-state2";
-import { IRagSpaces, MetadataClass } from "../../services/chatboard-service";
-import { useRag } from "../../state/rag-state";
+import { IRagSpaces } from "../../services/chatboard-service";
 import Link from "next/link";
-import { useState } from "react";
+
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import { ClassParametersType } from "../../../src/state/metadata-state";
 
 
 

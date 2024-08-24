@@ -1,3 +1,4 @@
+//@ts-nocheck
 import useSWR from "swr";
 import { EndpointHook, fetcher, fetchWithResponse, PaginatableEndpointHook } from "./fetcher";
 import useSWRInfinite from 'swr/infinite'

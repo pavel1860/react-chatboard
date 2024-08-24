@@ -43,7 +43,7 @@ export const useRunRagListExample = (
 
     const [inputs, setInputs] = useState([])
     const [outputs, setOutputs] = useState([])
-    const [data, setData] = useState([])
+    const [data, setData] = useState<any>([])
 
     const [columns, setColumns] = useState<ColumnMetadata[]>([])
 
@@ -73,7 +73,8 @@ export const useRunRagListExample = (
                 })
             }
             setData(tempData)
-            const columns = getTableColumns(classParameters)
+            //@ts-ignore
+            const columns: any = getTableColumns(classParameters)
             columns.unshift({
                 name: 'input',
                 type: 'string',

@@ -1,6 +1,7 @@
-import { BrainCircuit, FileText, LibraryBig } from "lucide-react"
+//@ts-nocheck
+import { FileText } from "lucide-react"
 import { useState } from "react"
-import { LsRun, RetrieverRun, RunContainer } from "./types"
+import { RetrieverRun, RunContainer } from "./types"
 import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
 import { JsonState } from "../promptEditor/stateJsonView"

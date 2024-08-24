@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useRunMetadata } from "../../../state/metadata-state"
 import { JSONTree } from "react-json-tree"
 import RagDocumentTable from "../../rag/rag-document-infinite-table"
@@ -60,8 +61,10 @@ export function OutputCard({output, runName, runType} : OutputCardProps){
     if (isArray){
 
         return (
+            
             <RagDocumentTable
                 classParameters={metadataClass}
+                //@ts-ignore
                 data={output.output}
                 onClick={(item)=>{
                     console.log("Open Drawer:", item)

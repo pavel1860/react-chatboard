@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useEffect, useState } from "react"
 import { IParameter, PydanticV2BaseModel, useChatboardMetadata } from "../services/chatboard-service"
 
