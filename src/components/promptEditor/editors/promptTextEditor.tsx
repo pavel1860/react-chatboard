@@ -137,12 +137,13 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
   // }
 
   return (
+    <div className='relative'>
     <LexicalComposer initialConfig={initialConfig}>
       <OnChangeInitialTextPlugin initialText={text} isCompact={isCompact || false}/>
       <OnChangeEditablePlugin notEditable={notEditable === undefined ? false : notEditable }/>
       <PlainTextPlugin
-        contentEditable={<ContentEditable />}
-        placeholder={<div>Enter some text...</div>}
+        contentEditable={<ContentEditable className="resize-none text-[15px] caret-[#444] relative tab-[1] outline-none" />}
+        placeholder={<div className='text-[#999] overflow-hidden absolute truncate top-0 left-[10px] text-[15px] select-none inline-block pointer-events-none'>Enter some text...</div>}
         ErrorBoundary={LexicalErrorBoundary}
       />
       <HistoryPlugin />
@@ -161,5 +162,6 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
     }}/>
       
     </LexicalComposer>
+    </div>
   );
 }
