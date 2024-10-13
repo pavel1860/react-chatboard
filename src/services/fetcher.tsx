@@ -3,6 +3,25 @@ import React from "react";
 
 
 
+export interface ServiceHook<T> {
+    data: T
+    error: any
+    isLoading: boolean
+    mutate?: any
+    refetch?: () => void
+}
+
+
+export interface ServiceMutationHook<T> extends ServiceHook<T> {
+    mutate: any
+}
+
+
+export interface ServiceInfiniteHook<T> extends ServiceMutationHook<T>{
+    size: number
+    setSize: (size: number) => void
+}
+
 
 export interface EndpointHook<T> {
     data: T

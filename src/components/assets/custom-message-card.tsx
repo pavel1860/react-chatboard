@@ -157,14 +157,16 @@ export default function MessageCard<I,O,M>({message, messageComp, role, leftIcon
     if (role == "input"){
         comp = <div className="flex">
                     {leftIconComp && leftIconComp(message)}
-                    <div className="w-[700px] bg-gray-200 text-gray-900 p-3 rounded-lg shadow-sm">
+                    {/* <div className="w-[700px] bg-gray-200 text-gray-900 p-3 rounded-lg shadow-sm"> */}
+                    <div className="flex flex-col w-full max-w-[700px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-xl dark:bg-gray-700">
                         {messageComp(message) }            
                     </div>
                 </div>
     } else {
         comp = <div className="flex ml-auto">
                     {leftIconComp && leftIconComp(message)}
-                    <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto shadow-sm">
+                    {/* <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto shadow-sm"> */}
+                    <div className="flex flex-col w-full max-w-[700px] leading-1.5 p-4 border-gray-200 bg-blue-500 text-white rounded-xl dark:bg-gray-700">
                         {messageComp(message)}
                     </div>
                 </div>
