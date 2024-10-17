@@ -1,3 +1,4 @@
+import { EditorValue } from "../components/editor/util"
 import { IMessage, Role, useChatEndpoint } from "../services/chatbot-service"
 import React, { use, useCallback, useEffect } from "react"
 
@@ -8,7 +9,7 @@ interface ChatState {
     loading: boolean
     error: any
     sending: boolean
-    sendMessage: (content: string) => void
+    sendMessage: (content: EditorValue) => void
     refetch: () => void
     setLimit: (limit: number) => void
     setOffset: (offset: number) => void
@@ -54,10 +55,18 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
         refetch
     } = useChatEndpoint(selectedPhoneNumber, limit)
 
+
+    const dataRef = React.useRef(data)
+
     const fetchMore = () => {
         //@ts-ignore
         setSize(size => size + 1)       
     }
+
+    useEffect(() => {
+        // dataRef.current = data.filter((msg: IMessage) => msg.id !== "temp-id")
+        dataRef.current = data
+    }, [data])
 
 
     // useEffect(() => {
@@ -68,43 +77,7 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
     
 
 
-    // const sendMessageRequest = async (content: string) => {
-    //     console.log("################ content", content)
-    //     const res = await fetch(`/api/debug/${selectedPhoneNumber}/chat`, {
-    //         method: "POST",
-    //         body: JSON.stringify({ content }),
-    //         // body: { content: content },
-    //         headers: {
-    //             "Content-Type": "application/json"
-    //         }
-    //     })
-    //     const msg = await res.json()        
-    //     if (res.ok) {
-    //         // console.log(data)
-    //         return [msg, ...data]
-    //     } else {
-    //         throw new Error("Failed to send message.");
-            
-    //     }
-    // }
-
-    // const sendMessage = async (content: string) => {
-    //     try {
-    //         if (!selectedPhoneNumber) {
-    //             return
-    //         }
-    //         setSending(true)
-    //         await mutate(sendMessageRequest(content), {
-    //             optimisticData: [optimisticMessage(content, selectedPhoneNumber), ...data],                
-    //         });
-    //         setSending(false)
-    //     } catch (error) {
-    //         console.error(error)
-    //         setSending(false)
-    //     }
-    // }
-
-    const sendMessageRequest = useCallback(async (content: string) => {
+    const sendMessageRequest = async (content: string, data: IMessage[]) => {
         console.log("################ content", content)
         const res = await fetch(`/api/debug/${selectedPhoneNumber}/chat`, {
             method: "POST",
@@ -114,24 +87,28 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
                 "Content-Type": "application/json"
             }
         })
-        const msgs = await res.json()        
-        if (res.ok) {
-            // console.log(data)
-            return [...msgs, ...data]
+        const msg = await res.json()        
+        if (res.ok) {            
+            const newThread = [...msg, ...data]
+            console.log("######new thread", newThread)
+            return newThread
         } else {
             throw new Error("Failed to send message.");
             
         }
-    }, [data, selectedPhoneNumber])
+    }
 
-    const sendMessage = useCallback(async (content: string) => {
+
+    const sendMessage = useCallback(async (content: EditorValue) => {
         try {
             if (!selectedPhoneNumber) {
                 return
             }
             setSending(true)
-            await mutate(sendMessageRequest(content), {
-                optimisticData: [optimisticMessage(content, selectedPhoneNumber), ...data],                
+            console.log("#### curr", dataRef.current)
+            const oldData = [...dataRef.current]
+            await mutate(sendMessageRequest(content.text, oldData), {
+                optimisticData: [optimisticMessage(content.text, selectedPhoneNumber), ...oldData],
             });
             setSending(false)
         } catch (error) {
@@ -139,8 +116,6 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
             setSending(false)
         }
     }, [data, selectedPhoneNumber])
-
-
     
 
     return {
