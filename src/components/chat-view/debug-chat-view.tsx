@@ -87,12 +87,13 @@ export default function DebugChatThread({phoneNumber, setRunId}: DebugChatThread
                 height="86vh"
                 fetchMore={fetchMore}
             />
-            <div className="fixed bottom-0 left-0 w-full bg-white border-t flex justify-center">
-                <div className="flex w-2/3  items-center">
+            <div className="fixed bottom-0 left-0 w-1/2 bg-white border-t flex justify-center">            
+            
+                <div className="flex w-11/12 items-center">
                     <ChatInput 
                         placeholder="Type your message..."                        
                         onKeyPress={sendMessage}
-                    />                    
+                    />
                 </div>
             </div>
         </div>

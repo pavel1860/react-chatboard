@@ -1,6 +1,8 @@
 import useSWR, {useSWRConfig} from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { EndpointHook, fetcher } from "./fetcher";
+import { build_run_tree, RunTreeContext } from '../types/run-tree';
+import { useEffect, useState } from 'react';
 
 
 export interface IProperty {
@@ -287,13 +289,21 @@ export function useGetRuns(limit: number, offset: number, runNames: string[]) : 
 
 
 export function useGetTree(id: string | null){
-
     const { data, error, isLoading } = useSWR(id ? ['promptboard/get_run_tree'] : null, 
         ([url]) => fetcher(url, { run_id: id })
-    );
+    ); 
+
+    const [runTree, setRunTree] = useState<RunTreeContext | null>(null)
+    
+    useEffect(() => {
+        if (data){
+            setRunTree(build_run_tree(data))
+        }
+    }, [data])
 
     return {
-        runTree: data,
+        // runTree: data ? build_run_tree(data) : null,
+        runTree,
         error: error,
         loading: isLoading
     }

@@ -108,7 +108,9 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear}: ChatIn
         <LexicalComposer initialConfig={editorConfig}>
             <div 
                 className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}
-                // style={{height: `${rows * 3}rem`}}
+                // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}
+                
+                
                 style={{height: `${rows * 30}px`}}
             >
                 {/* <ToolbarPlugin /> */}

@@ -1,3 +1,4 @@
+import { RunTreeContext } from "@/src/types/run-tree"
 
 
 
@@ -20,7 +21,6 @@ export interface RunType {
         user_filename: string | undefined
     }
     child_runs: RunType[],
-   
 }
 
 
@@ -45,8 +45,8 @@ export interface ExampleType {
 
 
 export interface RunProps {
-    run: RunType
-    parentRun?: RunType
+    run: RunTreeContext
+    parentRun?: RunTreeContext
 }
 
 
@@ -54,8 +54,8 @@ export interface RunProps {
 
 
 export interface RunTreeProps {
-    run: RunType
-    parentRun?: RunType
+    run: RunTreeContext
+    parentRun?: RunTreeContext
     depth?: number
 }
 

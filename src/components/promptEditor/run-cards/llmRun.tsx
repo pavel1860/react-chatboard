@@ -24,22 +24,19 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
 
 
     const inLen = run.inputs.messages.length
-
-    const outMessages = run.outputs?.generations?.map((g: any, idx: number) => ({
-        id: `${run.id}_gen_${idx}`,
-        role: g.message.data.role,
-        content: g.message.data.content,
-        toolCalls: g.message.data.additional_kwargs?.tool_calls
-    })) || run.outputs?.messages?.map((m: any, idx: number) => ({
-        id: `${run.id}_input_${idx}`,
-        ...m
-    })) || run.outputs?.content && [{
-        id: `${run.id}_output`,
-        role: 'output',
-        content: run.outputs.content    
-    }]
-    
-    || []
+    // const outMessages = run.outputs?.generations?.map((g: any, idx: number) => ({
+    //     id: `${run.id}_gen_${idx}`,
+    //     role: g.message.data.role,
+    //     content: g.message.data.content,
+    //     toolCalls: g.message.data.additional_kwargs?.tool_calls
+    // })) || run.outputs?.messages?.map((m: any, idx: number) => ({
+    //     id: `${run.id}_input_${idx}`,
+    //     ...m
+    // })) || run.outputs?.content && [{
+    //     id: `${run.id}_output`,
+    //     role: 'output',
+    //     content: run.outputs.content    
+    // }] || []
 
     return (
     <div className='w-full flex flex-col items-center '>  
@@ -52,10 +49,10 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
                     {/* <IconCtx size={20} color='gray'><FaCommentDots /></IconCtx> <span className='text-gray-400'>{isHistoryHidden ? "show " : "hide "}{inLen-1}</span> */}
             </Button>}
             <ErrorPopup error={run.error}/>
-        {run.inputs.messages?.map((m: any, idx: number) => ({
+        {run.inputMessages.map((m: any, idx: number) => ({
                         id: `${run.id}_input_${idx}`,
-                        role: m.data.role,
-                        content: m.data.content,
+                        role: m.role,
+                        content: m.content,
                     })
             ).map((message: MessageType, idx: number) => (
                 ((!isHistoryHidden) || (idx == inLen - 1)) && 
@@ -71,10 +68,11 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
         
         <div className="w-full p-2 bg-slate-100">
             <h1 className='text-lg text-slate-500'>Generation</h1>
-            {outMessages.map((message: MessageType, idx: number) => (
+            {run.outputMessages.map((message: MessageType, idx: number) => (
             <div key={`output-msg-${idx}`} className='w-full py-3'>
                 <GeneratedMessage message={message}
-                    model={run.extra.model} 
+                    model={run.model} 
+                    modelType={run.modelType}
                     controls={[
                         <ExampleKeyButton key={"ex-key-btn"} message={message} namespace={name}/>,
                         <ExampleValueButton key={"ex-val-btn"} message={message} namespace={name}/>

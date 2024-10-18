@@ -7,6 +7,7 @@ import useSWRMutation from 'swr/mutation'
 // import { useRouter } from 'next/router'
 import { ExampleStateType, useExampleState } from './useExamples'
 import { useGetRuns, useGetTree } from '../../../services/chatboard-service'
+import { RunTreeContext } from '../../../types/run-tree'
 
 
 
@@ -36,7 +37,7 @@ const generateRunTreeState = (run: any, state: {[key: string]: RunStateType}, de
 
 
 interface RunTreeStateType {
-    runTree: any, 
+    runTree: RunTreeContext | null, 
     error: any, 
     loading: boolean
     runTreeState: {[key: string]: RunStateType}
@@ -131,7 +132,7 @@ export const useRunTreeState = (id: string): RunTreeStateType => {
     }
 
     return {
-        runTree: runTree || {},
+        runTree: runTree,
         error: error,
         loading: loading,
         runTreeState,
