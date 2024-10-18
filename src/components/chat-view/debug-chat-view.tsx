@@ -35,31 +35,14 @@ function LeftIcon({message}: any){
 
 interface DebugChatThreadProps {
     phoneNumber: string
-}
-
-
-const getMessageComp = (message: IMessage) => {
-
-    if (message.metadata.role === "user") {
-        return <MessageCard 
-            message={message.output} 
-            time={new Date(message.asset_output_date)} 
-            role="output" 
-            leftIcon={<User className="stroke-blue-600 m-3" size={30}/>}
-        />
-    } else {
-        return <MessageCard
-            message={message.output}
-            time={new Date(message.asset_output_date)}
-            role="input"
-            leftIcon={<Bot className="stroke-blue-600 m-3" size={30} />}
-        />
-    }
+    setRunId?: (runId: string) => void
 }
 
 
 
-export default function DebugChatThread({phoneNumber}: DebugChatThreadProps) {
+
+
+export default function DebugChatThread({phoneNumber, setRunId}: DebugChatThreadProps) {
 
     const {
         messages,
@@ -69,6 +52,31 @@ export default function DebugChatThread({phoneNumber}: DebugChatThreadProps) {
         refetch,
         loading,
     } = useChatBot(phoneNumber)
+
+
+    const getMessageComp = (message: IMessage) => {
+
+        if (message.metadata.role === "user") {
+            return <MessageCard 
+                message={message.output} 
+                time={new Date(message.asset_output_date)} 
+                role="output" 
+                leftIcon={<User className="stroke-blue-600 m-3" size={30}/>}
+            />
+        } else {
+            return <MessageCard
+                message={message.output}
+                time={new Date(message.asset_output_date)}
+                role="input"
+                leftIcon={<Bot className="stroke-blue-600 m-3" size={30} />}
+                rightIcon={<Button size="sm" onClick={() => {
+                    console.log("####", message)
+                    setRunId && setRunId(message.metadata.run_id)
+                }}>Run ID</Button>}
+            />
+        }
+    }
+    
 
 
     return (

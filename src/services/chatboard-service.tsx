@@ -152,7 +152,7 @@ export async function postRequest(endpoint: string, { arg }: any ){
         body: JSON.stringify(arg) // Convert the data to JSON format
     };
     // const res = await fetch(`${process.env.NEXT_PUBLIC_CHATBOARD_BACKEND_URL}/chatboard/${endpoint}`, options)
-    const res = await fetch(`/chatboard/${endpoint}`, options)
+    const res = await fetch(`/promptboard/${endpoint}`, options)
     if (!res.ok){
         throw new Error("Failed to fetch chatboard metadata.");        
     }
@@ -162,7 +162,7 @@ export async function postRequest(endpoint: string, { arg }: any ){
 
 
 export function useChatboardMetadata(): EndpointHook<any> {
-    const url = `/chatboard/metadata`
+    const url = `/promptboard/metadata`
     const { data, error, isLoading } = useSWR(url, (url: string) => fetcher(url, {}))
 
     return {
@@ -276,7 +276,7 @@ export function useAssetDocumentsService(asset: string){
 
 export function useGetRuns(limit: number, offset: number, runNames: string[]) : EndpointHook<any>{
     const fetchRuns = (url: string) => fetcher(url, { limit, offset, runNames });
-    const { data, error, isLoading } = useSWR('chatboard/get_runs', fetchRuns);
+    const { data, error, isLoading } = useSWR('promptboard/get_runs', fetchRuns);
     
     return {
         data,
@@ -288,7 +288,7 @@ export function useGetRuns(limit: number, offset: number, runNames: string[]) : 
 
 export function useGetTree(id: string | null){
 
-    const { data, error, isLoading } = useSWR(id ? ['chatboard/get_run_tree'] : null, 
+    const { data, error, isLoading } = useSWR(id ? ['promptboard/get_run_tree'] : null, 
         ([url]) => fetcher(url, { run_id: id })
     );
 
@@ -349,7 +349,7 @@ export function useGetNamespaces() {
     // return {}
     const fetchMetadata = (url: string) => fetcher(url, {});
 
-    const { data, error, isLoading } = useSWR('metadata', fetchMetadata);
+    const { data, error, isLoading } = useSWR('/promptboard/metadata', fetchMetadata);
 
     return {
         data,
