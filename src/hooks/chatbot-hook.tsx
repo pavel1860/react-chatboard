@@ -10,6 +10,7 @@ interface ChatState {
     error: any
     sending: boolean
     sendMessage: (content: EditorValue) => void
+    deleteMessage: (id: string) => void
     refetch: () => void
     setLimit: (limit: number) => void
     setOffset: (offset: number) => void
@@ -99,6 +100,21 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
     }
 
 
+    const deleteMessageRequest = async (id: string, data: IMessage[]) => {
+        const res = await fetch(`/api/debug/${selectedPhoneNumber}/chat/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        if (res.ok) {
+            return data.filter((msg: IMessage) => msg.id !== id)
+        } else {
+            throw new Error("Failed to delete message.");
+        }
+    }
+
+
     const sendMessage = useCallback(async (content: EditorValue) => {
         try {
             if (!selectedPhoneNumber) {
@@ -116,6 +132,24 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
             setSending(false)
         }
     }, [data, selectedPhoneNumber])
+
+
+    const deleteMessage = useCallback(async (id: string) => {
+        try {
+            if (!selectedPhoneNumber) {
+                return
+            }
+            setSending(true)
+            const oldData = [...dataRef.current]
+            await mutate(deleteMessageRequest(id, oldData), {
+                optimisticData: oldData.filter((msg: IMessage) => msg.id !== id),
+            });
+            setSending(false)
+        } catch (error) {
+            console.error(error)
+            setSending(false)
+        }
+    }, [data, selectedPhoneNumber])
     
 
     return {
@@ -124,6 +158,7 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
         sending: sending,
         error: error,
         sendMessage,
+        deleteMessage,
         fetchMore,
         refetch,
         setLimit: setLimit,

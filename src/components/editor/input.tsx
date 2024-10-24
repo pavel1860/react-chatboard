@@ -111,13 +111,13 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear}: ChatIn
                 // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}
                 
                 
-                style={{height: `${rows * 30}px`}}
+                style={{height: `${rows * 25}px`}}
             >
                 {/* <ToolbarPlugin /> */}
                 <div className="relative rounded-b-lg border border-opacity-5 bg-white">
                     <RichTextPlugin
                         contentEditable={
-                            <ContentEditable className="lexical min-h-[280px] resize-none px-2.5 py-4 text-base caret-gray-900 outline-none" />
+                            <ContentEditable className="lexical min-h-[280px] resize-none px-2.5 py-2 text-base caret-gray-900 outline-none" />
                         }
                         placeholder={<Placeholder text={placeholder}/>}
                         ErrorBoundary={LexicalErrorBoundary}
