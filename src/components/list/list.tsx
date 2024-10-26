@@ -5,17 +5,27 @@ import React from "react"
 
 
 
+export interface ListItemProps {
+    key: string
+    title: string
+    value: string
+    description?: string
+    href?: string
+}
+
+
 export interface ListProps {
     loading: boolean
     error?: any
-    items?: {key: string, title: string, value:string, description?: string, href?: string}[]
+    items?: ListItemProps[]
+    selected?: any
     onSelectionChange?: (item: any) => void
 }
 
 
-export default function List({items, onSelectionChange, loading, error}: ListProps): React.ReactElement {
+export default function List({items, selected, onSelectionChange, loading, error}: ListProps): React.ReactElement {
 
-    const [selectedItem, setSelectedItem] = React.useState<any>(null)
+    const [selectedItem, setSelectedItem] = React.useState<any>(selected)
     
     if (loading || !items) {
         return (<Skeleton className="flex rounded-full w-12 h-12">
@@ -36,6 +46,8 @@ export default function List({items, onSelectionChange, loading, error}: ListPro
             {selectedItem}
             <Listbox
                 disallowEmptySelection
+                selectionMode="single"
+                selectedKeys={[selected]}
                 topContent={<Input
                     label="Search"
                     isClearable
@@ -59,7 +71,7 @@ export default function List({items, onSelectionChange, loading, error}: ListPro
                 }}
                 items={items}
                 variant="flat"
-                selectionMode="single"
+                // selectionMode="single"
             >
                 {(item) => (
                     <ListboxItem 
@@ -67,6 +79,7 @@ export default function List({items, onSelectionChange, loading, error}: ListPro
                         href={item.href}
                         title={item.title}
                         description={item.description} 
+                        
                         // className={selectedItem === item.key ? "bg-slate-300" : ''} 
                         // classNames={selectedItem === item.key ?{
                         //     base: "bg-slate-300"

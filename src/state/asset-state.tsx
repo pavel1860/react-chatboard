@@ -88,9 +88,9 @@ export const useAssetPartition = (assetName: string, metadata: IAssetClass | nul
     const removePartitionFilter = (partition: string) => {
 
     }
-
+    
     return {        
-        profiles: chatboard.metadata.profiles,        
+        profiles: chatboard?.metadata?.profiles || [],        
         profileData,
         profileLoading,
         profileError,
@@ -168,35 +168,6 @@ export const AssetProvider = ({children, assetName}: {children: any, assetName:s
         addProfileFilter,
         removeProfileFilter
     } = useAssetPartition(assetName, metadata)
-
-
-    // const {
-        
-    // } = useProfilePartitionService(pro)
-
-    console.log("###########", partitions)
-    
-
-    
-    // const {
-    //     data: assetList,
-    //     error,
-    //     isLoading,
-    // } = useAssetDocumentsService(assetName)
-
-
-    
-    // const [partitionFilters, setPartitionFilters] = React.useState<string[]>([])
-    // const setAsset = (metadata: IAssetClass) => {
-    //     setMetadata(metadata)
-    // }
-
-    // useEffect(()=>{
-    //     if (data){
-    //         setAssetList(data)
-    //     }
-    // }, [data])
-    
 
     
     return (

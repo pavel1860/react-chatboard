@@ -210,10 +210,10 @@ export function useChatboardMetadata(): EndpointHook<any> {
 export function useAssetPartitionService(asset: string, partition: string | null){
     // const { data, error, isLoading } = useSWR(partition ? 'get_asset_partition' : null, (url: string) => fetcher(url, { asset, field: "phone_number", partition }));
     const { data, error, isLoading } = useSWR(asset && partition ? 
-        ['get_asset_partition', asset, partition] : null, 
+        ['promptboard/get_asset_partition', asset, partition] : null, 
         ([url, asset, partition]) => fetcher(url, { 
             asset, 
-            field: "phone_number", 
+            field: "metadata.phone_number", 
             partition 
         }));
 
@@ -226,7 +226,7 @@ export function useAssetPartitionService(asset: string, partition: string | null
 
 
 export function useProfilePartitionService(profile: string | null, partition: string | null) {
-    const { data, error, isLoading} = useSWR(profile ? 'get_profile_partition' : null, (url: string) => fetcher(url, { profile, partition }));
+    const { data, error, isLoading} = useSWR(profile ? 'promptboard/get_profile_partition' : null, (url: string) => fetcher(url, { profile, partition }));
 
     return {
         data,
