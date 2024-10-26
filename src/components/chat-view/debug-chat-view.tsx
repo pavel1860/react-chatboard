@@ -7,6 +7,7 @@ import MessageCard, { TimeCard } from "../assets/custom-message-card"
 import InfiniteChat from "./custom-chat-view"
 import { IMessage } from "@/src/services/chatbot-service"
 import { ChatInput } from "../editor/input"
+import { send } from "process"
 
 
 
@@ -41,9 +42,15 @@ interface DebugChatThreadProps {
 
 
 
-const MessageMenu = ({ message, setRunId, deleteMessage }: any) => {
+interface MessageMenuProps {
+    message: IMessage
+    setRunId?: (runId: string) => void
+    deleteMessage: (id: string) => void
+    resendMessage?: (id: string, content: string) => void
+}
 
 
+const MessageMenu = ({ message, setRunId, deleteMessage, resendMessage }: any) => {
 
     return (
         <div>
@@ -72,9 +79,16 @@ const MessageMenu = ({ message, setRunId, deleteMessage }: any) => {
                     onAction={(key) => {
                         if (key === "delete") {
                             deleteMessage(message.id)
+                        } else if (key === "resend") {
+                            if (message.metadata.role === "user") {
+                                resendMessage && resendMessage(message.id, message.output)
+                            }
                         }
                     }}
                 >
+                    {resendMessage && <DropdownItem key="resend" className="text-danger" color="danger">
+                        Resend
+                    </DropdownItem>}
                     <DropdownItem key="delete" className="text-danger" color="danger">
                         Delete
                     </DropdownItem>
@@ -104,6 +118,15 @@ export default function DebugChatThread({ phoneNumber, setRunId, disabled }: Deb
         setRunId && setRunId(rid);  // Always updates to the latest state
     }, []);
 
+    const resendMessage = useCallback(async (id: string, content: string) => {
+        try {
+            sendMessage({"text": content}, id)
+        } catch (error) {
+            console.error(error)
+            // setSending(false)
+        }
+    }, [messages, phoneNumber])
+
 
 
     const getMessageComp = (message: IMessage) => {
@@ -114,9 +137,9 @@ export default function DebugChatThread({ phoneNumber, setRunId, disabled }: Deb
                 time={new Date(message.asset_output_date)}
                 role="output"
                 leftIcon={<User className="stroke-blue-600 m-3" size={30} />}
-                rightIcon={<MessageMenu message={message} deleteMessage={deleteMessage}/>}
+                rightIcon={<MessageMenu message={message} deleteMessage={deleteMessage} resendMessage={resendMessage}/>}
             />
-        } else {
+        } else { //? assistant
             return <MessageCard
                 message={message.output}
                 time={new Date(message.asset_output_date)}

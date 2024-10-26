@@ -9,7 +9,7 @@ interface ChatState {
     loading: boolean
     error: any
     sending: boolean
-    sendMessage: (content: EditorValue) => void
+    sendMessage: (content: EditorValue, fromMessageId?: string) => void
     deleteMessage: (id: string) => void
     refetch: () => void
     setLimit: (limit: number) => void
@@ -78,11 +78,15 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
     
 
 
-    const sendMessageRequest = async (content: string, data: IMessage[]) => {
+    const sendMessageRequest = async (content: string, data: IMessage[], fromMessageId?: string) => {
         console.log("################ content", content)
+        if (!content) {
+            throw new Error("Message content is empty.");
+            
+        }
         const res = await fetch(`/api/debug/${selectedPhoneNumber}/chat`, {
             method: "POST",
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({ content, fromMessageId }),
             // body: { content: content },
             headers: {
                 "Content-Type": "application/json"
@@ -115,16 +119,23 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
     }
 
 
-    const sendMessage = useCallback(async (content: EditorValue) => {
+    const filterMessagesFromId = (data: IMessage[], fromMessageId: string) => {
+        const index = data.findIndex((msg: IMessage) => msg.id === fromMessageId)
+        return data.slice(index)
+    }
+
+
+    const sendMessage = useCallback(async (content: EditorValue, fromMessageId?: string) => {
         try {
             if (!selectedPhoneNumber) {
                 return
             }
             setSending(true)
             console.log("#### curr", dataRef.current)
-            const oldData = [...dataRef.current]
-            await mutate(sendMessageRequest(content.text, oldData), {
-                optimisticData: [optimisticMessage(content.text, selectedPhoneNumber), ...oldData],
+            const oldData = [...dataRef.current]            
+            const optimisticData = [optimisticMessage(content.text, selectedPhoneNumber), ...(fromMessageId ? filterMessagesFromId(oldData, fromMessageId) : oldData)]
+            await mutate(sendMessageRequest(content.text, oldData, fromMessageId), {
+                optimisticData: optimisticData,
             });
             setSending(false)
         } catch (error) {
