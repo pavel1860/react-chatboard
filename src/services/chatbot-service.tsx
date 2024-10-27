@@ -1,4 +1,4 @@
-import { fetcher, ServiceHook, ServiceInfiniteHook, ServiceMutationHook, fetchWithResponse } from "./fetcher";
+import { fetcher, ServiceHook, ServiceInfiniteHook, ServiceMutationHook, fetchWithResponse, useMutation } from "./fetcher";
 import { AssetItem } from "./chatboard-service";
 import useSWRInfinite from "swr/infinite";
 
@@ -31,16 +31,24 @@ interface ChatHook extends ServiceInfiniteHook<IMessage[]>{
 }
 
 
+
+
+
+
+
+
+
+
+
 export function useChatEndpoint(phoneNumber: string | null, limit: number = 10): ChatHook{
 
-    
     const getKey = (pageIndex: number, previousPageData: any) => {
         if (!phoneNumber) return null
         if (previousPageData && !previousPageData.length) return null // reached the end
         const params = new URLSearchParams()
         params.set('page', `${pageIndex}`)
         params.set('limit', `${limit}`)
-        params.set('phone_number', phoneNumber)      
+        params.set('phone_number', phoneNumber)
         if (previousPageData && previousPageData.length)
             params.set('start_from', `${previousPageData[previousPageData.length - 1].asset_update_ts}`)      
         return `client/${phoneNumber}/chat?${params.toString()}`
@@ -61,5 +69,29 @@ export function useChatEndpoint(phoneNumber: string | null, limit: number = 10):
         setSize,
         refetch
     }
+}
+
+
+
+export function useChatDelete(){
+
+    const { isMutating, trigger } = useMutation(`/debug/chat`, {
+        method: "DELETE",
+        onSuccess: () => {
+            console.log("Deleted message")
+        },
+        onError: (error) => {
+            console.error(error)
+        }
+    })
+    return {
+        isMutating,
+        deleteMessage: (phoneNumber: string, messageId: string) => trigger({ phoneNumber, messageId })
+    }
+}
+
+
+export function useChatSendMessage(phoneNumber: string | null){
+    // const { } = useMutation("/")
 }
 

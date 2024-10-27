@@ -65,17 +65,8 @@ export const useChatBot = (selectedPhoneNumber: string): ChatState => {
     }
 
     useEffect(() => {
-        // dataRef.current = data.filter((msg: IMessage) => msg.id !== "temp-id")
         dataRef.current = data
     }, [data])
-
-
-    // useEffect(() => {
-    //     if (clientProfileService.lastUpdate){
-    //         refetch()
-    //     }
-    // }, [clientProfileService.lastUpdate])
-    
 
 
     const sendMessageRequest = async (content: string, data: IMessage[], fromMessageId?: string) => {
