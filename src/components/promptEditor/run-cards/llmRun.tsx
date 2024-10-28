@@ -1,9 +1,10 @@
-import { Button } from "@nextui-org/react"
+import { Button, Chip } from "@nextui-org/react"
 import { useRunState } from "../state/runsContext"
 import { RunProps } from "../types"
 import { ErrorPopup } from "../stateJsonView"
 import { GeneratedMessage, Message, MessageType } from "../messages"
 import { ExampleKeyButton, ExampleValueButton } from "../examplesView"
+import { BrainCircuit, ChevronsUpDown } from "lucide-react"
 
 
 
@@ -42,10 +43,12 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
     <div className='w-full flex flex-col items-center '>  
         {
             <Button 
-                variant="flat" 
+                variant="light" 
                 size='sm'
                 onPress={()=>{toggleHistory()}}
+                startContent={<ChevronsUpDown size={15} color="gray" />}
                 >
+                    <span className='text-gray-400'>{isHistoryHidden ? "show " : "hide "}{inLen-1}</span>
                     {/* <IconCtx size={20} color='gray'><FaCommentDots /></IconCtx> <span className='text-gray-400'>{isHistoryHidden ? "show " : "hide "}{inLen-1}</span> */}
             </Button>}
             <ErrorPopup error={run.error}/>
@@ -67,18 +70,29 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
         }
         
         <div className="w-full p-2 bg-slate-100">
-            <h1 className='text-lg text-slate-500'>Generation</h1>
+            {/* <h1 className='text-lg text-slate-500'>Generation</h1> */}
+            <div className="flex flex-col items-center w-full ">
+                <div className="w-[10px] h-[10px] bg-slate-400">&nbsp;</div>
+                <Chip
+                    startContent={<BrainCircuit size={20} />}
+                    color="danger"
+                >
+                    {run.model}
+                </Chip>
+                
+                <div className="w-[10px] h-[10px] bg-slate-400">&nbsp;</div>
+            </div>
             {run.outputMessages.map((message: MessageType, idx: number) => (
-            <div key={`output-msg-${idx}`} className='w-full py-3'>
-                <GeneratedMessage message={message}
-                    model={run.model} 
-                    modelType={run.modelType}
-                    controls={[
-                        <ExampleKeyButton key={"ex-key-btn"} message={message} namespace={name}/>,
-                        <ExampleValueButton key={"ex-val-btn"} message={message} namespace={name}/>
-                    ]}
-                />
-            </div>)
+                <div key={`output-msg-${idx}`} className='w-full py-3'>
+                    <GeneratedMessage message={message}
+                        model={run.model} 
+                        modelType={run.modelType}
+                        controls={[
+                            <ExampleKeyButton key={"ex-key-btn"} message={message} namespace={name}/>,
+                            <ExampleValueButton key={"ex-val-btn"} message={message} namespace={name}/>
+                        ]}
+                    />
+                </div>)
         )}
         </div>
     </div>

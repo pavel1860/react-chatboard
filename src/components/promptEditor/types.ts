@@ -15,6 +15,8 @@ export interface RunType {
     isFirst: boolean,
     isLast: boolean,
     examples: any,
+    start_time: string,
+    end_time: string,
     extra: {
         model: string,
         system_filename: string | undefined,

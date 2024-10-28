@@ -116,7 +116,7 @@ export const InputPopup = ({ inputs }: {inputs: any}) => {
     return (
         <Popover size='lg' placement="bottom" showArrow={true}>
             <PopoverTrigger>
-                <Button size="sm" variant="ghost" color='primary'>Inputs</Button>
+                <Button size="sm" variant="light" color='primary'>Inputs</Button>
             </PopoverTrigger>
             <PopoverContent>
             <JsonState data={inputs}/>
@@ -133,7 +133,7 @@ export const OutputPopup = ({ outputs }: {outputs: any}) => {
     return (
         <Popover size='lg' placement="bottom" showArrow={true}>
             <PopoverTrigger>
-                <Button size="sm" variant="ghost" color='primary'>Output</Button>
+                <Button size="sm" variant="light" color='primary'>Output</Button>
             </PopoverTrigger>
             <PopoverContent>
             <JsonState data={outputs}/>

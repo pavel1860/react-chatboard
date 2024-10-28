@@ -3,6 +3,8 @@ import PromptTextEditor from './editors/promptTextEditor';
 import { useDagDisplayRouter } from './state/dagRouterContext'
 import { JsonState } from './stateJsonView';
 import { ModelType } from '@/src/types/run-tree';
+import { Chip } from '@nextui-org/react';
+import { Bot, Hammer, Settings, User } from 'lucide-react';
 
 
 
@@ -35,22 +37,108 @@ export interface LlmOutputsProps {
     modelType: ModelType
 }
 
+
+
+export const MessageRoleTag = ({role}: {role: string}) => {
+    const variant = "bordered"
+    const radius="sm"
+    const iconSize = 13
+    const textClass = "text-xs"
+    const size = "sm"
+
+    if (role === "assistant") {
+        return (
+            <Chip
+                startContent={<Bot size={iconSize}/>}
+                variant={variant}
+                radius={radius}
+                color="danger"
+                size={size}
+            >
+                <span className={textClass} >Assistant</span>
+            </Chip>
+        )
+    } else if (role === "system") {
+        
+        return (
+            <Chip
+                startContent={<Settings size={iconSize}/>}
+                variant={variant}
+                radius={radius}
+                color="warning"
+                size={size}
+            >
+                <span className={textClass} >System</span>
+            </Chip>
+        )
+    } else if (role === "user") {
+        return (
+            <Chip
+                startContent={<User size={iconSize}/>}
+                variant={variant}
+                radius={radius}
+                color="primary"
+                size={size}
+            >
+                <span className={textClass} >User</span>
+            </Chip>
+        )
+        
+    } else if (role === "tool") {
+        return (
+            <Chip
+                startContent={<Hammer size={iconSize}/>}
+                variant={variant}
+                radius={radius}
+                color="success"
+                size={size}
+            >
+                <span className={textClass} >Tool</span>
+            </Chip>
+        )        
+    } else {
+
+    }
+}
+
+
+
+export const MessageHeader = ({message}: {message: MessageType}) => {
+
+    return (
+        <div className="flex gap-2 items-center">
+            <MessageRoleTag role={message.role}/>
+        </div>
+    )
+}
+
+
+export const MessageCard = ({children}: {children: React.ReactNode}) => {
+
+    return (
+        <div className='w-full p-2  hover:bg-slate-50 rounded-lg border-1'>
+            {children}
+        </div>
+    )
+}
+
 export const Message = ({ message, isEditable, controls, isExpended, onChange }: MessageProps) => {
     const { role, content } = message
 
 
-    const isExample = content ? content.search("EXAMPLE") > -1 : false
+    // const isExample = content ? content.search("EXAMPLE") > -1 : false
 
     return (
-        <div className='w-full p-2  hover:bg-slate-50 rounded-lg border-1'>
-            <span className={`p-1 px-2 border-1 rounded-lg ${role == "system" ? "bg-orange-400" : role == "user" ? "bg-blue-400" : "bg-red-400"} text-stone-50`}>
+        <MessageCard>        
+            {/* <span className={`p-1 px-2 border-1 rounded-lg ${role == "system" ? "bg-orange-400" : role == "user" ? "bg-blue-400" : "bg-red-400"} text-stone-50`}>
                 {role}
             </span>
-            {isExample && <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-purple-600 text-slate-50' >Example</span>}
+            {isExample && <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-purple-600 text-slate-50' >Example</span>} */}
+            <MessageHeader message={message}/>
             
             <PromptTextEditor 
                 paragraphLabel={role === "assistant" ? "editor-paragraph-output" : "editor-paragraph-input"} 
-                text={content} 
+                text={content as string} 
                 notEditable={!isEditable} 
                 isCompact={!isExpended}
                 onChangeText={onChange}
@@ -60,7 +148,7 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
                 {/* <ExampleKeyButton message={message}/>
                 <ExampleValueButton message={message}/> */}
             </div>
-        </div>
+        </MessageCard>
     )
 }
 
@@ -84,7 +172,7 @@ const GeneratedMessageContent = ({message, modelType}: {message: MessageType, mo
         }
         return blocks
     } else if (modelType === "openai") {
-        return <PromptTextEditor paragraphLabel={role === "assistant" ? "editor-paragraph-output" : "editor-paragraph-input"} text={content} notEditable isCompact/>
+        return <PromptTextEditor paragraphLabel={role === "assistant" ? "editor-paragraph-output" : "editor-paragraph-input"} text={content as string} notEditable isCompact/>
     } else {
         throw new Error("unknown model type");
     }
@@ -103,7 +191,8 @@ const GeneratedMessageTools = ({message, modelType}: {message: MessageType, mode
             if (block.type === "tool_use"){
                 return (
                     <div key={i}>
-                        <span className='p-1 px-2 border-1 rounded-lg border-slate-600 text-slate-600'>tool</span>
+                        {/* <span className='p-1 px-2 border-1 rounded-lg border-slate-600 text-slate-600'>tool</span> */}
+                        <MessageRoleTag role={"tool"}/>
                         <JsonState data={block}/>
                     </div>
                 )
@@ -114,7 +203,8 @@ const GeneratedMessageTools = ({message, modelType}: {message: MessageType, mode
         return toolCalls.map((tool: any, i: number) => {
             return (
                 <div key={i}>
-                    <span className='p-1 px-2 border-1 rounded-lg border-slate-600 text-slate-600'>tool</span>
+                    {/* <span className='p-1 px-2 border-1 rounded-lg border-slate-600 text-slate-600'>tool</span> */}
+                    <MessageRoleTag role={"tool"}/>
                     <JsonState data={tool.function}/>
                 </div>
             )
@@ -128,9 +218,15 @@ export const GeneratedMessage = ({ message, model, modelType, controls }: Messag
 
     const { role, content, toolCalls } = message
 
-    
-
     const { currentDisplay, setCurrentDisplay, editExample } = useDagDisplayRouter()
+
+    return (
+        <MessageCard>
+            <MessageRoleTag role={"assistant"}/>
+            <GeneratedMessageContent message={message} modelType={modelType}/>
+            <GeneratedMessageTools message={message} modelType={modelType}/>
+        </MessageCard>
+    )
 
     return (
         <div className='w-full p-2 bg-slate-50 hover:bg-slate-50 rounded-lg border-1'>

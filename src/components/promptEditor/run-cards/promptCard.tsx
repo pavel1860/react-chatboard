@@ -7,6 +7,7 @@ import { ScoreComponent } from "../statsViews"
 import { ExampleStateButton } from "../examplesView"
 import { EditExampleForm } from "../editExampleForm"
 import { useState } from "react"
+import { RunCard, RunCardHeader } from "./base-card"
 
 
 
@@ -39,7 +40,21 @@ export const PromptRun = ({run, parentRun}: RunProps ) => {
     const [isEditOpen , setIsEditOpen] = useState(false)
 
     
-
+    return (
+        <RunCard color="green">            
+            <RunCardHeader run={run}/>
+            {toolRuns && <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-slate-800 text-slate-50'>{toolRuns.name}</span> }
+            <ErrorPopup error={run.error}/>            
+            {run.outputs?.state && isShowPreview && 
+                <TimelineView state={run.outputs.state} />
+            }
+            {run.outputs?.score !== undefined && <ScoreComponent score={run.outputs.score}/>}
+            <div className="flex w-full justify-end">
+            {parentRun && <ExampleStateButton run={run} namespace={run.name} parentRun={parentRun}/>}
+            </div>
+            {/* </div> */}
+        </RunCard>
+    )
 
     return (
         <div className='p-1 border-2 border-blue-100 rounded-lg relative'>        
@@ -56,12 +71,7 @@ export const PromptRun = ({run, parentRun}: RunProps ) => {
             }} onClose = {()=>{setIsEditOpen(false)}}/></div>}
             {/* <div> */}
                 <Spacer x ={2}/>
-                {/* {run.inputs.kwargs && 
-                    <>
-                    <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-orange-100' >System Prompt: {sanitizeFilename(run.inputs.kwargs.system_filename)}</span>
-                    <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-blue-100 ' >System Prompt: {sanitizeFilename(run.inputs.kwargs.user_filename)}</span>
-                    </>
-                } */}
+                
                 {run.extra && 
                     <>
                         {   run.extra.system_filename && 

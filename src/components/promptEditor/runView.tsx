@@ -280,10 +280,14 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
     depth = depth || 0
     // const {states} = useStateGraph(run, data.states)
     let comp = null
+    let numChildren = run._child_runs.length
     if (run.run_type === 'chain'){
-        comp = <ChainRun run={run} parentRun={parentRun}/>        
-    }
+        comp = <ChainRun run={run} parentRun={parentRun}/>
+    }    
     else if (run.run_type === 'prompt'){
+        if (run.child_runs && run.child_runs[0].run_type === 'llm'){
+            numChildren = run.child_runs[0].inputMessages.length + run.child_runs[0].outputMessages.length
+        }        
         comp = <PromptRun run={run} parentRun={parentRun}/>
     } else if (run.run_type === 'llm'){
         comp = parentRun && <LlmRun run={run} name={parentRun.name} parentRun={parentRun}/>
@@ -294,17 +298,22 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
     
     return (
         <div             
-            style={{paddingLeft: (depth) * 30, marginBottom: 10}}
+            // style={{paddingLeft: (depth) * 10, marginBottom: 10}}
+            style={{marginBottom: 10}}
             >
             {comp}
-            {run.inputs?.input && <div>
+            {/* {run.inputs?.input && <div>
                 <InputCard input={run.inputs.input} />
-            </div>}
-            <div className="flex h-full">
+            </div>} */}
+            <div className="flex h-full">            
                 {run.child_runs && <div 
-                    className="w-4 ml-3 bg-slate-400 cursor-pointer min-h-full hover:bg-slate-500 shadow-sm"
+                    // className="w-4 ml-3 bg-slate-300 cursor-pointer min-h-full hover:bg-slate-400 shadow-sm"
+                    className={"w-4 ml-3  cursor-pointer min-h-full  shadow-sm " + (collapsed ? "bg-slate-300 hover:bg-slate-200" : "bg-slate-200 hover:bg-slate-300")}
                     onClick={()=>{toggleCollapse()}}
                 >&nbsp;</div>}
+                {collapsed && <Button variant="light" className="text-nowrap" size="sm" color="default" onClick={() => toggleCollapse()}>
+                            <span className="text-slate-400">{numChildren == 1 ? `${numChildren} item` : `${numChildren} items`}</span>
+                        </Button>}
                 <div className='w-full'>
                     {!collapsed && run.child_runs?.map((chiledRun: any, i: number) => <RunTree key={i} run={chiledRun} depth={depth || 1} parentRun={run}/>)}
                 </div>

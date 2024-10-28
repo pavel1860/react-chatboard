@@ -49,7 +49,9 @@ export class RunTreeContext {
             id: `${this.id}_output`,
             role: 'output',
             content: this.outputs.content    
-        }] || []
+        }] || this.outputs.choices?.map(
+            (choice :any)=>(choice.message)
+        ) || []
         return outMessages
     }
 
@@ -75,6 +77,26 @@ export class RunTreeContext {
 
     get metadata(){
         return this._runTree.extra?.metadata || {}
+    }
+
+    get startTime(){
+        return new Date(this._runTree.start_time)
+    }
+
+    get endTime(){
+        return new Date(this._runTree.end_time)
+    }   
+
+    duration(rounded: number=0, format="seconds"){
+        if (format === "seconds"){
+            const dur = (this.endTime.getTime() - this.startTime.getTime()) / 1000
+            if (rounded){
+                return Math.round(dur * 10**rounded) / 10**rounded
+            }
+            return dur
+        }
+        return (this.endTime.getTime() - this.startTime.getTime())
+        
     }
 
     get model(){
