@@ -39,7 +39,7 @@ export const useAssetMetadata = (assetName: string) => {
 
 
 
-export const useAssetPartition = (assetName: string, metadata: IAssetClass | null) => {
+export const useAssetPartition = (assetName: string, metadata: IAssetClass | null, profileName?: string) => {
     const { replace } = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -57,7 +57,7 @@ export const useAssetPartition = (assetName: string, metadata: IAssetClass | nul
         isLoading: profileLoading,
         data: profileData,
         error: profileError
-    } = useProfilePartitionService(searchParams.get('profile'), searchParams.get('partition'))
+    } = useProfilePartitionService(profileName || searchParams.get('profile'), searchParams.get('partition'))
 
 
     useEffect(()=>{
@@ -85,8 +85,10 @@ export const useAssetPartition = (assetName: string, metadata: IAssetClass | nul
         replace(`${pathname}?${params.toString()}`);
     }
 
-    const removePartitionFilter = (partition: string) => {
-
+    const removePartitionFilter = () => {
+        const params = new URLSearchParams(searchParams);
+        params.delete('partition')
+        replace(`${pathname}?${params.toString()}`);
     }
     
     return {        
@@ -145,7 +147,7 @@ const AssetContext = React.createContext<AssetContextType<any, any, any>>({
 
 
 
-export const AssetProvider = ({children, assetName}: {children: any, assetName:string}) => {
+export const AssetProvider = ({children, assetName, profileName}: {children: any, assetName:string, profileName?: string}) => {
 
 
 
@@ -167,7 +169,7 @@ export const AssetProvider = ({children, assetName}: {children: any, assetName:s
         removePartitionFilter,
         addProfileFilter,
         removeProfileFilter
-    } = useAssetPartition(assetName, metadata)
+    } = useAssetPartition(assetName, metadata, profileName)
 
     
     return (
