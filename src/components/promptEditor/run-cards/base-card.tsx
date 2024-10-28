@@ -80,9 +80,10 @@ export const RunDuration = ({run}: {run: RunTreeContext}) => {
 
 interface RunCardHeaderProps {
     run: RunTreeContext
+    children?: any
 }
 
-export const RunCardHeader = ({run}: RunCardHeaderProps) => {
+export const RunCardHeader = ({run, children}: RunCardHeaderProps) => {
     
     return (
         <div className="flex items-center justify-between">            
@@ -97,6 +98,7 @@ export const RunCardHeader = ({run}: RunCardHeaderProps) => {
                 <Timer size={17}/>
                 {run.duration(2)}
             </div> */}
+            {children}            
             <div>
                 <InputPopup inputs={run.inputs}/>
                 <OutputPopup outputs={run.outputs}/>

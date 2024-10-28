@@ -4,7 +4,7 @@ import { RunProps } from "../types"
 import { ErrorPopup } from "../stateJsonView"
 import { GeneratedMessage, Message, MessageType } from "../messages"
 import { ExampleKeyButton, ExampleValueButton } from "../examplesView"
-import { BrainCircuit, ChevronsUpDown } from "lucide-react"
+import { BrainCircuit, ChevronsDownUp, ChevronsUpDown } from "lucide-react"
 
 
 
@@ -46,10 +46,9 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
                 variant="light" 
                 size='sm'
                 onPress={()=>{toggleHistory()}}
-                startContent={<ChevronsUpDown size={15} color="gray" />}
+                startContent={isHistoryHidden ? <ChevronsUpDown size={15} color="gray" /> : <ChevronsDownUp size={15} color="gray"/>}
                 >
-                    <span className='text-gray-400'>{isHistoryHidden ? "show " : "hide "}{inLen-1}</span>
-                    {/* <IconCtx size={20} color='gray'><FaCommentDots /></IconCtx> <span className='text-gray-400'>{isHistoryHidden ? "show " : "hide "}{inLen-1}</span> */}
+                    <span className='text-gray-400'>{isHistoryHidden ? "show " : "hide "}{inLen-1 == 1 ? `${inLen-1} message` : `${inLen-1} messages`}</span>
             </Button>}
             <ErrorPopup error={run.error}/>
         {run.inputMessages.map((m: any, idx: number) => ({
