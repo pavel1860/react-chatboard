@@ -7,9 +7,9 @@ import React from "react"
 
 export interface ListItemProps {
     key: string
-    title: string
-    value: string
-    description?: string
+    title: string | React.ReactNode
+    value: string 
+    description?: string | React.ReactNode
     href?: string
 }
 
