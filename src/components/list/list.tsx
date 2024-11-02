@@ -47,7 +47,7 @@ export default function List({ items, fullHeight, height, selected, onSelectionC
     return (
         <div>
             {/* <h1>Clients</h1> */}
-            {selectedItem}
+            {/* {selectedItem} */}
             <Listbox
                 disallowEmptySelection
                 selectionMode="single"
