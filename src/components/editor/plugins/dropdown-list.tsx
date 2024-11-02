@@ -1,10 +1,10 @@
 import { createPortal } from "react-dom";
 import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-    List,    
-    ListItem,
-    ListItemPrefix,
-} from "@material-tailwind/react";
+// import {
+//     List,    
+//     ListItem,
+//     ListItemPrefix,
+// } from "@material-tailwind/react";
 
 // lexical
 import {
@@ -36,6 +36,37 @@ interface BlockOptionsDropdownListProps {
     toolbarRef: MutableRefObject<any>;
     setShowBlockOptionsDropDown: any;
 
+}
+
+
+
+const List = ({ children, className, ref }) => {
+    return createPortal(
+        <List className={className} ref={ref}>
+            {children}
+        </List>,
+        document.body
+    );
+}
+
+const ListItem = ({ children, className, onClick, selected }) => {
+    return (
+        <ListItem
+            className={className}
+            onClick={onClick}
+            selected={selected}
+        >
+            {children}
+        </ListItem>
+    );
+}
+
+const ListItemPrefix = ({ children }) => {
+    return (
+        <ListItemPrefix>
+            {children}
+        </ListItemPrefix>
+    );
 }
 
 

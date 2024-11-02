@@ -1,10 +1,10 @@
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {    
-    Input,    
-    IconButton,
-    Typography,
-} from "@material-tailwind/react";
+// import {    
+//     Input,    
+//     IconButton,
+//     Typography,
+// } from "@material-tailwind/react";
 
 // lexical
 import {
@@ -19,10 +19,25 @@ import {
 } from "@lexical/link";
 import { $getNearestNodeOfType, mergeRegister } from "@lexical/utils";
 import { getSelectedNode, LowPriority, positionEditorElement } from "../util";
+import React from "react";
 
 
 interface FloatingLinkEditorProps {
     editor: LexicalEditor;
+}
+
+
+
+const Input = ({ ...props }) => {
+    return <input {...props} />;
+}
+
+const IconButton = ({ children, ...props }) => {
+    return <button {...props}>{children}</button>;
+}
+
+const Typography = ({ children, ...props }) => {
+    return <span {...props}>{children}</span>;
 }
 
 

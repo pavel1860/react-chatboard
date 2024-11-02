@@ -1,9 +1,9 @@
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {    
-    Button,
-    IconButton,    
-} from "@material-tailwind/react";
+// import {    
+//     Button,
+//     IconButton,    
+// } from "@material-tailwind/react";
 
 // lexical
 import {
@@ -36,6 +36,16 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { blockTypeToBlockName, Divider, getSelectedNode, LowPriority, Select, supportedBlockTypes } from "../util";
 import { BlockOptionsDropdownList } from "./dropdown-list";
 import { FloatingLinkEditor } from "./floating-link";
+
+
+
+export const Button = ({ children, ...props }) => {
+    return <button {...props}>{children}</button>;
+}
+
+export const IconButton = ({ children, ...props }) => {
+    return <button {...props}>{children}</button>;
+}
 
 
 export function ToolbarPlugin() {
