@@ -15,7 +15,7 @@ import { useExamples, useRunList, useRunState, useRunTree } from './state/runsCo
 // import { IconCtx } from '../components/aux/icons';
 // import { useQuery } from '@apollo/client';
 // import { GET_RUN_TREE } from '../../graphql/runQueries';
-import { Button, Spacer, Popover, PopoverTrigger, PopoverContent, Accordion, AccordionItem, Input} from '@nextui-org/react';
+import { Button, Spacer, Popover, PopoverTrigger, PopoverContent, Accordion, AccordionItem, Input, Spinner} from '@nextui-org/react';
 // import { TbDots } from 'react-icons/tb';
 // import { FaCommentDots } from 'react-icons/fa';
 import { GeneratedMessage, Message, MessageType } from './messages';
@@ -414,7 +414,7 @@ export const RunView = ({ runId }: any) => {
     const { run, error, loading } = useRunTree()
 
     if (loading || !run){
-        return <div className="flex w-full"> <Spinner label="Default" color="primary" labelColor="foreground"/></div>
+        return <div className="flex w-full justify-center"> <Spinner label="Loading" color="primary" labelColor="foreground"/></div>
     }
     let comp = null
     if (currentDisplay == DisplayType.STATES){
