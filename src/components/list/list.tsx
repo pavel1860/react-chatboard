@@ -1,7 +1,7 @@
 import { Avatar, Input, Listbox, ListboxItem, Skeleton, Selection, Button } from "@nextui-org/react"
 import { Search } from "lucide-react"
 import Link from 'next/link'
-import React from "react"
+import React, { use, useEffect } from "react"
 
 
 
@@ -24,12 +24,22 @@ export interface ListProps {
     onSelectionChange?: (item: any) => void
     onAddItem?: () => void
     addItemLabel?: string
+    selectionStyle?: string
 }
 
 
-export default function List({ items, fullHeight, height, selected, onSelectionChange, addItemLabel, onAddItem, loading, error }: ListProps): React.ReactElement {
+export default function List({ items, fullHeight, height, selected, onSelectionChange, addItemLabel, onAddItem, loading, error, selectionStyle }: ListProps): React.ReactElement {
 
     const [selectedItem, setSelectedItem] = React.useState<any>(selected)
+    const [currSelectionStyle, setCurrSelectionStyle] = React.useState<string>(selectionStyle || "bg-slate-300")
+
+    useEffect(() => {
+        setCurrSelectionStyle(selectionStyle || "bg-slate-300")
+    }, [selectionStyle])
+
+    useEffect(() => {
+        setSelectedItem(selected)
+    }, [selected])
 
     if (loading || !items) {
         return (<Skeleton className="flex rounded-full w-12 h-12">
@@ -46,8 +56,6 @@ export default function List({ items, fullHeight, height, selected, onSelectionC
 
     return (
         <div>
-            {/* <h1>Clients</h1> */}
-            {/* {selectedItem} */}
             <Listbox
                 disallowEmptySelection
                 selectionMode="single"
@@ -97,12 +105,12 @@ export default function List({ items, fullHeight, height, selected, onSelectionC
                         key={item.key}
                         href={item.href}
                         title={item.title}
-                        description={item.description}
-
-                        // className={selectedItem === item.key ? "bg-slate-300" : ''} 
-                        // classNames={selectedItem === item.key ?{
-                        //     base: "bg-slate-300"
-                        // }: {}}
+                        description={item.description}   
+                        classNames={{
+                            base: cc({
+                                [currSelectionStyle]: selectedItem === item.key
+                            })
+                        }}
                         showDivider
                     // shouldHighlightOnFocus
                     >
