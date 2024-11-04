@@ -13,7 +13,7 @@ export interface MessageType {
     id: string
     role: "system" | "user" | "assistant"
     content: string | any[]
-    toolCalls?: any
+    tool_calls?: any
 }
 
 
@@ -157,7 +157,7 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
 
 const GeneratedMessageContent = ({message, modelType}: {message: MessageType, modelType: ModelType}) => {
 
-    const { role, content, toolCalls } = message
+    const { role, content, tool_calls } = message
 
     if (modelType === "anthropic") {
         const blocks = []
@@ -183,7 +183,7 @@ const GeneratedMessageContent = ({message, modelType}: {message: MessageType, mo
 
 const GeneratedMessageTools = ({message, modelType}: {message: MessageType, modelType: ModelType}) => {
 
-    const { role, content, toolCalls } = message
+    const { role, content, tool_calls } = message
 
     if (modelType === "anthropic") {
         //@ts-ignore
@@ -199,13 +199,17 @@ const GeneratedMessageTools = ({message, modelType}: {message: MessageType, mode
             }
         })
     } else if (modelType === "openai") {
-        if (!toolCalls) return null
-        return toolCalls.map((tool: any, i: number) => {
+        if (!tool_calls) return null
+        return tool_calls.map((tool: any, i: number) => {
             return (
                 <div key={i}>
                     {/* <span className='p-1 px-2 border-1 rounded-lg border-slate-600 text-slate-600'>tool</span> */}
-                    <MessageRoleTag role={"tool"}/>
-                    <JsonState data={tool.function}/>
+                    <div className="flex gap-2 items-center">
+                        <MessageRoleTag role={"tool"}/>
+                        {/* <JsonState data={tool.function}/> */}
+                        <span>{tool.function.name}</span>
+                    </div>
+                    <JsonState data={JSON.parse(tool.function.arguments)}/>
                 </div>
             )
         })
@@ -216,7 +220,7 @@ const GeneratedMessageTools = ({message, modelType}: {message: MessageType, mode
 
 export const GeneratedMessage = ({ message, model, modelType, controls }: MessageProps & LlmOutputsProps) => {
 
-    const { role, content, toolCalls } = message
+    const { role, content, tool_calls } = message
 
     const { currentDisplay, setCurrentDisplay, editExample } = useDagDisplayRouter()
 
