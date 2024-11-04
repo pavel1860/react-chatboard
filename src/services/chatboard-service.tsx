@@ -289,8 +289,8 @@ export function useGetRuns(limit: number, offset: number, runNames: string[]) : 
 
 
 export function useGetTree(id: string | null){
-    const { data, error, isLoading } = useSWR(id ? ['promptboard/get_run_tree'] : null, 
-        ([url]) => fetcher(url, { run_id: id })
+    const { data, error, isLoading } = useSWR(id ? ['promptboard/get_run_tree', id] : null, 
+        ([url, id]) => fetcher(url, { run_id: id })
     ); 
 
     const [runTree, setRunTree] = useState<RunTreeContext | null>(null)

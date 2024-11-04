@@ -414,7 +414,7 @@ export const RunView = ({ runId }: any) => {
     const { run, error, loading } = useRunTree()
 
     if (loading || !run){
-        return <div>loading...</div>
+        return <div className="flex w-full"> <Spinner label="Default" color="primary" labelColor="foreground"/></div>
     }
     let comp = null
     if (currentDisplay == DisplayType.STATES){
