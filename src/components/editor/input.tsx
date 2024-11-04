@@ -103,13 +103,17 @@ export interface ChatInputProps {
 export function ChatInput({placeholder, onChange, onKeyPress, dontClear}: ChatInputProps) {
 
     const [rows, setRows] = useState(2);
+    const [dependentVersion, setDependentVersion] = useState(0);
+
+    useEffect(() => {
+        setDependentVersion(dependentVersion + 1)
+    }, [onChange, onKeyPress, dontClear])
 
     return (
         <LexicalComposer initialConfig={editorConfig}>
             <div 
-                className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}
-                // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}
-                
+                className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}                
+                key={`editor-${dependentVersion}`}
                 
                 style={{height: `${rows * 25}px`}}
             >
