@@ -1,30 +1,4 @@
-import { createPortal } from "react-dom";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-    List,
-    Input,
-    Button,
-    ListItem,
-    IconButton,
-    Typography,
-    ListItemPrefix,
-} from "@material-tailwind/react";
 
-// lexical
-import {
-    $getNodeByKey,
-    $getSelection,
-    $isRangeSelection,
-    FORMAT_TEXT_COMMAND,
-    $createParagraphNode,
-    SELECTION_CHANGE_COMMAND,
-} from "lexical";
-import {
-    $isListNode,
-    REMOVE_LIST_COMMAND,
-    INSERT_ORDERED_LIST_COMMAND,
-    INSERT_UNORDERED_LIST_COMMAND,
-} from "@lexical/list";
 import {
     QuoteNode,
     HeadingNode,
@@ -57,6 +31,7 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { Placeholder } from "./util";
 import { ToolbarPlugin } from "./plugins/toolbar";
+import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 
 
 
@@ -66,7 +41,7 @@ import { ToolbarPlugin } from "./plugins/toolbar";
 
 const editorConfig = {
     namespace: "MyEditor",
-    onError(error) {
+    onError(error: any) {
         throw error;
     },
     nodes: [
@@ -92,7 +67,8 @@ export function TextEditor() {
                             <ContentEditable className="lexical min-h-[280px] resize-none px-2.5 py-4 text-base caret-gray-900 outline-none" />
                         }
                         placeholder={<Placeholder />}
-                        ErrorBoundary={null}
+                        // ErrorBoundary={null}
+                        ErrorBoundary={LexicalErrorBoundary}
                     />
                     <AutoFocusPlugin />
                     <ListPlugin />

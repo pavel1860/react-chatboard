@@ -47,11 +47,11 @@ export function Placeholder({text} : {text?: string}) {
     );
 }
 
-export function Select({ onChange, className, options, value }) {
+export function Select({ onChange, className, options, value }: any) {
     return (
         <select className={className} onChange={onChange} value={value}>
             <option hidden={true} value="" />
-            {options.map((option) => (
+            {options.map((option: any) => (
                 <option key={option} value={option}>
                     {option}
                 </option>
@@ -60,7 +60,7 @@ export function Select({ onChange, className, options, value }) {
     );
 }
 
-export function getSelectedNode(selection) {
+export function getSelectedNode(selection: any) {
     const anchor = selection.anchor;
     const focus = selection.focus;
     const anchorNode = selection.anchor.getNode();
@@ -78,7 +78,7 @@ export function getSelectedNode(selection) {
 
 
 
-export function positionEditorElement(editor, rect) {
+export function positionEditorElement(editor: any, rect: any) {
     if (rect === null) {
         editor.style.opacity = "0";
         editor.style.top = "-1000px";

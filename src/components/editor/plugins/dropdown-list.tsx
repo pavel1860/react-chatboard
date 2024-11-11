@@ -40,7 +40,7 @@ interface BlockOptionsDropdownListProps {
 
 
 
-const List = ({ children, className, ref }) => {
+const List = ({ children, className, ref }: any) => {
     return createPortal(
         <List className={className} ref={ref}>
             {children}
@@ -49,7 +49,7 @@ const List = ({ children, className, ref }) => {
     );
 }
 
-const ListItem = ({ children, className, onClick, selected }) => {
+const ListItem = ({ children, className, onClick, selected }: any) => {
     return (
         <ListItem
             className={className}
@@ -61,7 +61,7 @@ const ListItem = ({ children, className, onClick, selected }) => {
     );
 }
 
-const ListItemPrefix = ({ children }) => {
+const ListItemPrefix = ({ children }: any) => {
     return (
         <ListItemPrefix>
             {children}
@@ -84,7 +84,9 @@ export function BlockOptionsDropdownList({
 
         if (toolbar !== null && dropDown !== null) {
             const { top, left } = toolbar.getBoundingClientRect();
+            //@ts-ignore
             dropDown.style.top = `${top + 40}px`;
+            //@ts-ignore
             dropDown.style.left = `${left}px`;
         }
     }, [dropDownRef, toolbarRef]);
@@ -96,7 +98,7 @@ export function BlockOptionsDropdownList({
         if (dropDown !== null && toolbar !== null) {
             const handle = (event: any) => {
                 const target = event.target;
-
+                //@ts-ignore
                 if (!dropDown.contains(target) && !toolbar.contains(target)) {
                     setShowBlockOptionsDropDown(false);
                 }

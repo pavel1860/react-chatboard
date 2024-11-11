@@ -136,6 +136,7 @@ export const useMutation = <Args, Data>(url: string, options: MutationOptions<Ar
     return {
         isMutating,
         trigger: (arg: Args) => {
+            {/* @ts-ignore */}
             trigger(arg)
         },
     }

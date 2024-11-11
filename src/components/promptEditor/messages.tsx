@@ -2,7 +2,7 @@ import React from 'react';
 import PromptTextEditor from './editors/promptTextEditor';
 import { useDagDisplayRouter } from './state/dagRouterContext'
 import { JsonState } from './stateJsonView';
-import { ModelType } from '@/src/types/run-tree';
+import { ModelType } from '../../types/run-tree';
 import { Chip } from '@nextui-org/react';
 import { Bot, Hammer, Settings, User } from 'lucide-react';
 

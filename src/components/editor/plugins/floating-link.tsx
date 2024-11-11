@@ -32,11 +32,11 @@ const Input = ({ ...props }) => {
     return <input {...props} />;
 }
 
-const IconButton = ({ children, ...props }) => {
+const IconButton = ({ children, ...props }: any) => {
     return <button {...props}>{children}</button>;
 }
 
-const Typography = ({ children, ...props }) => {
+const Typography = ({ children, ...props }: any) => {
     return <span {...props}>{children}</span>;
 }
 

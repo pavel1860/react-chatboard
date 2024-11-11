@@ -39,11 +39,11 @@ import { FloatingLinkEditor } from "./floating-link";
 
 
 
-export const Button = ({ children, ...props }) => {
+export const Button = ({ children, ...props }: any) => {
     return <button {...props}>{children}</button>;
 }
 
-export const IconButton = ({ children, ...props }) => {
+export const IconButton = ({ children, ...props }: any) => {
     return <button {...props}>{children}</button>;
 }
 
@@ -73,6 +73,7 @@ export function ToolbarPlugin() {
             const elementKey = element.getKey();
             const elementDOM = editor.getElementByKey(elementKey);
             if (elementDOM !== null) {
+                //@ts-ignore
                 setSelectedElementKey(elementKey);
                 if ($isListNode(element)) {
                     const parentList = $getNearestNodeOfType(anchorNode, ListNode);
@@ -125,7 +126,7 @@ export function ToolbarPlugin() {
 
     const codeLanguges = useMemo(() => getCodeLanguages(), []);
     const onCodeLanguageSelect = useCallback(
-        (e) => {
+        (e: any) => {
             editor.update(() => {
                 if (selectedElementKey !== null) {
                     const node = $getNodeByKey(selectedElementKey);
@@ -161,6 +162,7 @@ export function ToolbarPlugin() {
                         className="flex items-center gap-1 font-medium capitalize"
                         aria-label="Formatting Options"
                     >
+                        {/*@ts-ignore */}
                         {blockTypeToBlockName[blockType]}
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

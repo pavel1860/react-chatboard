@@ -76,6 +76,7 @@ export class RunTreeContext {
     }
 
     get metadata(){
+        {/* @ts-ignore */}
         return this._runTree.extra?.metadata || {}
     }
 

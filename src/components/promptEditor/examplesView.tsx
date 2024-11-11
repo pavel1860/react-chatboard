@@ -13,18 +13,18 @@ import { EditableJsonState, JsonState } from './stateJsonView';
 const ExampleErrorPopover = ({children, error}: {children: any, error: string | null}) => {
 
     return (
-          <Popover isOpen={error !== null} onOpenChange={(open) => {}}>
+        <Popover isOpen={error !== null} onOpenChange={(open) => {}}>
             <PopoverTrigger>
-              {children}
+                {children}
             </PopoverTrigger>
             <PopoverContent>
-              <div className="px-1 py-2">
-                <div className="text-small font-bold text-red-400">Error</div>
-                <p className="text-small text-red-400">{error}</p>
-              </div>
+                <div className="px-1 py-2">
+                    <div className="text-small font-bold text-red-400">Error</div>
+                    <p className="text-small text-red-400">{error}</p>
+                </div>
             </PopoverContent>
-          </Popover>        
-      );
+        </Popover>        
+    );
 
 }
 
@@ -159,6 +159,7 @@ export const ExampleStateButton = ({run, parentRun, namespace}: {run: RunType, p
                                 id: `out_msg_${run.id}`,
                                 role: message.role,
                                 content: message.content,
+                                //@ts-ignore
                                 toolCalls: message.tool_calls,
                             }, namespace)
                             const inActions = run.inputs.state._actions
@@ -374,6 +375,7 @@ export const ExampleKeyItem = ({exampleKey, onChange}: {exampleKey: ExampleKey, 
 
         <div className="bg-neutral-200 rounded-md max-h-72 overflow-scroll border-1 border-slate-400 p-1">
             <PromptTextEditor 
+            //@ts-ignore
                 text={exampleKey.message.content} 
                 onChangeText={onChange}
                 paragraphLabel={'editor-paragraph-input'} 

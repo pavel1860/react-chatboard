@@ -66,6 +66,7 @@ export const PromptRun = ({ run, parentRun }: RunProps) => {
             }
             {run.outputs?.score !== undefined && <ScoreComponent score={run.outputs.score} />}
             <div className="flex w-full justify-end">
+                {/* @ts-ignore */}
                 {parentRun && <ExampleStateButton run={run} namespace={run.name} parentRun={parentRun} />}
             </div>
             {/* </div> */}
@@ -92,10 +93,12 @@ export const PromptRun = ({ run, parentRun }: RunProps) => {
                     <>
                         {run.extra.system_filename &&
                             <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-orange-100' >
+                                {/* @ts-ignore */}
                                 <span className='text-sm'></span> {sanitizeFilename(run.extra.system_filename)}
                             </span>}
                         {run.extra.user_filename &&
                             <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-blue-100 ' >
+                                {/* @ts-ignore */}
                                 <span className='text-xs'></span>{sanitizeFilename(run.extra.user_filename)}
                             </span>}
                     </>
@@ -104,6 +107,7 @@ export const PromptRun = ({ run, parentRun }: RunProps) => {
             {/* <JsonState data={run.inputs}/> */}
             <InputPopup inputs={run.inputs} />
             <OutputPopup outputs={run.outputs} />
+            {/* @ts-ignore */}
             {toolRuns && <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-slate-800 text-slate-50'>{toolRuns.name}</span>}
             <ErrorPopup error={run.error} />
             {run.outputs?.state && isShowPreview &&
@@ -111,6 +115,7 @@ export const PromptRun = ({ run, parentRun }: RunProps) => {
             }
             {run.outputs?.score !== undefined && <ScoreComponent score={run.outputs.score} />}
             <div className="flex w-full justify-end">
+                {/* @ts-ignore */}
                 {parentRun && <ExampleStateButton run={run} namespace={run.name} parentRun={parentRun} />}
             </div>
             <PromptInputs inputs={run.inputs} />
