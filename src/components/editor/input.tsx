@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-
+import { File, X } from "lucide-react";
 // lexical
 import {
 
@@ -46,6 +46,7 @@ import { on } from "events";
 import KeyPressPlugin from "./plugins/key-press";
 import ResizeWrapperPlugin from "./plugins/resize-wrapper-plugin";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
+import { Button } from "@nextui-org/react";
 
 
 
@@ -76,20 +77,29 @@ const editorConfig = {
 
 export interface ChatInputProps {
     placeholder: string | undefined;
+    file?: any;
+    removeFile?: () => void;
     onChange?: (e: EditorValue) => void;
     onKeyPress?: (e: EditorValue) => void;
     dontClear?: boolean;
     bgColor?: string;
 }
 
-export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor}: ChatInputProps) {
+export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor, file, removeFile}: ChatInputProps) {
 
-    const [rows, setRows] = useState(2);
+    const [rows, setRows] = useState(2 + file? 2 : 0);
+    // const [rows, setRows] = useState(2);
     const [dependentVersion, setDependentVersion] = useState(0);
 
     useEffect(() => {
         setDependentVersion(dependentVersion + 1)
     }, [onChange, onKeyPress, dontClear])
+
+    useEffect(() => {
+        if (file) {
+            setRows(rows + 2)
+        }
+    }, [file])
 
     return (
         <LexicalComposer initialConfig={editorConfig}>
@@ -99,7 +109,11 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                 key={`editor-${dependentVersion}`}
                 
                 style={{height: `${rows * 25}px`}}
-            >
+            >                
+            {file && <div className="bg-slate-200 inline-flex p-2 rounded-md flex-grow-0 border-1 border-slate-400">
+                    <File />{file.name.slice(0,10)} file
+                    <Button onClick={removeFile} isIconOnly variant="light" size="sm"><X /></Button>
+                    </div> }
                 {/* <ToolbarPlugin /> */}
                 <div 
                     // className="relative rounded-b-lg border border-opacity-5 bg-white"
@@ -110,7 +124,7 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                         contentEditable={
                             <ContentEditable className="lexical min-h-[280px] resize-none px-2.5 py-2 text-base caret-gray-900 outline-none" />
                         }
-                        placeholder={<Placeholder text={placeholder}/>}
+                        placeholder={<Placeholder text={placeholder} offset={file ? 10 : 0}/>}
                         ErrorBoundary={LexicalErrorBoundary}
                     />
                     <OnChangePlugin onChange={(editorState: EditorState)=> {
@@ -135,7 +149,9 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                         setRows(r)
                     }}/>
                 </div>
+                
             </div>
+            
         </LexicalComposer>
     );
 }

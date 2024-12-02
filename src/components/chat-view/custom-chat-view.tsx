@@ -26,6 +26,7 @@ export default function InfiniteChat<I, O, M>({messages, messageComp, width, hei
         <div id="scrollableDiv" style={{
                 // width: width || "1000px", 
                 // height: height || "100vh", 
+                // height: height || "100%", 
                 height: height || "100%", 
                 width: width || "100%",
                 overflowY: "scroll", 

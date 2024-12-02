@@ -38,10 +38,15 @@ export function Divider() {
     return <div className="mx-1 h-6 w-px bg-gray-400" />;
 }
 
-export function Placeholder({text} : {text?: string}) {
+export function Placeholder({text, offset} : {text?: string, offset?: number}) {
+
+    const top = offset ? `top-${offset}` : "top-2";
 
     return (
-        <div className="pointer-events-none absolute left-2.5 top-2 inline-block select-none overflow-hidden text-base font-normal text-gray-400">
+        <div 
+            // className="pointer-events-none absolute left-2.5 top-2 inline-block select-none overflow-hidden text-base font-normal text-gray-400"
+            className={`pointer-events-none absolute left-2.5 ${top} inline-block select-none overflow-hidden text-base font-normal text-gray-400`}
+            >
             {text || "Write somthing..."}
         </div>
     );
