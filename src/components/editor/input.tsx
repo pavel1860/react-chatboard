@@ -79,9 +79,10 @@ export interface ChatInputProps {
     onChange?: (e: EditorValue) => void;
     onKeyPress?: (e: EditorValue) => void;
     dontClear?: boolean;
+    bgColor?: string;
 }
 
-export function ChatInput({placeholder, onChange, onKeyPress, dontClear}: ChatInputProps) {
+export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor}: ChatInputProps) {
 
     const [rows, setRows] = useState(2);
     const [dependentVersion, setDependentVersion] = useState(0);
@@ -93,13 +94,18 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear}: ChatIn
     return (
         <LexicalComposer initialConfig={editorConfig}>
             <div 
-                className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}                
+                // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}                
+                className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm ${bgColor || "bg-gray-100"} text-left font-normal leading-5 text-gray-900`}
                 key={`editor-${dependentVersion}`}
                 
                 style={{height: `${rows * 25}px`}}
             >
                 {/* <ToolbarPlugin /> */}
-                <div className="relative rounded-b-lg border border-opacity-5 bg-white">
+                <div 
+                    // className="relative rounded-b-lg border border-opacity-5 bg-white"
+                    // className="relative rounded-md bg-gray-100 shadow-sm"
+                >
+                
                     <RichTextPlugin
                         contentEditable={
                             <ContentEditable className="lexical min-h-[280px] resize-none px-2.5 py-2 text-base caret-gray-900 outline-none" />

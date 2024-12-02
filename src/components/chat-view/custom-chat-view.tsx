@@ -25,9 +25,11 @@ export default function InfiniteChat<I, O, M>({messages, messageComp, width, hei
     return (
         <div id="scrollableDiv" style={{
                 // width: width || "1000px", 
-                height: height || "100vh", 
+                // height: height || "100vh", 
+                height: height || "100%", 
+                width: width || "100%",
                 overflowY: "scroll", 
-                display: "flex", 
+                display: "flex",
                 flexDirection: "column-reverse", 
                 margin: "auto"
             }} className="bg-body-tertiary p-3">
