@@ -17,7 +17,7 @@ interface AddAssetDropzoneModalProps {
 
 
 
-export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, renderPreview }: AddAssetDropzoneModalProps) {
+export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle }: AddAssetDropzoneModalProps) {
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -57,6 +57,14 @@ export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, re
         //         console.error("Error uploading file:", error.message);
         //     });
     }, [currentFile, fileName])
+
+
+    const clearState = () => {
+        setCurrentFile(undefined)
+        setFileName(undefined)
+        setError(undefined)
+        setLoading(false)
+    }
 
 
     const uploadFile = async () => {
@@ -130,7 +138,10 @@ export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, re
                             }
                             </ModalBody>
                             <ModalFooter>
-                                <Button color="danger" variant="light" onPress={onClose} isDisabled={loading}>
+                                <Button color="danger" variant="light" onPress={() => {
+                                    onClose()
+                                    clearState()
+                                    }} isDisabled={loading}>
                                     Close
                                 </Button>
                                 {<Button 
@@ -140,7 +151,7 @@ export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, re
                                     onPress={async ()=>{
                                         const data = await uploadFile()
                                         if (data) {
-                                            renderPreview && renderPreview(data)
+                                            clearState()
                                             onClose()
                                         }                                        
                                 }}>
