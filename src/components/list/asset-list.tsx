@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 
 
 
-interface ListItem {
+export interface ListItem {
     datetime: Date
     key: string
     text: string
@@ -136,9 +136,8 @@ export default function AssetList<T extends ListItem>({ items, loading, error, i
                 list: "max-h-full overflow-scroll",
             }}
 
-            onSelectionChange={(keys: Selection) => {
-                
-                onSelectionChange && onSelectionChange(keys.anchorIndex)
+            onSelectionChange={(keys: Selection) => {                
+                onSelectionChange && onSelectionChange(keys.anchorKey)
             }}
             items={itemList}
             variant="flat"
