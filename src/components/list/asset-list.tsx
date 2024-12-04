@@ -73,10 +73,12 @@ interface AssetListProps<T extends ListItem> {
     error?: any
     itemComponent: (item: T) => React.ReactElement
     onSelectionChange?: (key: string) => void
+    selectionMode?: "none" | "single" | "multiple"
+    selectedKey?: string | null
 }
 
 
-export default function AssetList<T extends ListItem>({ items, loading, error, itemComponent, onSelectionChange }: AssetListProps<T>): React.ReactElement {
+export default function AssetList<T extends ListItem>({ items, loading, error, itemComponent, onSelectionChange, selectedKey, selectionMode }: AssetListProps<T>): React.ReactElement {
 
     const {
         itemList,
@@ -85,6 +87,8 @@ export default function AssetList<T extends ListItem>({ items, loading, error, i
         orderBy,
         setOrderBy,
     } = useAssetList(items)
+
+    const [selectedItem, setSelectedItem] = useState<T | null>(null)
 
     if (loading) {
         return (<Skeleton className="flex rounded-full w-12 h-12">
@@ -136,17 +140,26 @@ export default function AssetList<T extends ListItem>({ items, loading, error, i
                 list: "max-h-full overflow-scroll",
             }}
 
-            onSelectionChange={(keys: Selection) => {                
+            onSelectionChange={(keys: Selection) => { 
+                //@ts-ignore               
                 onSelectionChange && onSelectionChange(keys.anchorKey)
             }}
             items={itemList}
             variant="flat"
-            selectionMode="single"
+            // selectionMode="single"
+            selectionMode={selectionMode ? selectionMode : "none"}
         >
             {(item) => (
                 <ListboxItem 
-                    key={`${item.key}`} >
-                    <div className="flex gap-2 items-center w-full relative py-1">
+                    key={`${item.key}`} 
+                    onClick={() => {
+                        if (selectionMode == undefined || selectionMode === "none"){
+                            onSelectionChange && onSelectionChange(item.key)
+                        }                        
+                    }}
+                >
+                    {/* <div className="flex gap-2 items-center w-full relative py-1"> */}
+                    <div className={`flex gap-2 items-center w-full relative py-1 ${selectedItem ? "bg-slate-300" : ""}`}>
                         {itemComponent(item)}
                     </div>
                     {/* </Link> */}
