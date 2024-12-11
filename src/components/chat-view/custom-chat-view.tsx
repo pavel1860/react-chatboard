@@ -8,8 +8,8 @@ import { AssetItem } from "../../services/chatboard-service";
 
 
 interface ChatListProps<I, O, M> {
-    messages: AssetItem<I, O, M>[]
-    messageComp: (message: AssetItem<I, O, M>) => React.ReactNode    
+    messages: any[]
+    messageComp: (message:any) => React.ReactNode    
     width?: string
     height?: string
     fetchMore: () => void
