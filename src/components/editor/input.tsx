@@ -109,6 +109,7 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                 key={`editor-${dependentVersion}`}
                 
                 style={{height: `${rows * 25}px`}}
+                data-testid="chat-input"
             >                
             {file && <div className="bg-slate-200 inline-flex p-2 rounded-md flex-grow-0 border-1 border-slate-400">
                     <File />{file.name.slice(0,10)} file

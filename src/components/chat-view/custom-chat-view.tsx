@@ -38,15 +38,16 @@ export default function InfiniteChat<I, O, M>({messages, messageComp, width, hei
                 dataLength={ messages.length }
                 next={fetchMore}
                 hasMore={hasMore}
-                loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
+                // loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
+                loader={<p className="text-center m-5"></p>}
                 endMessage={<p className="text-center m-5">That&apos;s all folks!🐰🥕</p>}
                 style={{ display: "flex", flexDirection: "column-reverse", overflow: "visible" }}
                 scrollableTarget="scrollableDiv"
                 inverse={true}
                 >
                 {
-                    messages.map( (message: AssetItem<I, O, M>) => (
-                        <div key={message.id}>
+                    messages.map( (message: AssetItem<I, O, M>, idx: number) => (
+                        <div key={message.id} data-testid={`chat-message-${idx}`}>
                             {messageComp(message)}
                         </div>
                     ))
