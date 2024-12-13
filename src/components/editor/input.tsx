@@ -87,7 +87,7 @@ export interface ChatInputProps {
 
 export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor, file, removeFile}: ChatInputProps) {
 
-    const [rows, setRows] = useState(2 + file? 2 : 0);
+    const [rows, setRows] = useState(2 + (file ? 2 : 0));
     // const [rows, setRows] = useState(2);
     const [dependentVersion, setDependentVersion] = useState(0);
 
@@ -131,7 +131,7 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                     <OnChangePlugin onChange={(editorState: EditorState)=> {
                         editorState.read(() => {
                             const root = $getRoot();
-                            console.log(root.getAllTextNodes().length)
+                            // console.log(root.getAllTextNodes().length)
                             // if (root.getAllTextNodes().length > rows) {
                             //     setRows(Math.max(root.getAllTextNodes().length, 1))
                             // }
