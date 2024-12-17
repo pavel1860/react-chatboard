@@ -1,9 +1,9 @@
 import { fetcher, ServiceHook, ServiceInfiniteHook, ServiceMutationHook, fetchWithResponse, useMutation } from "./fetcher";
 import useSWRInfinite from "swr/infinite";
-import { use, useCallback, useEffect, useMemo, useRef } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorValue } from "../components/editor/util";
 import useSWRSubscription from "swr/subscription";
-import { IMessage } from "./types";
+import { IMessage, Role } from "./types";
 
 
 
@@ -66,8 +66,8 @@ export function useChatSubscription(userId: string) {
 
 
 
-export function useInfiniteChat(): ChatHook {
-    const { phoneNumber, sessionId } = useSelectedPhoneNumber()
+export function useInfiniteChat(phoneNumber: string | null, sessionId: string | null): ChatHook {
+    // const { phoneNumber, sessionId } = useSelectedPhoneNumber()
     const limit = 30
 
     const prevPhoneNumber = usePrevious(phoneNumber);
@@ -80,7 +80,7 @@ export function useInfiniteChat(): ChatHook {
 
 
     const getKey = (pageIndex: number, previousPageData: any) => {
-        // if (!phoneNumber) return null
+        if (!phoneNumber) return null
         if (previousPageData && !previousPageData.length) return null // reached the end
         const params = new URLSearchParams()
         params.set('page', `${pageIndex}`)
@@ -89,9 +89,15 @@ export function useInfiniteChat(): ChatHook {
         params.set('tool_msgs', "true") 
         if (sessionId)
             params.set('session_id', sessionId)
-        if (previousPageData && previousPageData.length)
-            params.set('start_from', `${previousPageData[previousPageData.length - 1].asset_update_ts - 1}`)
-        return `chat?${params.toString()}`
+        if (previousPageData && previousPageData.length){
+            let d = new Date(previousPageData[previousPageData.length - 1].created_at)
+            const currentMilliseconds = d.getMilliseconds();
+            d.setMilliseconds(currentMilliseconds - 1);                        
+            params.set('start_from', d.toISOString())
+            // params.set('start_from', `${previousPageData[previousPageData.length - 1].created_at - 1}`)
+        }
+            
+        return `client/${phoneNumber}/chat?${params.toString()}`
     }
 
     const { data, error, isLoading, isValidating, mutate, size, setSize } = useSWRInfinite(
@@ -118,16 +124,17 @@ export function useInfiniteChat(): ChatHook {
 }
 
 
-export function useChatMessages() {
-    const messages = usePlayGroundStore(state => state.messages)
-    const setMessages = usePlayGroundStore(state => state.setMessages)
+export function useChatMessages(phoneNumber: string | null, sessionId: string | null) {
+    // const messages = usePlayGroundStore(state => state.messages)
+    // const setMessages = usePlayGroundStore(state => state.setMessages)
+    const [messages, setMessages] = useState<IMessage[]>([])
 
     // const {phoneNumber} = useSelectedPhoneNumber()
     // const phoneNumber = usePlayGroundStore(state => state.phoneNumber)
     // const limit = usePlayGroundStore(state => state.limit)
     const limit = 10
     
-    const {data, isLoading, size, setSize} = useInfiniteChat()
+    const {data, isLoading, size, setSize} = useInfiniteChat(phoneNumber, sessionId)
     const { data: subData, error: subError} = useChatSubscription("11111111")
 
     // console.log("#### useSWRInfinite", isLoading, data)
@@ -201,13 +208,13 @@ const optimisticMessage = (content: string, phoneNumber: string): IMessage => {
 
 
 
-export function useSendMessage() {
+export function useSendMessage(phoneNumber: string | null, sessionId: string | null) {
 
-    const { phoneNumber } = useSelectedPhoneNumber()
-    const { mutate } = useInfiniteChat()
-    const sending = usePlayGroundStore(state => state.sending)
-    const setSending = usePlayGroundStore(state => state.setSending)
-    const messages = usePlayGroundStore(state => state.messages)
+    // const { phoneNumber } = useSelectedPhoneNumber()
+    const { mutate, data: messages, isLoading } = useInfiniteChat(phoneNumber, sessionId)
+    // const sending = usePlayGroundStore(state => state.sending)
+    // const setSending = usePlayGroundStore(state => state.setSending)
+    // const messages = usePlayGroundStore(state => state.messages)
 
     // const { trigger, isMutating } = useMutation(`/api/debug/chat`, {
     //     method: "POST",
@@ -256,7 +263,7 @@ export function useSendMessage() {
         if (files) {
             formData.append('file', files); // Append the file only if it exists
         }
-        const res = await fetch(`/api/chat`, {
+        const res = await fetch(`/api/debug/${phoneNumber}/chat`, {
             method: "POST",
             body: formData,
         })
@@ -274,10 +281,10 @@ export function useSendMessage() {
 
     const sendMessage = useCallback(async (content: EditorValue, fromMessageId?: string | null, sessionid?: string | null, files?: any) => {
         try {
-            // if (!phoneNumber) {
-            //     return #TODO understand how to generalize this.
-            // }
-            setSending(true)
+            if (!phoneNumber) {
+                return //TODO understand how to generalize this.
+            }
+            // setSending(true)
             console.log("#### curr", messages)
             const oldData = [...messages]
             // const optimisticData = [optimisticMessage(content.text, phoneNumber), ...(fromMessageId ? filterMessagesFromId(oldData, fromMessageId) : oldData)]
@@ -285,16 +292,17 @@ export function useSendMessage() {
             await mutate(sendMessageRequest(content.text, oldData, fromMessageId, sessionid, files), {
                 optimisticData: optimisticData,
             });
-            setSending(false)
+            // setSending(false)
         } catch (error) {
             console.error(error)
-            setSending(false)
+            // setSending(false)
         }
     }, [messages, phoneNumber])
 
 
     return {
-        isSending: sending,
+        // isSending: sending,
+        isSending: isLoading,
         sendMessage
     }
 }
@@ -304,13 +312,13 @@ export function useResendMessage() {
 }
 
 
-export function useDeleteMessage() {
+export function useDeleteMessage(phoneNumber: string | null, sessionId: string | null) {
 
     // const setMessages = usePlayGroundStore(state => state.setMessages)
-    const { phoneNumber } = useSelectedPhoneNumber()
-    const { mutate } = useInfiniteChat()
-    const setSending = usePlayGroundStore(state => state.setSending)
-    const messages= usePlayGroundStore(state => state.messages)
+    // const { phoneNumber } = useSelectedPhoneNumber()
+    const { mutate, data: messages } = useInfiniteChat(phoneNumber, sessionId)
+    // const setSending = usePlayGroundStore(state => state.setSending)
+    // const messages= usePlayGroundStore(state => state.messages)
 
     const deleteMessageRequest = async (messageId: string, data: IMessage[]) => {
         const res = await fetch(`/api/debug/chat`, {
@@ -333,15 +341,15 @@ export function useDeleteMessage() {
             if (!phoneNumber) {
                 return
             }
-            setSending(true)
+            // setSending(true)
             const oldData = [...messages]
             await mutate(deleteMessageRequest(id, oldData), {
                 optimisticData: oldData.filter((msg: IMessage) => msg.id !== id),
             });
-            setSending(false)
+            // setSending(false)
         } catch (error) {
             console.error(error)
-            setSending(false)
+            // setSending(false)
         }
     }, [messages, phoneNumber])
 
