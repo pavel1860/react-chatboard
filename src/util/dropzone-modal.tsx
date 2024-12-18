@@ -2,7 +2,7 @@ import { useDropzone } from 'react-dropzone'
 // import { DropzoneWrapper } from "./dropzone"
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react"
 import { useCallback, useEffect, useState } from 'react'
-import { CircleX, X } from 'lucide-react'
+import { CircleX, FileCheck, X } from 'lucide-react'
 import { z } from "zod";
 
 
@@ -38,7 +38,7 @@ const buildAllowedFileTypes = (allowedTypes: FileType[] | undefined) => {
 }
 
 
-export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, allowedTypes }: AddAssetDropzoneModalProps) {
+export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, allowedTypes, onUpload }: AddAssetDropzoneModalProps) {
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -139,7 +139,9 @@ export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, al
                                 {
                                     currentFile ?
                                         <div className="flex items-center gap-4 justify-center border-1 rounded-sm p-4">
-                                            Selected File
+                                            <FileCheck size={40} color="gray"/>
+                                            <span className="text-gray-500">Selected File</span>
+                                            <span className="text-gray-500">{(currentFile.size / 1000000).toFixed(2)}MB</span>
                                             <Button
                                                 variant='light'
                                                 size="sm"
@@ -181,6 +183,10 @@ export default function AddAssetDropzoneModal({ endpoint, title, buttonTitle, al
                                         if (data) {
                                             clearState()
                                             onClose()
+                                            onUpload && onUpload(data)
+                                        } else {
+                                            throw new Error("Something went wrong. no data was returned.");
+                                            
                                         }
                                     }}>
                                     Add
