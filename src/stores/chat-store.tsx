@@ -1,6 +1,7 @@
 import { create} from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { IMessage } from '../services/chatbot-service';
+import { IMessage } from '../services/types';
+
 
 
 

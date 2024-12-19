@@ -5,10 +5,10 @@ import { useCallback, useState } from "react"
 import PromptTextEditor from "../promptEditor/editors/promptTextEditor"
 import MessageCard, { TimeCard } from "../assets/custom-message-card"
 import InfiniteChat from "./custom-chat-view"
-// import { IMessage } from "@/src/services/chatbot-service"
-import { IMessage } from "../../services/chatbot-service"
+import { IMessage } from "../../services/types"
 import { ChatInput } from "../editor/input"
 import { send } from "process"
+
 
 
 
@@ -132,18 +132,18 @@ export default function DebugChatThread({ phoneNumber, setRunId, disabled }: Deb
 
     const getMessageComp = (message: IMessage) => {
 
-        if (message.metadata.role === "user") {
+        if (message.role === "user") {
             return <MessageCard
-                message={message.output}
-                time={new Date(message.asset_output_date)}
+                message={message.content}
+                time={new Date(message.created_at)}
                 role="output"
                 leftIcon={<User className="stroke-blue-600 m-3" size={30} />}
                 rightIcon={<MessageMenu message={message} deleteMessage={deleteMessage} resendMessage={resendMessage}/>}
             />
         } else { //? assistant
             return <MessageCard
-                message={message.output}
-                time={new Date(message.asset_output_date)}
+                message={message.content}
+                time={new Date(message.created_at)}
                 role="input"
                 leftIcon={<Bot className="stroke-blue-600 m-3" size={30} />}
                 rightIcon={<MessageMenu message={message} setRunId={handleSetRunId} deleteMessage={deleteMessage}/>}

@@ -75,7 +75,7 @@ export async function sendRequest<T, P>({ schema, endpoint, data }: MutationOpti
 interface UseMutationOptions<T, P> {
     schema: ZodSchema<P>;
     // model: string;
-    endpoint: string;
+    endpoint?: string;
     // id?: string;
     callbacks?: {
         onSuccess?: (data: P) => void;
@@ -90,6 +90,9 @@ export function useMutationHook<T, P>({ schema, endpoint, callbacks }: UseMutati
         // `/api/model/${endpoint}`,
         endpoint,
         async (url: string, { arg }: { arg: T }) => {
+            if (!endpoint) {
+                throw new Error("Endpoint is not defined");
+            }
             const response = await sendRequest<T, P>({ schema, endpoint, data: arg });
             return response;
         },
@@ -120,10 +123,12 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
 
     function useGetModelList(partitions?: any, limit: number = 10, offset: number = 0) {
         // return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset], ([url, partitions, limit, offset]) => fetcher({ schema, endpoint: url, queryParams: { ...partitions, limit, offset } }));
+        //@ts-ignore
         return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset } }));
     }
 
     function useLastModel(partitions: any) {
+        //@ts-ignore
         return useSWR<T | null>([`${baseUrl}/${model}/last`, partitions], ([url, partitions]) => fetcher({ schema, endpoint: url, queryParams: partitions }));
     }
 
@@ -131,8 +136,8 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
         return useMutationHook<T, T>({ schema, endpoint: `${baseUrl}/${model}/create` });
     }
 
-    function useUpdateModel(id: string) {
-        return useMutationHook<T, T>({ schema, endpoint: `${baseUrl}/${model}/update/${id}` });
+    function useUpdateModel(id?: string) {
+        return useMutationHook<T, T>({ schema, endpoint: id && `${baseUrl}/${model}/update/${id}` });
     }
 
     return {

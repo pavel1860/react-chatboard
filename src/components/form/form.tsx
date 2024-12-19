@@ -117,6 +117,7 @@ const DynamicForm = <T extends ZodTypeAny>(
         //     manager_phone_number: true,
         // })),
         resolver: zodResolver(getOmitFields(schema, fieldConfig)),
+        //@ts-ignore
         defaultValues: defaultValues,
     });
 
@@ -130,6 +131,7 @@ const DynamicForm = <T extends ZodTypeAny>(
 
 
     if (loading) {
+        //@ts-ignore
         const shape = schema.shape;
         return (
             <div className="w-full flex flex-col gap-2 px-4 items-center">
@@ -143,6 +145,7 @@ const DynamicForm = <T extends ZodTypeAny>(
 
     // Helper function to render form fields based on schema
     const renderFields = () => {
+        //@ts-ignore
         const shape = schema.shape;
         return Object.keys(shape).map((fieldName) => {
             const field = shape[fieldName];
@@ -174,6 +177,7 @@ const DynamicForm = <T extends ZodTypeAny>(
                     return (
                         <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
                             <Controller
+                            //@ts-ignore
                                 name={fieldName as keyof z.infer<T>}
                                 control={control}
                                 render={({ field }) => (
@@ -204,6 +208,7 @@ const DynamicForm = <T extends ZodTypeAny>(
                     return (
                         <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
                             <Controller
+                            //@ts-ignore
                                 name={fieldName as keyof z.infer<T>}
                                 control={control}
                                 render={({ field }) => (
@@ -236,6 +241,7 @@ const DynamicForm = <T extends ZodTypeAny>(
                     return (
                         <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
                             <Controller
+                            //@ts-ignore
                                 name={fieldName as keyof z.infer<T>}
                                 control={control}
                                 render={({ field }) => (
@@ -295,6 +301,7 @@ const DynamicForm = <T extends ZodTypeAny>(
                     return (
                         <div key={fieldName}>
                             <label htmlFor={fieldName}>
+                                {/* @ts-ignore */}
                                 <input type="checkbox" id={fieldName} {...register(fieldName as keyof z.infer<T>)} />
                                 {label}
                             </label>

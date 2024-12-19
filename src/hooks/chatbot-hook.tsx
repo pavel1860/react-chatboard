@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { EditorValue } from "../components/editor/util"
 import { IMessage, Role, useChatEndpoint } from "../services/chatbot-service"
 import React, { use, useCallback, useEffect } from "react"

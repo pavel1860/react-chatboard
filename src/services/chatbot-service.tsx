@@ -50,6 +50,7 @@ export function useChatSubscription(userId: string) {
         })
         socket.addEventListener('error', (event) => {
             console.log("##error##", event)
+            //@ts-ignore
             next(event.error)
         })
         
@@ -240,7 +241,7 @@ export function useSendMessage(phoneNumber: string | null, sessionId: string | n
     //     }
     // }
 
-    const sendMessageRequest = async (content: string, data: IMessage[], fromMessageId?: string | null, sessionId?: string | null, files: any) => {
+    const sendMessageRequest = async (content: string, data: IMessage[], fromMessageId?: string | null, sessionId?: string | null, files?: any) => {
         console.log("################ content", content)
         if (!content) {
             throw new Error("Message content is empty.");
