@@ -1,6 +1,6 @@
 // src/components/DynamicForm.tsx
 import React, { useState } from 'react';
-import { useForm, SubmitHandler, Controller, useFieldArray, Control, UseFormRegister, UseFormHandleSubmit, FieldErrors } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, useFieldArray, Control, UseFormRegister, UseFormHandleSubmit, FieldErrors, Field } from 'react-hook-form';
 import { ZodSchema, ZodTypeAny, z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, Select, SelectItem, Skeleton, Form, Button } from '@nextui-org/react';
@@ -9,19 +9,21 @@ import { Input, Select, SelectItem, Skeleton, Form, Button } from '@nextui-org/r
 type FieldConfig = {
     [key: string]: {
         hidden?: boolean;
+        isTitle?: boolean;
         omit?: boolean;
         disabled?: boolean;
         icon?: React.ReactElement;
-    }
+    } | FieldConfig;
 }
 
 
-interface FormConfig <T extends ZodTypeAny = ZodTypeAny> {
+interface FormConfig<T extends ZodTypeAny = ZodTypeAny> {
     register: UseFormRegister<z.TypeOf<T>>
     control: Control<z.TypeOf<T>, any>
     errors: FieldErrors<z.TypeOf<T>>
     handleSubmit: UseFormHandleSubmit<z.TypeOf<T>, undefined>
     isReadOnly?: boolean;
+    
     // variant?: "solid" | "bordered" | "light" | "flat" | "faded" | "shadow" | undefined
     variant?: "flat" | "bordered" | "faded" | "underlined"
     controls?: "top" | "bottom"
@@ -36,14 +38,21 @@ interface FormConfig <T extends ZodTypeAny = ZodTypeAny> {
 }
 
 
+
+interface FormConfigProviderProps extends FormConfig {
+    isReadOnly: boolean;
+    setIsReadOnly: (isReadOnly: boolean) => void;
+}
+
+
 interface DynamicFormProps<T extends ZodTypeAny> extends ZodTypeAny, FormConfig {
     schema: T;
     defaultValues?: Partial<z.infer<T>>; // Optional default values
     onSubmit: SubmitHandler<z.infer<T>>;
     loading?: boolean;
-    
+
     fieldConfig?: FieldConfig,
-    
+
 };
 
 
@@ -53,6 +62,7 @@ interface DynamicFormProps<T extends ZodTypeAny> extends ZodTypeAny, FormConfig 
 
 interface FieldProps<T extends ZodTypeAny> {
     fieldName: string
+    fieldPath: string
     field: ZodTypeAny
     control: Control<z.TypeOf<T>, any>
     config: FieldConfig
@@ -65,7 +75,7 @@ interface FieldProps<T extends ZodTypeAny> {
 //     defaultValues?: Partial<z.infer<T>>; // Optional default values
 //     onSubmit: SubmitHandler<z.infer<T>>;
 //     loading?: boolean;
-    
+
 //     fieldConfig?: FieldConfig,
 //     isReadOnly?: boolean;
 //     // variant?: "solid" | "bordered" | "light" | "flat" | "faded" | "shadow" | undefined
@@ -79,7 +89,7 @@ interface FieldProps<T extends ZodTypeAny> {
 //         input?: string
 //     }
 //     labelPlacement?: "inside" | "outside" | "outside-left"
-    
+
 // };
 
 
@@ -102,7 +112,7 @@ interface FieldProps<T extends ZodTypeAny> {
 const FieldWrapper = ({ children, icon, error }: any) => {
 
     return (
-        <div>
+        <div className="">
             <div className="flex items-center gap-2">
                 {icon}
                 {children}
@@ -132,26 +142,26 @@ const getOmitFields = (schema: any, fieldConfig?: FieldConfig) => {
 
 
 
-const FormContext = React.createContext<FormConfig>({} as any)
+const FormContext = React.createContext<FormConfigProviderProps>({} as any)
 
 
 
-export function FormConfigProvider<T extends ZodTypeAny>({ 
-        children,
-        schema,
-        loading,
-        onSubmit,
-        fieldConfig,
-        variant,
-        size,
-        isReadOnly: isReadOnlyProp,
-        controls,
-        radius,
-        defaultValues = {}, // Default to empty object if not provided
-        labelPlacement = "outside-left",
-        iconPlacement = "left",
-        classNames,
-    }: { children: React.ReactNode } & DynamicFormProps<T>) {
+export function FormConfigProvider<T extends ZodTypeAny>({
+    children,
+    schema,
+    loading,
+    onSubmit,
+    fieldConfig,
+    variant,
+    size,
+    isReadOnly: isReadOnlyProp,
+    controls,
+    radius,
+    defaultValues = {}, // Default to empty object if not provided
+    labelPlacement = "outside-left",
+    iconPlacement = "left",
+    classNames,
+}: { children: React.ReactNode } & DynamicFormProps<T>) {
 
     const {
         register,
@@ -171,7 +181,11 @@ export function FormConfigProvider<T extends ZodTypeAny>({
         defaultValues: defaultValues,
     });
 
+    const [isReadOnly, setIsReadOnly] = useState(isReadOnlyProp !== undefined ? isReadOnlyProp : true)
+
     return <FormContext.Provider value={{
+        isReadOnly,
+        setIsReadOnly,
         register,
         control,
         handleSubmit,
@@ -182,7 +196,6 @@ export function FormConfigProvider<T extends ZodTypeAny>({
         fieldConfig,
         variant,
         size,
-        isReadOnly: isReadOnlyProp,
         controls,
         radius,
         defaultValues,
@@ -201,24 +214,28 @@ export function useFormConfig() {
 
 
 
-const NestingWrapper = ({ children}: { children: React.ReactNode }) => {
+const NestingWrapper = ({ children }: { children: React.ReactNode }) => {
 
     return (
-        <div className="pl-6">
+        <div className="ml-6">
             {children}
         </div>
     )
 }
 
 
-const StringField = ({ fieldName, config }: FieldProps) => {
+
+const useFieldConfig = (config: FieldConfig, fieldName: string) => {
+
     let inputStartIcon = undefined
     let inputEndIcon = undefined
     let leftIcon = undefined
 
+    const label = toTitleCase(fieldName);
+
     const {
         control,
-        errors,        
+        errors,
         variant,
         size,
         isReadOnly,
@@ -229,8 +246,6 @@ const StringField = ({ fieldName, config }: FieldProps) => {
         classNames,
     } = useFormConfig()
 
-    const label = toTitleCase(fieldName);
-
     if (iconPlacement == "left") {
         leftIcon = config.icon
     } else if (iconPlacement == "inputStart") {
@@ -238,10 +253,159 @@ const StringField = ({ fieldName, config }: FieldProps) => {
     } else if (iconPlacement == "inputEnd") {
         inputEndIcon = config.icon
     }
-    return <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
+
+
+    return {
+        inputStartIcon,
+        inputEndIcon,
+        leftIcon,
+        label,
+        control,
+        error: errors[fieldName],
+        variant,
+        size,
+        isReadOnly,
+        controls,
+        radius,
+        labelPlacement,
+        iconPlacement,
+        classNames,
+    }
+
+}
+
+
+const FormField = ({ fieldName, fieldPath, field, config }: FieldProps) => {
+
+    // let inputStartIcon = undefined
+    // let inputEndIcon = undefined
+    // let leftIcon = undefined
+
+    // const label = toTitleCase(fieldName);
+
+    // const {
+    //     control,
+    //     errors,
+    //     variant,
+    //     size,
+    //     isReadOnly,
+    //     controls,
+    //     radius,
+    //     labelPlacement,
+    //     iconPlacement,
+    //     classNames,
+    // } = useFormConfig()
+
+
+    // if (iconPlacement == "left") {
+    //     leftIcon = config.icon
+    // } else if (iconPlacement == "inputStart") {
+    //     inputStartIcon = config.icon
+    // } else if (iconPlacement == "inputEnd") {
+    //     inputEndIcon = config.icon
+    // }
+
+    const {
+        control,
+        leftIcon,
+        inputStartIcon,
+        inputEndIcon,
+        label,
+    } = useFieldConfig(config, fieldName)
+    
+    return (
         <Controller
             //@ts-ignore
-            name={fieldName as keyof z.infer<T>}
+            // name={fieldName as keyof z.infer<T>}
+            name={fieldPath as keyof z.infer<T>}
+            control={control}
+            render={({ field }) => (
+                <>
+                <div className="flex items-center gap-3">
+                    {leftIcon}
+                    <label
+                        className="block z-10 subpixel-antialiased text-small pointer-events-none relative text-foreground will-change-auto origin-top-left rtl:origin-top-right !duration-200 !ease-out transition-[transform,color,left,opacity] motion-reduce:transition-none ps-2 pe-2 w-[150px]"
+                    >{label}</label>
+                    <span
+                        className="relative w-full inline-flex tap-highlight-transparent flex-row items-center px-3 gap-3 data-[hover=true]:bg-default-50 group-data-[focus=true]:bg-default-100 h-10 min-h-10 rounded-medium flex-1 transition-background motion-reduce:transition-none !duration-150 outline-none group-data-[focus-visible=true]:z-10 group-data-[focus-visible=true]:ring-2 group-data-[focus-visible=true]:ring-focus group-data-[focus-visible=true]:ring-offset-2 group-data-[focus-visible=true]:ring-offset-background is-filled"
+                    >{field.value}</span>
+                    {inputEndIcon}
+                </div>
+                {/* <Input
+                    isReadOnly={isReadOnly}
+                    id={fieldName}
+                    variant={variant}
+                    radius={radius}
+                    size={size}
+                    startContent={inputStartIcon}
+                    endContent={inputEndIcon}
+                    {...field}
+                    label={label}
+                    placeholder={label}
+                    labelPlacement={labelPlacement}
+                    classNames={{
+                        label: classNames?.label,
+                        mainWrapper: `${classNames?.input}`,
+                        // inputWrapper: `${isReadOnly ? "bg-white" : ""}`
+                    }}
+                /> */}
+                </>
+            )}
+
+        />
+    )
+}
+
+
+const StringField = ({ fieldName, fieldPath, field, config }: FieldProps) => {
+    // let inputStartIcon = undefined
+    // let inputEndIcon = undefined
+    // let leftIcon = undefined
+
+    // const {
+    //     control,
+    //     errors,
+    //     variant,
+    //     size,
+    //     isReadOnly,
+    //     controls,
+    //     radius,
+    //     labelPlacement,
+    //     iconPlacement,
+    //     classNames,
+    // } = useFormConfig()
+
+    // const label = toTitleCase(fieldName);
+
+    // if (iconPlacement == "left") {
+    //     leftIcon = config.icon
+    // } else if (iconPlacement == "inputStart") {
+    //     inputStartIcon = config.icon
+    // } else if (iconPlacement == "inputEnd") {
+    //     inputEndIcon = config.icon
+    // }
+
+    const {
+        control,
+        leftIcon,
+        inputStartIcon,
+        inputEndIcon,
+        label,
+        error,
+        variant,
+        size,
+        isReadOnly,
+        radius,
+        labelPlacement,
+        classNames
+    } = useFieldConfig(config, fieldName)
+
+
+    return <FieldWrapper icon={leftIcon} error={error}>
+        <Controller
+            //@ts-ignore
+            // name={fieldName as keyof z.infer<T>}
+            name={fieldPath as keyof z.infer<T>}
             control={control}
             render={({ field }) => (
                 <Input
@@ -270,92 +434,89 @@ const StringField = ({ fieldName, config }: FieldProps) => {
 
 
 
-const EnumField = ({ fieldName, field, config }: FieldProps) => {
+const EnumField = ({ fieldName, fieldPath, field, config }: FieldProps) => {
 
-    let inputStartIcon = undefined
-    let inputEndIcon = undefined
-    let leftIcon = undefined
+    // let inputStartIcon = undefined
+    // let inputEndIcon = undefined
+    // let leftIcon = undefined
+
+    // const {
+    //     control,
+    //     errors,
+    //     variant,
+    //     size,
+    //     isReadOnly,
+    //     controls,
+    //     radius,
+    //     labelPlacement,
+    //     iconPlacement,
+    //     classNames,
+    // } = useFormConfig()
+
+    // const label = toTitleCase(fieldName);
+
+    // if (iconPlacement == "left") {
+    //     leftIcon = config.icon
+    // } else if (iconPlacement == "inputStart") {
+    //     inputStartIcon = config.icon
+    // } else if (iconPlacement == "inputEnd") {
+    //     inputEndIcon = config.icon
+    // }
 
     const {
         control,
-        errors,        
+        leftIcon,
+        inputStartIcon,
+        inputEndIcon,
+        label,
+        error,
         variant,
         size,
         isReadOnly,
-        controls,
         radius,
         labelPlacement,
-        iconPlacement,
-        classNames,
-    } = useFormConfig()
-
-    const label = toTitleCase(fieldName);
-
-    if (iconPlacement == "left") {
-        leftIcon = config.icon
-    } else if (iconPlacement == "inputStart") {
-        inputStartIcon = config.icon
-    } else if (iconPlacement == "inputEnd") {
-        inputEndIcon = config.icon
-    }
+        classNames
+    } = useFieldConfig(config, fieldName)
 
     const enumValues = (field as z.ZodEnum<[string, ...string[]]>).enum;
     const selectValues = Object.keys(enumValues).map((option) => ({ label: toTitleCase(option), value: enumValues[option] }));
+    
     return (
-        <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
+        <FieldWrapper icon={leftIcon} error={error}>
             <Controller
                 //@ts-ignore
-                name={fieldName as keyof z.infer<T>}
+                name={fieldPath as keyof z.infer<T>}
                 control={control}
                 render={({ field }) => (
-                    isReadOnly ?
-                        <Input
-                            id={fieldName}
-                            isReadOnly={isReadOnly}
-                            variant={variant}
-                            startContent={inputStartIcon}
-                            endContent={inputEndIcon}
-                            size={size}
-                            radius={radius}
-                            // {...field}
-                            value={field.value}
-                            label={label}
-                            placeholder={label}
-                            labelPlacement={labelPlacement}
-                            classNames={{
-                                label: classNames?.label,
-                                mainWrapper: `${classNames?.input}`,
-                            }}
-                        /> :
-                        <Select
-                            id={fieldName}
-                            disallowEmptySelection
-                            isDisabled={isReadOnly}
-                            variant={variant}
-                            size={size}
-                            radius={radius}
-                            startContent={inputStartIcon}
-                            endContent={inputEndIcon}
-                            selectedKeys={[field.value]}
-                            {...field}
-                            items={selectValues}
-                            label={label}
-                            placeholder={label}
-                            labelPlacement={labelPlacement}
-                            classNames={{
-                                base: "items-center",
-                                mainWrapper: `${classNames?.input}`,
-                                label: `ps-2 pe-2 ${classNames?.label}`,
-                            }}
-                        // items={enumValues.map((option) => ({ label: toTitleCase(option), value: option }))}
-                        >
-                            {
-                                selectValues.map((option) => (<SelectItem key={option.value}>{option.label}</SelectItem>))
-                            }
-                            {/* {Object.keys(enumValues).map((option) => (
+                    <Select
+                        id={fieldName}
+                        disallowEmptySelection
+                        isDisabled={isReadOnly}
+                        variant={variant}
+                        size={size}
+                        radius={radius}
+                        startContent={inputStartIcon}
+                        endContent={inputEndIcon}
+                        selectedKeys={[field.value]}
+                        {...field}
+                        items={selectValues}
+                        label={label}
+                        placeholder={label}
+                        labelPlacement={labelPlacement}
+                        classNames={{
+                            base: "items-center",
+                            mainWrapper: `${classNames?.input}`,
+                            label: `ps-2 pe-2 ${classNames?.label}`,
+                        }}
+                    // items={enumValues.map((option) => ({ label: toTitleCase(option), value: option }))}
+                    >
+                        {
+                            selectValues.map((option) => (<SelectItem key={option.value}>{option.label}</SelectItem>))
+                        }
+                        {/* {Object.keys(enumValues).map((option) => (
                             <SelectItem key={option}>{enumValues[option]}</SelectItem>
                         ))} */}
-                        </Select>
+                    </Select>
 
                 )}
             />
@@ -383,8 +544,8 @@ const DynamicForm = <T extends ZodTypeAny>(
     }: DynamicFormProps<T>) => {
 
 
-    const [isReadOnly, setIsReadOnly] = useState(isReadOnlyProp !== undefined ? isReadOnlyProp : true)
-    const { handleSubmit } = useFormConfig();
+    
+    const { handleSubmit, isReadOnly, setIsReadOnly } = useFormConfig();
     // const {
     //     register,
     //     handleSubmit,
@@ -461,41 +622,41 @@ const DynamicForm = <T extends ZodTypeAny>(
 
             switch (fieldType) {
                 case 'string':
-                    return <StringField 
-                        fieldName={fieldName} 
-                        field={field} 
+                    return <StringField
+                        fieldName={fieldName}
+                        field={field}
                         config={fieldConfig?.[fieldName] || {}}
                     />
-                    // return (
-                    //     <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
-                    //         <Controller
-                    //             //@ts-ignore
-                    //             name={fieldName as keyof z.infer<T>}
-                    //             control={control}
-                    //             render={({ field }) => (
-                    //                 <Input
-                    //                     isReadOnly={isReadOnly}
-                    //                     id={fieldName}
-                    //                     variant={variant}
-                    //                     radius={radius}
-                    //                     size={size}
-                    //                     startContent={inputStartIcon}
-                    //                     endContent={inputEndIcon}
-                    //                     {...field}
-                    //                     label={label}
-                    //                     placeholder={label}
-                    //                     labelPlacement={labelPlacement}
-                    //                     classNames={{
-                    //                         label: classNames?.label,
-                    //                         mainWrapper: `${classNames?.input}`,
-                    //                         // inputWrapper: `${isReadOnly ? "bg-white" : ""}`
-                    //                     }}
-                    //                 />
-                    //             )}
+                // return (
+                //     <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
+                //         <Controller
+                //             //@ts-ignore
+                //             name={fieldName as keyof z.infer<T>}
+                //             control={control}
+                //             render={({ field }) => (
+                //                 <Input
+                //                     isReadOnly={isReadOnly}
+                //                     id={fieldName}
+                //                     variant={variant}
+                //                     radius={radius}
+                //                     size={size}
+                //                     startContent={inputStartIcon}
+                //                     endContent={inputEndIcon}
+                //                     {...field}
+                //                     label={label}
+                //                     placeholder={label}
+                //                     labelPlacement={labelPlacement}
+                //                     classNames={{
+                //                         label: classNames?.label,
+                //                         mainWrapper: `${classNames?.input}`,
+                //                         // inputWrapper: `${isReadOnly ? "bg-white" : ""}`
+                //                     }}
+                //                 />
+                //             )}
 
-                    //         />
-                    //     </FieldWrapper>
-                    // );
+                //         />
+                //     </FieldWrapper>
+                // );
                 case 'number':
                     return (
                         <FieldWrapper icon={leftIcon} error={errors[fieldName]}>
@@ -614,34 +775,48 @@ const DynamicForm = <T extends ZodTypeAny>(
     };
 
 
-    const renderObjectField = (schema: z.AnyZodObject, fieldName?: string) => {
+    const renderObjectField = (schema: z.AnyZodObject, parentPath?: string, fieldConfig?: FieldConfig) => {
         const shape = schema.shape;
         return Object.keys(shape).map((fieldName) => {
             const field = shape[fieldName];
             const fieldType = getFieldType(field);
             const label = toTitleCase(fieldName);
+            const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
+
+            if (fieldConfig && fieldConfig[fieldName]?.hidden) return null;
+
+            if (isReadOnly && fieldType !== 'array' && fieldType !== 'object') {
+                return <FormField fieldName={fieldName} fieldPath={fieldPath} field={field} config={fieldConfig?.[fieldName] || {}} />                
+            }
 
             switch (fieldType) {
                 case "string":
-                    return <StringField 
-                        fieldName={fieldName} 
-                        field={field} 
+                    return <StringField
+                        fieldName={fieldName}
+                        fieldPath={fieldPath}
+                        field={field}
                         config={fieldConfig?.[fieldName] || {}}
-                    />  
+                    />
                 case 'enum':
-                    return <EnumField 
-                        fieldName={fieldName} 
-                        field={field} 
+                    return <EnumField
+                        fieldName={fieldName}
+                        fieldPath={fieldPath}
+                        field={field}
                         config={fieldConfig?.[fieldName] || {}}
                     />
                 case 'object':
                     return (
                         <NestingWrapper>
-                            {renderObjectField(field as z.ZodObject, fieldName)}
+                            <label>{toTitleCase(fieldName)}</label>
+                            {renderObjectField(field as z.ZodObject, fieldPath, fieldConfig && fieldConfig[fieldName])}
                         </NestingWrapper>
-                    ) 
+                    )
                 case 'array':
-                    return renderArrayField(fieldName, field as z.ZodArray<z.ZodTypeAny>);         
+                    return (
+                        <NestingWrapper>
+                            {renderArrayField(fieldName, field as z.ZodArray<z.ZodTypeAny>, fieldConfig && fieldConfig[fieldName])}
+                        </NestingWrapper>
+                    )
                 default:
                     return null;
             }
@@ -652,7 +827,7 @@ const DynamicForm = <T extends ZodTypeAny>(
     }
 
 
-    const renderArrayField = (fieldName: string, schema: z.ZodArray<z.ZodTypeAny>) => {
+    const renderArrayField = (fieldName: string, schema: z.ZodArray<z.ZodTypeAny>, fieldConfig?: FieldConfig) => {
         const itemType = getFieldType(schema.element);
         const { register, control, errors } = useFormConfig();
         const { fields, append, remove } = useFieldArray({
@@ -669,35 +844,35 @@ const DynamicForm = <T extends ZodTypeAny>(
             <div key={fieldName} style={{ marginBottom: '1rem' }}>
                 <label>{toTitleCase(fieldName)}</label>
                 {fields.map((item, index) => {
-                    const inputName = `${fieldName}[${index}]` as const;
+                    const fieldPath = `${fieldName}[${index}]` as const;
                     const itemError = arrayErrors ? arrayErrors[index] : undefined;
 
                     switch (itemType) {
-                        case 'string':
-                            return (
-                                <StringField
-                                    fieldName={inputName}
-                                    field={schema.element}
-                                    config={fieldConfig?.[fieldName] || {}}
-                                />
-                            )
-                            // return (
-                            //     <div key={item.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            //         <input
-                            //             {...register(`${fieldName}.${index}` as const)}
-                            //             defaultValue={item.value} // Make sure to set defaultValue
-                            //         />
-                            //         <button type="button" onClick={() => remove(index)} style={{ marginLeft: '0.5rem' }}>
-                            //             Remove
-                            //         </button>
-                            //         {itemError && <p style={{ color: 'red', marginLeft: '1rem' }}>{itemError}</p>}
-                            //     </div>
-                            // );
+                        // case 'string':
+                        //     return (
+                        //         <StringField
+                        //             fieldName={fieldPath}
+                        //             field={schema.element}
+                        //             config={fieldConfig?.[fieldName] || {}}
+                        //         />
+                        //     )
+                        // return (
+                        //     <div key={item.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        //         <input
+                        //             {...register(`${fieldName}.${index}` as const)}
+                        //             defaultValue={item.value} // Make sure to set defaultValue
+                        //         />
+                        //         <button type="button" onClick={() => remove(index)} style={{ marginLeft: '0.5rem' }}>
+                        //             Remove
+                        //         </button>
+                        //         {itemError && <p style={{ color: 'red', marginLeft: '1rem' }}>{itemError}</p>}
+                        //     </div>
+                        // );
                         case 'object':
                             // return renderObjectField(schema.element, inputName);
                             return (
                                 <NestingWrapper>
-                                    {renderObjectField(schema.element, inputName)}
+                                    {renderObjectField(schema.element, fieldPath, fieldConfig)}
                                 </NestingWrapper>
                             )
                         // Add cases for other item types (number, enum, etc.) as needed
@@ -757,7 +932,7 @@ const DynamicForm = <T extends ZodTypeAny>(
                 }
             </div>}
             {/* {renderFields()} */}
-            {renderObjectField(schema)}
+            {renderObjectField(schema, undefined, fieldConfig)}
         </Form>
     </div>
 };
@@ -790,7 +965,7 @@ const toTitleCase = (str: string) => {
 
 
 const DynamicFormWrapper = <T extends ZodTypeAny>(
-    {...props }: DynamicFormProps<T>
+    { ...props }: DynamicFormProps<T>
 ) => {
     return (
         <FormConfigProvider {...props}>
