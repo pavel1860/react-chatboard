@@ -1,17 +1,16 @@
-import { fetcher, ServiceHook, ServiceInfiniteHook, ServiceMutationHook, fetchWithResponse, useMutation } from "./fetcher";
+// import { fetcher, ServiceHook, ServiceInfiniteHook, ServiceMutationHook, fetchWithResponse, useMutation } from "./fetcher";
+import { fetcher, fetcherWithHeaders } from "./fetcher2";
 import useSWRInfinite from "swr/infinite";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorValue } from "../components/editor/util";
 import useSWRSubscription from "swr/subscription";
 import { IMessage, Role } from "./types";
+import { useModelEnv } from "../state/model-env";
 
 
 
 
 
-interface ChatHook extends ServiceInfiniteHook<IMessage[]> {
-    refetch: () => void
-}
 
 
 
@@ -67,7 +66,7 @@ export function useChatSubscription(userId: string) {
 
 
 
-export function useInfiniteChat(phoneNumber: string | null, sessionId: string | null): ChatHook {
+export function useInfiniteChat(phoneNumber: string | null, sessionId: string | null) {
     // const { phoneNumber, sessionId } = useSelectedPhoneNumber()
     const limit = 30
 
@@ -78,6 +77,11 @@ export function useInfiniteChat(phoneNumber: string | null, sessionId: string | 
             console.log("phoneNumber changed", prevPhoneNumber, "->", phoneNumber);
         }
     }, [phoneNumber])
+
+
+    const {
+        selectedEnv: env
+    } = useModelEnv();
 
 
     const getKey = (pageIndex: number, previousPageData: any) => {
@@ -97,12 +101,12 @@ export function useInfiniteChat(phoneNumber: string | null, sessionId: string | 
             params.set('start_from', d.toISOString())
             // params.set('start_from', `${previousPageData[previousPageData.length - 1].created_at - 1}`)
         }
-        // console.log("#####", `client/${phoneNumber}/chat?${params.toString()}`)
-        return `client/${phoneNumber}/chat?${params.toString()}`
+        return `api/client/${phoneNumber}/chat?${params.toString()}`
     }
 
     const { data, error, isLoading, isValidating, mutate, size, setSize } = useSWRInfinite(
-        getKey, fetchWithResponse
+        getKey,
+        fetcherWithHeaders({env})
     )
 
     useEffect(() => {

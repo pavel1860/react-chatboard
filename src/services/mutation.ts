@@ -51,12 +51,10 @@ interface UseMutationOptions<T, P> {
     };
 }
 
-export function useMutationHook<T, P>({ schema, endpoint, callbacks, env }: UseMutationOptions<T, P>): SWRMutationResponse<P, Error> {    
+export function useMutationHook<T, P>({ schema, endpoint, callbacks, env }: UseMutationOptions<T, P>): SWRMutationResponse<P, Error> {
+    // const endpoint = id ? `${model}/update/${id}` : `${model}/create`;
 
-
-    const {
-        selectedEnv
-    } = useModelEnv();
+    
 
     const { trigger, data, error, isMutating, reset } = useSWRMutation<P>(
         // `/api/model/${endpoint}`,
@@ -65,7 +63,7 @@ export function useMutationHook<T, P>({ schema, endpoint, callbacks, env }: UseM
             if (!endpoint) {
                 throw new Error("Endpoint is not defined");
             }
-            const response = await sendRequest<T, P>({ schema, endpoint, data: arg, env: env || selectedEnv });
+            const response = await sendRequest<T, P>({ schema, endpoint, data: arg, env });
             return response;
         },
         {
