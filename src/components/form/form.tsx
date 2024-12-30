@@ -1,9 +1,10 @@
 // src/components/DynamicForm.tsx
 import React, { useState } from 'react';
-import { useForm, SubmitHandler, Controller, useFieldArray, Control, UseFormRegister, UseFormHandleSubmit, FieldErrors, Field } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, useFieldArray, Control, UseFormRegister, UseFormHandleSubmit, FieldErrors, Field, UseFieldArrayAppend, UseFieldArrayRemove } from 'react-hook-form';
 import { ZodSchema, ZodTypeAny, z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, Select, SelectItem, Skeleton, Form, Button } from '@nextui-org/react';
+import { CirclePlus, X } from 'lucide-react';
 
 
 type FieldConfig = {
@@ -13,7 +14,8 @@ type FieldConfig = {
         omit?: boolean;
         disabled?: boolean;
         icon?: React.ReactElement;
-    } | FieldConfig;
+        children?: FieldConfig;
+    };
 }
 
 
@@ -125,7 +127,41 @@ const FieldWrapper = ({ children, icon, error }: any) => {
 }
 
 
-const NestingWrapper = ({ children }: { children: React.ReactNode }) => {
+interface NestingWrapperProps {
+    children: React.ReactNode
+    index?: number
+    // append?: UseFieldArrayAppend<any, any & string>
+    remove?: UseFieldArrayRemove
+}
+
+const NestingWrapper = ({ children, index, remove }: NestingWrapperProps) => {
+
+    const {
+        isReadOnly,        
+    } = useFormConfig()
+
+    return (
+        <div className="relative ml-6">
+            {remove && !isReadOnly && 
+                // <div className="absolute top-0 right-0 z-50">
+                <div className="flex justify-end">
+                    <Button
+                        isIconOnly
+                        type="submit"
+                        size="sm"
+                        variant='light'
+                        onPress={() => index !== undefined && remove(index)}
+                    >
+                        <X size={16} />
+                    </Button>
+                </div>
+            }
+            {children}
+        </div>
+    )
+}
+
+const ArrayWrapper = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <div className="relative ml-6">
@@ -133,8 +169,6 @@ const NestingWrapper = ({ children }: { children: React.ReactNode }) => {
         </div>
     )
 }
-
-
 
 
 const getOmitFields = (schema: any, fieldConfig?: FieldConfig) => {
@@ -281,6 +315,19 @@ const useFieldConfig = (config: FieldConfig, fieldName: string) => {
 
 
 
+const FormHeader = ({ label, fieldConfig }: { label: string, fieldConfig?: FieldConfig}) => {
+
+    if (fieldConfig?.isTitle === false) return null;
+
+    return (
+        <h2
+            className="text-xl font-bold text-slate-500"
+        >{label}</h2>
+    )
+}
+
+
+
 const renderFormInput = (fieldName: string, fieldInfo, field: ControllerRenderProps<any, string>, fieldPath: string, fieldType: string, config: FieldConfig) => {
     
     switch (fieldType) {
@@ -339,7 +386,7 @@ const FormField = ({ fieldName, fieldPath, field: fieldInfo, config, fieldType }
                     </div>
                     <label
                         className="whitespace-nowrap block z-10 subpixel-antialiased text-small pointer-events-none relative text-foreground will-change-auto origin-top-left rtl:origin-top-right !duration-200 !ease-out transition-[transform,color,left,opacity] motion-reduce:transition-none ps-2 pe-2 w-[150px]"
-                    >{label}</label>
+                    >{label}</label>                       
                     {
                         isReadOnly ? 
                         <span
@@ -491,7 +538,6 @@ const NumberField = ({ fieldName, fieldInfo, fieldPath, field, config }: FieldPr
                 // }}
             />
         )
-
 }
 
 
@@ -547,8 +593,8 @@ const DynamicForm = <T extends ZodTypeAny>(
                 case 'object':
                     return (
                         <NestingWrapper>
-                            <label>{toTitleCase(fieldName)}</label>
-                            {renderObjectField(field as z.ZodObject, fieldPath, fieldConfig && fieldConfig[fieldName])}
+                            <FormHeader label={toTitleCase(fieldName)} fieldConfig={fieldConfig?.[fieldName]} />
+                            {renderObjectField(field as z.ZodObject, fieldPath, fieldConfig && fieldConfig[fieldName].children)}
                         </NestingWrapper>
                     )
                 case 'array':
@@ -587,18 +633,17 @@ const DynamicForm = <T extends ZodTypeAny>(
 
         return (
             // <div key={fieldName} style={{ marginBottom: '1rem' }}>
-            <div key={fieldName} className='mb-1 w-full '>
-                <label>{toTitleCase(fieldName)}</label>
+            <div key={fieldName} className='mb-1 w-full'>
+                <FormHeader label={toTitleCase(fieldName)} fieldConfig={fieldConfig?.[fieldName]} />
                 {fields.map((item, index) => {
                     const fieldPath = `${fieldName}[${index}]` as const;
                     const itemError = arrayErrors ? arrayErrors[index] : undefined;
 
                     switch (itemType) {
                         case 'object':
-                            // return renderObjectField(schema.element, inputName);
                             return (
-                                <NestingWrapper>
-                                    {renderObjectField(schema.element, fieldPath, fieldConfig)}
+                                <NestingWrapper index={index} remove={remove}>
+                                    {renderObjectField(schema.element, fieldPath, fieldConfig?.children)}
                                 </NestingWrapper>
                             )
                         // Add cases for other item types (number, enum, etc.) as needed
@@ -606,9 +651,20 @@ const DynamicForm = <T extends ZodTypeAny>(
                             return null;
                     }
                 })}
-                <button type="button" onClick={() => append('')} style={{ marginTop: '0.5rem' }}>
+                <div className="w-full flex justify-center">
+                    {!isReadOnly && <Button
+                        isIconOnly
+                        type="submit"
+                        size="sm"
+                        variant='light'
+                        onPress={() => append('')}
+                    >
+                        <CirclePlus />
+                    </Button>}
+                </div>
+                {/* <button type="button" onClick={() => append('')} style={{ marginTop: '0.5rem' }}>
                     Add {toTitleCase(schema.element._def.typeName)}
-                </button>
+                </button> */}
                 {fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors) && (
                     <p style={{ color: 'red' }}>{(fieldErrors as any).message}</p>
                 )}

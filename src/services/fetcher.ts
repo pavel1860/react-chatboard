@@ -2,6 +2,7 @@ import useSWR, { Fetcher } from "swr";
 import React from "react";
 import useSWRMutation, { MutationFetcher } from "swr/mutation";
 import useSWRInfinite from "swr/infinite";
+import { useModelEnv } from "../state/model-env";
 
 
 
@@ -48,7 +49,8 @@ function replaceParams(url: string , params: {[key: string]: any}) {
 
 
 export async function fetchWithResponse(url: string) {
-    const res = await fetch(`/api/${url}`)
+
+    const res = await fetch(`/api/${url}`);
     if (!res.ok){
         const error = new Error("Failed to fetch chatboard metadata.") as any;
         // error.info = await res.json()

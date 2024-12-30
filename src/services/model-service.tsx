@@ -1,6 +1,7 @@
 import useSWR, { useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { z, ZodSchema } from "zod";
+import { useModelEnv } from "../state/model-env";
 
 
 
@@ -10,9 +11,12 @@ interface FetcherOptions<T> {
     schema: ZodSchema<T>;
     endpoint: string;
     queryParams?: Record<string, any>;
+    env?: string;
 }
 
-export async function fetcher<T>({ schema, endpoint, queryParams }: FetcherOptions<T>): Promise<T | null> {
+export async function fetcher<T>({ schema, endpoint, queryParams, env }: FetcherOptions<T>): Promise<T | null> {
+
+
     let url = `${endpoint}`;
 
     if (queryParams) {
@@ -22,7 +26,12 @@ export async function fetcher<T>({ schema, endpoint, queryParams }: FetcherOptio
         url += `?${params.toString()}`;
     }
 
-    const res = await fetch(url);
+    const headers: any = {}
+    if (env) {
+        headers["env"] = env
+    }
+
+    const res = await fetch(url, { headers});
 
     if (!res.ok) {
         const errorText = await res.text();
@@ -49,15 +58,22 @@ interface MutationOptions<T, P> {
     schema: ZodSchema<P>;
     endpoint: string;
     data: T;
+    env?: string;
 }
 
-export async function sendRequest<T, P>({ schema, endpoint, data }: MutationOptions<T, P>): Promise<P> {
+export async function sendRequest<T, P>({ schema, endpoint, data, env }: MutationOptions<T, P>): Promise<P> {
+
+    const headers: any = {
+        "Content-Type": "application/json"
+    }
+    if (env) {
+        headers["env"] = env
+    }
+
     const res = await fetch(endpoint, {
         method: 'POST',
         body: JSON.stringify(data),
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers
     });
 
     if (!res.ok) {
@@ -76,6 +92,7 @@ interface UseMutationOptions<T, P> {
     schema: ZodSchema<P>;
     // model: string;
     endpoint?: string;
+    env?: string;
     // id?: string;
     callbacks?: {
         onSuccess?: (data: P) => void;
@@ -83,8 +100,10 @@ interface UseMutationOptions<T, P> {
     };
 }
 
-export function useMutationHook<T, P>({ schema, endpoint, callbacks }: UseMutationOptions<T, P>): SWRMutationResponse<P, Error> {
+export function useMutationHook<T, P>({ schema, endpoint, callbacks, env }: UseMutationOptions<T, P>): SWRMutationResponse<P, Error> {
     // const endpoint = id ? `${model}/update/${id}` : `${model}/create`;
+
+    
 
     const { trigger, data, error, isMutating, reset } = useSWRMutation<P>(
         // `/api/model/${endpoint}`,
@@ -93,7 +112,7 @@ export function useMutationHook<T, P>({ schema, endpoint, callbacks }: UseMutati
             if (!endpoint) {
                 throw new Error("Endpoint is not defined");
             }
-            const response = await sendRequest<T, P>({ schema, endpoint, data: arg });
+            const response = await sendRequest<T, P>({ schema, endpoint, data: arg, env });
             return response;
         },
         {
@@ -118,26 +137,47 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
 
 
     function useGetModel(id: string) {
-        return useSWR<T | null>(`${baseUrl}/${model}/${id}`, (url: string) => fetcher({ schema, endpoint: url }));
+
+        const {
+            selectedEnv: env
+        } = useModelEnv();
+        //@ts-ignore
+        return useSWR<T | null>([`${baseUrl}/${model}/${id}`, env], ([url, env]) => fetcher({ schema, endpoint: url, env }));
     }
 
     function useGetModelList(partitions?: any, limit: number = 10, offset: number = 0) {
         // return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset], ([url, partitions, limit, offset]) => fetcher({ schema, endpoint: url, queryParams: { ...partitions, limit, offset } }));
+        const {
+            selectedEnv: env
+        } = useModelEnv();
+
         //@ts-ignore
-        return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset } }));
+        return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
     }
 
     function useLastModel(partitions: any) {
+        const {
+            selectedEnv: env
+        } = useModelEnv();
+
         //@ts-ignore
-        return useSWR<T | null>([`${baseUrl}/${model}/last`, partitions], ([url, partitions]) => fetcher({ schema, endpoint: url, queryParams: partitions }));
+        return useSWR<T | null>([`${baseUrl}/${model}/last`, partitions, env], ([url, partitions, env]) => fetcher({ schema, endpoint: url, queryParams: partitions, env }));
     }
 
     function useCreateModel() {
-        return useMutationHook<T, T>({ schema, endpoint: `${baseUrl}/${model}/create` });
+        const {
+            selectedEnv: env
+        } = useModelEnv();
+
+        return useMutationHook<T, T>({ schema, endpoint: `${baseUrl}/${model}/create`, env });
     }
 
     function useUpdateModel(id?: string) {
-        return useMutationHook<T, T>({ schema, endpoint: id && `${baseUrl}/${model}/update/${id}` });
+        const {
+            selectedEnv: env
+        } = useModelEnv();
+
+        return useMutationHook<T, T>({ schema, endpoint: id && `${baseUrl}/${model}/update/${id}`, env });
     }
 
     return {
@@ -148,6 +188,8 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
         useUpdateModel,
     };
 }
+
+
 
 
 

@@ -97,7 +97,7 @@ export function useInfiniteChat(phoneNumber: string | null, sessionId: string | 
             params.set('start_from', d.toISOString())
             // params.set('start_from', `${previousPageData[previousPageData.length - 1].created_at - 1}`)
         }
-            
+        // console.log("#####", `client/${phoneNumber}/chat?${params.toString()}`)
         return `client/${phoneNumber}/chat?${params.toString()}`
     }
 
