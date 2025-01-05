@@ -22,13 +22,27 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
     }
 
     function useGetModelList(partitions?: any, limit: number = 10, offset: number = 0) {
-        // return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset], ([url, partitions, limit, offset]) => fetcher({ schema, endpoint: url, queryParams: { ...partitions, limit, offset } }));
         const {
             selectedEnv: env
         } = useModelEnv();
 
         //@ts-ignore
         return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
+
+        // return useSWR<z.infer<typeof schema>[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
+        const {
+            data,
+            error,
+            isLoading,
+            mutate
+        } = useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
+
+        return {
+            data: data || [],
+            error,
+            isLoading,
+            mutate
+        }
     }
 
     function useLastModel(partitions: any) {
@@ -67,63 +81,5 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
 
 
 
-
-
-
-// export function useGetModel<T>(model: string, id: string) {
-//     const url = `/${model}` + "/" + id
-//     const { data, error, isLoading, mutate } = useSWR(url, (url: string) => fetcher(url))
-
-//     return {
-//         data,
-//         error,
-//         isLoading,
-//         mutate
-//     }
-// }
-
-
-// export function useGetModelList(model: string, partitions?: any, limit: number = 10, offset: number = 0,) {
-
-//     const url = `/${model}/list`
-//     const { data, error, isLoading, mutate } = useSWR(partitions ? [url, partitions, limit, offset] : null, ([url, partitions, limit, offset]) => fetcher(url, { ...partitions, limit, offset }))
-
-//     return {
-//         data: data || [],
-//         error,
-//         isLoading,
-//         mutate
-//     }
-// }
-
-
-
-// export function useLastModel(model: string, partitions: any) {
-//     const url = `/${model}/last`
-//     const { data, error, isLoading, mutate } = useSWR(partitions ? [url, partitions] : null, ([url, partitions]) => fetcher(url, partitions))
-//     // const { data, error, isLoading, mutate } = useSWR([url], ([url]) => fetcher(url, {}))
-
-//     return {
-//         data,
-//         error,
-//         isLoading,
-//         mutate
-//     }
-// }
-
-
-// export function useUpdateModel<T>(model: string, id: string) {
-//     const url = `/${model}/update/` + id
-//     const {
-//         isMutating,
-//         trigger
-//     } = useMutation(url)
-
-
-//     return {
-//         isMutating,
-//         trigger
-//     }
-// }
 
 
