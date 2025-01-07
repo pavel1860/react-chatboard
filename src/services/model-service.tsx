@@ -18,7 +18,7 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
             selectedEnv: env
         } = useModelEnv();
         //@ts-ignore
-        return useSWR<T | null>([`${baseUrl}/${model}/${id}`, env], ([url, env]) => fetcher({ schema, endpoint: url, env }));
+        return useSWR<T | null>([`${baseUrl}/${model}/id/${id}`, env], ([url, env]) => fetcher({ schema, endpoint: url, env }));
     }
 
     function useGetModelList(partitions?: any, limit: number = 10, offset: number = 0) {
