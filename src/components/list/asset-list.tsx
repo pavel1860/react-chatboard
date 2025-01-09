@@ -1,5 +1,5 @@
 import { formatDateTime } from "../../util/time"
-import { Avatar, Input, Listbox, ListboxItem, Skeleton, Selection, Badge, Link, Tabs, Tab } from "@nextui-org/react"
+import { Avatar, Input, Listbox, ListboxItem, Skeleton, Selection, Badge, Link, Tabs, Tab, Button } from "@nextui-org/react"
 import { Search } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -72,13 +72,15 @@ interface AssetListProps<T extends ListItem> {
     loading: boolean
     error?: any
     itemComponent: (item: T) => React.ReactElement
+    onAddItem?: () => void
+    isSearchable?: boolean
     onSelectionChange?: (key: string) => void
     selectionMode?: "none" | "single" | "multiple"
     selectedKey?: string | null
 }
 
 
-export default function AssetList<T extends ListItem>({ items, loading, error, itemComponent, onSelectionChange, selectedKey, selectionMode }: AssetListProps<T>): React.ReactElement {
+export default function AssetList<T extends ListItem>({ items, isSearchable, onAddItem: onNewItem, loading, error, itemComponent, onSelectionChange, selectedKey, selectionMode }: AssetListProps<T>): React.ReactElement {
 
     const {
         itemList,
@@ -105,34 +107,51 @@ export default function AssetList<T extends ListItem>({ items, loading, error, i
         <Listbox
             topContent={
                 <div>
-                    <Input
-                        // label="Search"
-                        placeholder="Search"
-                        isClearable
-                        radius="sm"
-                        value={search}
-                        onChange={(e) => {
-                            console.log(e.target.value)
-                            setSearch(e.target.value)
-                        }}
-                        onClear={() => { setSearch("") }}
-                        startContent={
-                            <Search color="gray" />
-                        }
-                    />
-                    <Tabs
-                        aria-label="Tabs order"
-                        radius="full"
-                        variant="underlined"
-                        color="primary"
-                        selectedKey={orderBy}
-                        onSelectionChange={(key) => {
-                            setOrderBy(key as any)
-                        }}
-                    >
-                        <Tab key="last" title="last" />
-                        <Tab key="oldest" title="oldest" />
-                    </Tabs>
+                    <div className="flex gap-2 items-center">
+                        {isSearchable && 
+                                <Input
+                                    // label="Search"
+                                    placeholder="Search"
+                                    isClearable
+                                    radius="sm"
+                                    value={search}
+                                    onChange={(e) => {
+                                        console.log(e.target.value)
+                                        setSearch(e.target.value)
+                                    }}
+                                    onClear={() => { setSearch("") }}
+                                    startContent={
+                                        <Search color="gray" />
+                                    }
+                                />}
+                        {onNewItem && 
+                                <>
+                                    <Button
+                                        color="primary"
+                                        // variant="light"
+                                        size="sm"
+                                        onPress={onNewItem}
+                                    >
+                                        Add
+                                    </Button>
+                                </>}
+                    </div>
+                    <div>                    
+                        {isSearchable && 
+                                <Tabs
+                                    aria-label="Tabs order"
+                                    radius="full"
+                                    variant="underlined"
+                                    color="primary"
+                                    selectedKey={orderBy}
+                                    onSelectionChange={(key) => {
+                                        setOrderBy(key as any)
+                                    }}
+                                >
+                                    <Tab key="last" title="last" />
+                                    <Tab key="oldest" title="oldest" />
+                                </Tabs>}
+                    </div>
                 </div>}
             classNames={{
                 // base: "max-w-xs",
