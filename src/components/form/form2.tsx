@@ -8,7 +8,9 @@ import { FormProps } from "./types";
 
 
 
-
+interface UseFormCtx {
+    isReadOnly: boolean
+}
 
 
 /**
@@ -31,7 +33,7 @@ export function Form({
         children
     }: FormProps) {
     // Setup react-hook-form
-    const methods = useForm({
+    const methods = useForm<UseFormCtx>({
         resolver: zodResolver(schema),
         defaultValues,
     });
@@ -40,6 +42,7 @@ export function Form({
         ...methods,
         // Add a custom submit handler
         isReadOnly: isReadOnly,
+        schema,
         style: {
             variant,
             controls,

@@ -33,7 +33,7 @@ export interface InputFieldProps extends InputStyleProps {
     /** The input type (e.g., "text", "number", "email", etc.) */
     type: string;
     /** A user-friendly label for the field */
-    label: string;
+    label?: string;
     /**
      * The field name (e.g. "name" or "meals.0.calories").
      * This is **required**. 

@@ -1,72 +1,59 @@
 // InputField.jsx
 import React from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useForm, useFormContext } from "react-hook-form";
 import { Input, Select, SelectItem, Skeleton, Form, Button } from '@nextui-org/react';
 import { InputFieldProps, InputStyleProps } from "./types";
-import { useInputStyle } from "./form-utils";
+import { z } from "zod";
+import { useFieldValues, useInputStyle } from "./form-utils";
 
 
 
 
 
-const InputComp = ({ 
-        type, 
-        label, 
-        field, 
-        fieldInfo,
-        prefix, 
-        fieldName, 
-        variant, 
-        radius, 
-        size, 
-        // icon 
-    }: InputFieldProps & {fieldName: string, fieldInfo: any}) => {
+const SelectComp = ({
+    type,
+    label,
+    field,
+    fieldInfo,
+    prefix,
+    fieldName,
+    variant,
+    radius,
+    size,
+    // icon 
+}: InputFieldProps & { fieldName: string, fieldInfo: any }) => {
 
+    const selectValues = useFieldValues(fieldName);
 
     const {
-        variant: inputVariant,
-        radius: inputRadius,
-        size: inputSize,
-    } = useInputStyle({variant, radius, size});
-    console.log("sadfsafsd")
-    if (type === "text") {
-        return (
-            <Input
-                // isReadOnly={isReadOnly}
-                id={fieldName}
-                variant={inputVariant}
-                radius={inputRadius}
-                size={inputSize}
-                // startContent={icon}
+            variant: inputVariant,
+            radius: inputRadius,
+            size: inputSize,
+        } = useInputStyle({variant, radius, size});
 
-                {...fieldInfo}
-                placeholder={label}
-            />
-        );
-    } else if (type=="number") {
-        return (
-            <Input
-                id={fieldName}
-                // isReadOnly={isReadOnly}
-                type="number"
-                variant={inputVariant}
-                radius={inputRadius}
-                size={inputSize}
-                {...fieldInfo}
-                onChange={(e) => {
-                    const value = e.target.value;
-                    fieldInfo.onChange(value == "" ? undefined : Number(value));
-                }}
-                placeholder={label}
-                // classNames={{
-                //     // mainWrapper: "h-1",
-                //     // inputWrapper: "h-1",
-                //     // helperWrapper: "h-1",
-                // }}
-            />
-        )
-    }
-
+    return (
+        <Select
+            id={fieldName}
+            disallowEmptySelection
+            variant={inputVariant}
+            size={inputSize}
+            radius={inputRadius}
+            // startContent={inputStartIcon}
+            // endContent={input.EndIcon}
+            selectedKeys={[fieldInfo.value]}
+            {...fieldInfo}
+            items={selectValues}
+            // label={label}
+            placeholder={label}
+        >
+            {
+                selectValues.map((option) => (<SelectItem key={option.value}>{option.label}</SelectItem>))
+            }
+            {/* {Object.keys(enumValues).map((option) => (
+                    <SelectItem key={option}>{enumValues[option]}</SelectItem>
+                ))} */}
+        </Select>
+    )
 
 };
 
@@ -79,10 +66,10 @@ const InputComp = ({
  * @param {string} props.field - The field name (can be nested, e.g. "meals.0.calories")
  * @param {string} [props.prefix] - Optional prefix for nested usage (ArrayField / ObjectField)
  */
-export function InputField({ 
-    type, 
-    label, 
-    field, 
+export function SelectField({
+    type,
+    label,
+    field,
     prefix,
     icon,
     ...props
@@ -90,7 +77,7 @@ export function InputField({
     const { register, control, formState: { errors }, isReadOnly } = useFormContext();
     // Build the final field name
     const fieldName = prefix ? `${prefix}.${field}` : field;
-    
+
     return (
         <Controller
             //@ts-ignore
@@ -108,16 +95,10 @@ export function InputField({
                     >
                         {label}
                     </label>}
-                    {/* <input
-                        id={fieldName}
-                        type={type}
-                        {...register(fieldName)}
-                        style={{ padding: 8, width: "100%" }}
-                    /> */}
-                    {isReadOnly ? 
+                    {isReadOnly ?
                         <span
                             className="relative inline-flex tap-highlight-transparent flex-row items-center px-3 gap-3 data-[hover=true]:bg-default-50 group-data-[focus=true]:bg-default-100 h-10 min-h-10 rounded-medium flex-1 transition-background motion-reduce:transition-none !duration-150 outline-none group-data-[focus-visible=true]:z-10 group-data-[focus-visible=true]:ring-2 group-data-[focus-visible=true]:ring-focus group-data-[focus-visible=true]:ring-offset-2 group-data-[focus-visible=true]:ring-offset-background is-filled"
-                        >{fieldInfo.value}</span> : InputComp({ type, label, field, fieldInfo, prefix, fieldName, ...props })}
+                        >{fieldInfo.value}</span> : SelectComp({ type, label, field, fieldInfo, prefix, fieldName, ...props })}
 
                     {errors[fieldName] && (
                         <div style={{ color: "red", marginTop: 4 }}>
@@ -125,7 +106,7 @@ export function InputField({
                         </div>
                     )}
                 </div>
-            )} 
+            )}
         />
     );
 }
