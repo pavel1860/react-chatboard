@@ -55,9 +55,6 @@ export const ModelEnvProvider: React.FC = ({ children }: any) => {
         setSearchParams,
     } = useSearchParams()
 
-    
-
-
 
     return (
         <ModelEnvContext.Provider value={{ selectedEnv, setSelectedEnv, envs: data, loading: isLoading  }}>

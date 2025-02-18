@@ -28,7 +28,9 @@ export async function fetcher<T>({ schema, endpoint, queryParams, env }: Fetcher
 
     const headers: any = {}
     if (env) {
-        headers["env"] = env
+        // headers["env"] = env
+        headers["head_id"] = env.head_id
+        headers["branch_id"] = env.branch_id
     }
 
     const res = await fetch(url, { headers });

@@ -4,65 +4,94 @@ import { useAdminStore } from '../../stores/admin-store';
 import useArtifactLog from '../../hooks/artifact-log-hook';
 // Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
 
-// Component to render a single turn node
-// and, if available, its forked branches.
+// Helper: Get commit dot color based on status.
+function getStatusColor(status: string): string {
+    if (status === 'staged') return '#f7b500';
+    if (status === 'committed') return '#28a745';
+    return '#dc3545';
+}
+
+// Component to render a single turn node but now restyled to look like a Git graph node.
 function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
     const [expandedBranches, setExpandedBranches] = useState<{ [branchId: number]: boolean }>({});
 
     const toggleBranch = (branchId: number) => {
-        setExpandedBranches(prev => ({ ...prev, [branchId]: !prev[branchId] }));
+        setExpandedBranches((prev) => ({ ...prev, [branchId]: !prev[branchId] }));
     };
 
     return (
-        <div
-            style={{
-                marginLeft: indent * 20,
-                borderLeft: '1px dashed #ccc',
-                paddingLeft: 8,
-                marginTop: 4,
-            }}
-        >
-            {/* Display turn information */}
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ fontWeight: 'bold' }}>Turn {turn.index}</span>
-                <span
+        <div style={{ marginLeft: indent * 20, marginTop: 10, position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                {/* Left column: Git graph visuals */}
+                <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
+                    {/* Vertical line behind the commit dot */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: 9,
+                            width: 2,
+                            backgroundColor: '#ccc',
+                        }}
+                    />
+                    {/* Commit dot */}
+                    <div
+                        style={{
+                            position: 'relative',
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            backgroundColor: getStatusColor(turn.status),
+                            border: '2px solid white',
+                            marginLeft: 3,
+                            zIndex: 1,
+                        }}
+                    />
+                </div>
+                {/* Right column: Turn content */}
+                <div
                     style={{
-                        marginLeft: 8,
-                        padding: '2px 6px',
+                        backgroundColor: '#f9f9f9',
                         borderRadius: 4,
-                        background:
-                            turn.status === 'staged'
-                                ? '#f7b500'
-                                : turn.status === 'committed'
-                                    ? '#28a745'
-                                    : '#dc3545',
-                        color: '#fff',
-                        fontSize: '12px',
+                        padding: 6,
+                        minWidth: 200,
+                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                     }}
                 >
-                    {turn.status.toUpperCase()}
-                </span>
-                <span style={{ marginLeft: 8, color: '#666', fontSize: '12px' }}>
-                    {new Date(turn.created_at).toLocaleTimeString()}
-                </span>
-                {turn.message && (
-                    <span style={{ marginLeft: 8, fontStyle: 'italic', fontSize: '12px' }}>
-                        - {turn.message}
-                    </span>
-                )}
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 'bold' }}>Turn {turn.index}</span>
+                        {/* <span
+                            style={{
+                                marginLeft: 8,
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                background: getStatusColor(turn.status),
+                                color: '#fff',
+                                fontSize: '12px',
+                            }}
+                        >
+                            {turn.status.toUpperCase()}
+                        </span> */}
+                        <span style={{ marginLeft: 8, color: '#666', fontSize: '12px' }}>
+                            {new Date(turn.created_at).toLocaleTimeString()}
+                        </span>
+                        {turn.message && (
+                            <span style={{ marginLeft: 8, fontStyle: 'italic', fontSize: '12px' }}>
+                                - {turn.message}
+                            </span>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {/* Render forked branches if any exist */}
+            {/* Render forked branch toggle and branch tree */}
             {turn.forked_branches && turn.forked_branches.length > 0 && (
                 <div style={{ marginLeft: 20, marginTop: 4 }}>
                     {turn.forked_branches.map((branch: any) => (
                         <div key={branch.id} style={{ marginTop: 4 }}>
-                            <button
-                                onClick={() => toggleBranch(branch.id)}
-                                style={{ fontSize: '12px' }}
-                            >
-                                {expandedBranches[branch.id] ? 'Collapse' : 'Expand'} branch{' '}
-                                {branch.name}
+                            <button onClick={() => toggleBranch(branch.id)} style={{ fontSize: '12px' }}>
+                                {expandedBranches[branch.id] ? 'Collapse' : 'Expand'} branch {branch.name}
                             </button>
                             {expandedBranches[branch.id] && (
                                 <ForkBranchTree branch={branch} indent={indent + 2} />
@@ -102,8 +131,33 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
 
     return (
         <div style={{ marginLeft: indent * 20, marginTop: 4 }}>
-            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
-                Branch: {branch.name}
+            {/* Branch header styled similar to a commit header */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: 9,
+                            width: 2,
+                            backgroundColor: '#ccc',
+                        }}
+                    />
+                    <div
+                        style={{
+                            position: 'relative',
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            backgroundColor: '#333',
+                            border: '2px solid white',
+                            marginLeft: 3,
+                            zIndex: 1,
+                        }}
+                    />
+                </div>
+                <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Branch: {branch.name}</div>
             </div>
             {turns &&
                 turns.map((turn) => (

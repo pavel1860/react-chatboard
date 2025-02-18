@@ -40,6 +40,17 @@ const useArtifactLog = () => {
 
 
 
+export const useModelEnv = () => {
+    const { selectedBranchId, selectedHeadId } = useAdminStore()
+
+
+    return {
+        branch_id: selectedBranchId,
+        head_id: selectedHeadId,
+    }
+}
+
+
 
 
 const useTurns = () => {

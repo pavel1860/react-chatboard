@@ -1,7 +1,8 @@
 import useSWR, { useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { z, ZodSchema } from "zod";
-import { useModelEnv } from "../state/model-env";
+// import { useModelEnv } from "../state/model-env";
+import { useModelEnv } from "../hooks/artifact-log-hook";
 import { useMutationHook } from "./mutation";
 import { fetcher } from "./fetcher2";
 
@@ -9,22 +10,18 @@ import { fetcher } from "./fetcher2";
 
 
 export default function createModelService<T>(model: string, schema: ZodSchema<T>, baseUrl?: string) {
-    baseUrl = baseUrl || "/api/model";
+    baseUrl = baseUrl || "/api/ai/model";
 
 
     function useGetModel(id: string) {
 
-        const {
-            selectedEnv: env
-        } = useModelEnv();
+        const env = useModelEnv();
         //@ts-ignore
         return useSWR<T | null>([`${baseUrl}/${model}/id/${id}`, env], ([url, env]) => fetcher({ schema, endpoint: url, env }));
     }
 
     function useGetModelList(partitions?: any, limit: number = 10, offset: number = 0) {
-        const {
-            selectedEnv: env
-        } = useModelEnv();
+        const env = useModelEnv();
 
         //@ts-ignore
         return useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
@@ -46,26 +43,20 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
     }
 
     function useLastModel(partitions: any) {
-        const {
-            selectedEnv: env
-        } = useModelEnv();
+        const env = useModelEnv();
 
         //@ts-ignore
         return useSWR<T | null>([`${baseUrl}/${model}/last`, partitions, env], ([url, partitions, env]) => fetcher({ schema, endpoint: url, queryParams: partitions, env }));
     }
 
     function useCreateModel() {
-        const {
-            selectedEnv: env
-        } = useModelEnv();
+        const env = useModelEnv();
 
         return useMutationHook<T, T>({ schema, endpoint: `${baseUrl}/${model}/create`, env });
     }
 
     function useUpdateModel(id?: string) {
-        const {
-            selectedEnv: env
-        } = useModelEnv();
+        const env = useModelEnv();
 
         return useMutationHook<T, T>({ schema, endpoint: id && `${baseUrl}/${model}/update/${id}`, env });
     }
