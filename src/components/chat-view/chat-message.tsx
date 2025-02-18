@@ -1,5 +1,5 @@
 import PromptTextEditor from "../promptEditor/editors/promptTextEditor";
-
+import { Bot,  User } from "lucide-react"
 
 
 
@@ -30,16 +30,27 @@ export interface MessageBubbleProps {
 
 export function MessageBubble({ children, role }: MessageBubbleProps) {
 
-    if (role === "user") {
+    if (role === "assistant") {
         return (
-            <div className="w-[700px] bg-gray-200 text-gray-900 p-3 rounded-lg">
-                {children}
+            <div className="flex">                
+                <div className="max-w-lg bg-gray-200 text-gray-900 p-3 rounded-lg">
+                    {children}
+                </div>
+                <div className="p-3">
+                    <Bot color="blue"/>   
+                </div>
             </div>
         )
-    } else if (role === "assistant") {
+    } else if (role === "user") {
         return (
-            <div className="w-[700px] bg-blue-500 text-white p-3 rounded-lg ml-auto">
-                {children}
+            <div className="flex justify-end">
+                <div className="p-3 ">
+                    
+                    <User color="blue" />
+                </div>
+                <div className="max-w-lg bg-blue-500 text-white p-3 rounded-lg">
+                    {children}
+                </div>
             </div>
         )
     } else {

@@ -1,77 +1,228 @@
-const { Gitgraph } = require("@gitgraph/react");
+import { useState } from 'react';
+import { useAllTurns, useBranchTurns } from '../../services/artifact-log-service';
+import { useAdminStore } from '../../stores/admin-store';
+import useArtifactLog from '../../hooks/artifact-log-hook';
+import { Button, Chip } from '@nextui-org/react';
+// Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
+
+// Helper: Get commit dot color based on status.
+function getStatusColor(status: string): string {
+    if (status === 'staged') return '#f7b500';
+    if (status === 'committed') return '#28a745';
+    return '#dc3545';
+}
 
 
 
 
-export const VersionTree = () => {
+
+
+
+// Component to render a single turn node but now restyled to look like a Git graph node.
+function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
+    const [expandedBranches, setExpandedBranches] = useState<{ [branchId: number]: boolean }>({});
+
+    const toggleBranch = (branchId: number) => {
+        setExpandedBranches((prev) => ({ ...prev, [branchId]: !prev[branchId] }));
+    };
+
+    return (
+        <div style={{ marginLeft: indent * 20, marginTop: 10, position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                {/* Left column: Git graph visuals */}
+                <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
+                    {/* Vertical line behind the commit dot */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: 9,
+                            width: 2,
+                            backgroundColor: '#ccc',
+                        }}
+                    />
+                    {/* Commit dot */}
+                    <div
+                        style={{
+                            position: 'relative',
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            backgroundColor: getStatusColor(turn.status),
+                            border: '2px solid white',
+                            marginLeft: 3,
+                            zIndex: 1,
+                        }}
+                    />
+                </div>
+                {/* Right column: Turn content */}
+                <div
+                    style={{
+                        backgroundColor: '#f9f9f9',
+                        borderRadius: 4,
+                        padding: 6,
+                        minWidth: 200,
+                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 'bold' }}>Turn {turn.index}</span>
+                        {/* <span
+                            style={{
+                                marginLeft: 8,
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                background: getStatusColor(turn.status),
+                                color: '#fff',
+                                fontSize: '12px',
+                            }}
+                        >
+                            {turn.status.toUpperCase()}
+                        </span> */}
+                        <span style={{ marginLeft: 8, color: '#666', fontSize: '12px' }}>
+                            {new Date(turn.created_at).toLocaleTimeString()}
+                        </span>
+                        {turn.message && (
+                            <span style={{ marginLeft: 8, fontStyle: 'italic', fontSize: '12px' }}>
+                                - {turn.message}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Render forked branch toggle and branch tree */}
+            {turn.forked_branches && turn.forked_branches.length > 0 && (
+                <div style={{ marginLeft: 20, marginTop: 4 }}>
+                    {turn.forked_branches.map((branch: any) => (
+                        <div key={branch.id} style={{ marginTop: 4 }}>
+                            <button onClick={() => toggleBranch(branch.id)} style={{ fontSize: '12px' }}>
+                                {expandedBranches[branch.id] ? 'Collapse' : 'Expand'} branch {branch.name}
+                            </button>
+                            {expandedBranches[branch.id] && (
+                                <ForkBranchTree branch={branch} indent={indent + 2} />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+// Component to fetch and render turns for a given forked branch.
+function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }) {
+    const { selectedHeadId, selectedBranchId, setSelectedBranchId } = useAdminStore();
+    const headers = { head_id: String(selectedHeadId) };
+    const { data: turns, isLoading, error } = useBranchTurns(branch.id, headers);
+
+    if (isLoading)
+        return (
+            <div style={{ marginLeft: indent * 20, fontSize: '12px' }}>
+                Loading branch {branch.name}...
+            </div>
+        );
+    if (error)
+        return (
+            <div
+                style={{
+                    marginLeft: indent * 20,
+                    fontSize: '12px',
+                    color: 'red',
+                }}
+            >
+                Error loading branch {branch.name}: {error.message}
+            </div>
+        );
+
+    return (
+        <div style={{ marginLeft: indent * 20, marginTop: 4 }}>
+            {/* Branch header styled similar to a commit header */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: 9,
+                            width: 2,
+                            backgroundColor: '#ccc',
+                        }}
+                    />
+                    <div
+                        style={{
+                            position: 'relative',
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            backgroundColor: '#333',
+                            border: '2px solid white',
+                            marginLeft: 3,
+                            zIndex: 1,
+                        }}
+                    />
+                </div>
+                {/* <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Branch: {branch.name}</div> */}
+                <Button
+                    radius="full"
+                    size="sm"
+                    color={selectedBranchId === branch.id ? "primary" : "secondary"} 
+                    onClick={() => setSelectedBranchId(branch.id)}
+                >{branch.name}</Button>
+            </div>
+            {turns &&
+                turns.map((turn) => (
+                    <TurnNode key={turn.id} turn={turn} indent={indent + 1} />
+                ))}
+        </div>
+    );
+}
+
+// Component for the Master Branch—that is, the top-level tree
+// which uses the `/all_turns` endpoint.
+function MasterBranchTree() {
+    const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
+    const headers = { head_id: String(head?.id) };
+    
+    const { data: turns, isLoading, error } = useBranchTurns(head?.main_branch_id ?? null, headers);
+    
+    if (!head) return <div>No head selected</div>;
+
+    
+
+    if (isLoading) return <div>Loading master branch turns...</div>;
+    if (error)
+        return <div>Error loading master branch turns: {error.message}</div>;
 
     return (
         <div>
-            chat2
-
-            <Gitgraph options={{
-                orientation: "vertical-reverse",
-                // mode: "compact",
-            }}>
-                {(gitgraph) => {
-                    
-                    const drawBranch = (branch: any, comp: any) => {
-                        const branchComp = comp.branch(branch.name)
-                        for (const turn of getBranchTurns(branch.id)){
-                            console.log("turn", turn.id)
-                            const commit = branchComp.commit({
-                                subject: "Add feature",
-                                // body: "More details about the feature…",
-                                // dotText: "❤️",
-                                // tag: "v1.2",
-                                // style: {
-                                //   // Specific style for this commit
-                                // },
-                                // onMessageClick(commit) {
-                                //     alert(`Commit ${commit.hash} selected`);
-                                // },
-                                // onClick(commit) {
-                                //     alert(`Commit ${commit.hash} selected`);
-                                // },
-                                // onMouseOver(commit) {
-                                //     alert(`Commit ${commit.hash} selected`);
-                                // },
-                            })
-                            if (turn.branches?.length > 0){
-                                for (const turnBranch of turn.branches){
-                                    console.log("branch", turnBranch.id)
-                                    drawBranch(turnBranch, branchComp)
-                                }
-                            }
-                        }
-                    }
-                    drawBranch(branches[0], gitgraph)
-                    
-
-                    // for (const branch of branches){
-                    //     const currBranch = gitgraph.branch(branch.name)
-                    //     for (const turn of getBranchTurns(branch.id)){
-                    //         const commit = currBranch.commit("test")
-                    //     }
-                    // }
-                    // Simulate git commands with Gitgraph API.
-                    // const master = gitgraph.branch("master");
-                    // master.commit("Initial commit");
-
-                    // const develop = master.branch("develop");
-                    // develop.commit("Add TypeScript");
-
-                    // const aFeature = develop.branch("a-feature");
-                    // aFeature
-                    // .commit("Make it work")
-                    // .commit("Make it right")
-                    // .commit("Make it fast");
-
-                    // // develop.merge(aFeature);
-                    // develop.commit("Prepare v1");
-
-                    // master.merge(develop).tag("v1.0.0");
-                }}
-                </Gitgraph>
+            {/* <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: 8 }}>
+                Main Branch
+            </div> */}            
+            <Button
+                radius="full"
+                size="sm"
+                color={selectedBranchId === head?.main_branch_id ? "primary" : "secondary"} 
+                onClick={() => setSelectedBranchId(head?.main_branch_id ?? null)}
+            >Main Branch</Button>
+            {turns &&
+                turns.map((turn) => (
+                    <TurnNode key={turn.id} turn={turn} indent={0} />
+                ))}
         </div>
-    )
+    );
+}
+
+// Main component renders the master branch tree.
+function VersionTree() {
+    return (
+        <div className="p-10">
+            <MasterBranchTree />
+        </div>
+    );
+}
+
+export default VersionTree;
+
