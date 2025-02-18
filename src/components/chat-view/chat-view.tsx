@@ -1,7 +1,9 @@
+import { useState } from "react";
 import createModelService from "../../services/model-service";
 import { MessageBubble, MessageContent, MessageFooter, MessageText, MessageTime } from "./chat-message";
 import InfiniteChat from "./infinite-chat"
 import { z, ZodSchema } from "zod";
+import { Button, Chip } from "@nextui-org/react";
 
 
 
@@ -46,13 +48,17 @@ export const useChat = () => {
         mutate: mutateMessages
     } = useGetModelList()
     
-
+    const [extraMessages, setExtraMessages] = useState<MessageType[]>([])
 
     return {
         messages,
         messagesLoading,
         messagesError,
-        mutateMessages
+        mutateMessages,
+        extraMessages,
+        addMessage: (messageList: MessageType[]) => {
+            setExtraMessages([...messageList, ...extraMessages])
+        }
     }
 }
 
@@ -62,14 +68,22 @@ export default function ChatView() {
         messages,
         messagesLoading,
         messagesError,
-        mutateMessages
+        mutateMessages,
+        extraMessages,
+        addMessage
     } = useChat()
 
 
     return (
         <div>
+            <Button onClick={() => addMessage([{
+                id: (messages?.length || 0) + (extraMessages.length || 0) + 1000,
+                content: "Hello",
+                created_at: "2021-01-01",
+                role: "user"
+            }])}>Add</Button>
             <InfiniteChat
-                messages={messages || []}
+                messages={extraMessages.concat(messages || [])}
                 // messageComp={(message: MessageType) => {
                 //     return (
                 //         <MessageBubble role={message.role}>
@@ -92,6 +106,7 @@ export default function ChatView() {
                 {(message: MessageType) => {
                     return (
                         <MessageBubble role={message.role}>
+                            <Chip color="primary">{message.id}</Chip>
                             <MessageContent>
                                 <MessageText text={message.content}/>
                             </MessageContent>

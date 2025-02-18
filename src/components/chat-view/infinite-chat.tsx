@@ -1,6 +1,6 @@
-
-import { useEffect, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import React from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AssetItem } from "../../services/chatboard-service";
 
 
@@ -45,14 +45,23 @@ export default function InfiniteChat<I, O, M>({messages, children, width, height
                 style={{ display: "flex", flexDirection: "column-reverse", overflow: "visible", gap: gap || "10px"}}
                 scrollableTarget="scrollableDiv"
                 inverse={true}
+                onScroll={(e) => {
+                    console.log("scrolled", e)
+                }}
                 >
-                {
-                    messages.map( (message: M, idx: number) => (
-                        <div key={idx} data-testid={`chat-message-${idx}`} className="" >
+                <AnimatePresence>
+                    {messages.map( (message: M, idx: number) => (
+                        <motion.div
+                            key={message && (message as any).id ? (message as any).id : idx}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{ duration: 0.3 }}
+                        >
                             {children(message, idx)}
-                        </div>
-                    ))
-                }
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </InfiniteScroll>
         </div>
     )
