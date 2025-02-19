@@ -98,23 +98,25 @@ export const useChat = () => {
         if (files) {
             formData.append('file', files); // Append the file only if it exists
         }
-        const headers = {
+        const headers: any = {
             // "Content-Type": "multipart/form-data",
-            "head_id": env.head_id,
-            "branch_id": env.branch_id,
+            "head_id": env.head_id,            
+        }
+        if (env.branch_id) {
+            headers["branch_id"] = env.branch_id;
         }
         const res = await fetch(`/api/ai/chat`, {
             method: "POST",
             body: formData,
             headers: headers,
-        })
-        const response_messages = await res.json()
+        })        
         if (res.ok) {
+            const response_messages = await res.json()
             const newThread = [...response_messages, ...message_history]
             console.log("######new thread", newThread)
             return newThread
         } else {
-            throw new Error("Failed to send message.");
+            throw new Error("Failed to send message.", { cause: res.statusText });
 
         }
     }  
@@ -189,7 +191,7 @@ export default function ChatView() {
                 {(message: MessageArtifactType) => {
                     return (
                         <MessageBubble role={message.role}>
-                            <Chip color="primary">{message.id}</Chip>
+                            {/* <Chip color="primary">{message.id}</Chip> */}
                             <MessageContent>
                                 {/* <MessageText text={message.content}/> */}
                                 <div className="text-sm">{message.content}</div>
