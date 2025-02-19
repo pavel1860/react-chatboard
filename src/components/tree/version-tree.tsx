@@ -3,6 +3,7 @@ import { useAllTurns, useBranchTurns } from '../../services/artifact-log-service
 import { useAdminStore } from '../../stores/admin-store';
 import useArtifactLog from '../../hooks/artifact-log-hook';
 import { Button, Chip } from '@nextui-org/react';
+import { useVersionTree, VersionTreeProvider } from './version-tree-context';
 // Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
 
 // Helper: Get commit dot color based on status.
@@ -12,19 +13,10 @@ function getStatusColor(status: string): string {
     return '#dc3545';
 }
 
-
-
-
-
-
-
-// Component to render a single turn node but now restyled to look like a Git graph node.
+// Component to render a single turn node
 function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
-    const [expandedBranches, setExpandedBranches] = useState<{ [branchId: number]: boolean }>({});
-
-    const toggleBranch = (branchId: number) => {
-        setExpandedBranches((prev) => ({ ...prev, [branchId]: !prev[branchId] }));
-    };
+    const { isExpanded, toggleTurn } = useVersionTree();
+    const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
 
     return (
         <div style={{ marginLeft: indent * 20, marginTop: 10, position: 'relative' }}>
@@ -64,7 +56,9 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                         padding: 6,
                         minWidth: 200,
                         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                        cursor: hasBranches ? 'pointer' : 'default',
                     }}
+                    onClick={() => hasBranches && toggleTurn(turn.id)}
                 >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ fontWeight: 'bold' }}>Turn {turn.index}</span>
@@ -88,22 +82,24 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                                 - {turn.message}
                             </span>
                         )}
+                        {hasBranches && (
+                            <span style={{ marginLeft: 8, fontSize: '12px' }}>
+                                [{turn.forked_branches.length} branches]
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Render forked branch toggle and branch tree */}
-            {turn.forked_branches && turn.forked_branches.length > 0 && (
+            {/* Render forked branches when turn is expanded */}
+            {hasBranches && isExpanded(turn.id) && (
                 <div style={{ marginLeft: 20, marginTop: 4 }}>
                     {turn.forked_branches.map((branch: any) => (
-                        <div key={branch.id} style={{ marginTop: 4 }}>
-                            <button onClick={() => toggleBranch(branch.id)} style={{ fontSize: '12px' }}>
-                                {expandedBranches[branch.id] ? 'Collapse' : 'Expand'} branch {branch.name}
-                            </button>
-                            {expandedBranches[branch.id] && (
-                                <ForkBranchTree branch={branch} indent={indent + 2} />
-                            )}
-                        </div>
+                        <ForkBranchTree 
+                            key={branch.id} 
+                            branch={branch} 
+                            indent={indent + 2} 
+                        />
                     ))}
                 </div>
             )}
@@ -215,12 +211,14 @@ function MasterBranchTree() {
     );
 }
 
-// Main component renders the master branch tree.
+// Main component wraps the tree with the context provider
 function VersionTree() {
     return (
-        <div className="p-10">
-            <MasterBranchTree />
-        </div>
+        <VersionTreeProvider>
+            <div className="p-10">
+                <MasterBranchTree />
+            </div>
+        </VersionTreeProvider>
     );
 }
 
