@@ -6,10 +6,13 @@ import { useModelEnv } from "../state/model-env";
 
 
 interface MutationOptions<T, P> {
-    schema: ZodSchema<P>;
+    schema?: ZodSchema<P>;
     endpoint: string;
     data: T;
-    env?: string;
+    env?: {
+        head_id?: string;
+        branch_id?: string;
+    };
 }
 
 export async function sendRequest<T, P>({ schema, endpoint, data, env }: MutationOptions<T, P>): Promise<P> {
@@ -18,7 +21,8 @@ export async function sendRequest<T, P>({ schema, endpoint, data, env }: Mutatio
         "Content-Type": "application/json"
     }
     if (env) {
-        headers["env"] = env
+        headers["head_id"] = env.head_id
+        headers["branch_id"] = env.branch_id
     }
 
     const res = await fetch(endpoint, {
@@ -33,7 +37,10 @@ export async function sendRequest<T, P>({ schema, endpoint, data, env }: Mutatio
     }
 
     const responseData = await res.json();
-    return schema.parse(responseData); // Validate response data
+    if (schema) {
+        return schema.parse(responseData); // Validate response data
+    }
+    return responseData;
 }
 
 
@@ -43,7 +50,10 @@ interface UseMutationOptions<T, P> {
     schema: ZodSchema<P>;
     // model: string;
     endpoint?: string;
-    env?: string;
+    env?: {
+        head_id?: string;
+        branch_id?: string;
+    };
     // id?: string;
     callbacks?: {
         onSuccess?: (data: P) => void;

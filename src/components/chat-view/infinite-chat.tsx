@@ -15,13 +15,11 @@ interface InfiniteChatProps<M extends BaseArtifactType> {
     width?: string
     height?: string
     fetchMore: () => void,
-    children: (message: M, idx: number) => React.ReactNode
+    children: (message: M, idx: number, prevMessage?: M) => React.ReactNode
 }
 
 
-function TurnChip(turn_id: number) {
-    return <span className="text-xs text-gray-500">End of Turn {turn_id}</span>
-}
+
 
 
 export default function InfiniteChat<M extends BaseArtifactType>({messages, children, width, height, fetchMore, gap}: InfiniteChatProps<M>) {
@@ -57,15 +55,16 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                 >
                 <AnimatePresence>
                     {messages.map( (message: M, idx: number) => {
-                        let turn = undefined;
-                        if (idx > 0) {
-                            if (message.turn_id !== (messages[idx - 1] as any).turn_id) {
-                                // turn = <Chip color="default">Turn {message.turn_id}</Chip>
-                                turn = TurnChip(message.turn_id)
-                            }
-                        } else {
-                            turn = TurnChip(message.turn_id)
-                        }
+                        // let turn = undefined;
+                        // if (idx > 0) {
+                        //     if (message.turn_id !== (messages[idx - 1] as any).turn_id) {
+                        //         // turn = <Chip color="default">Turn {message.turn_id}</Chip>
+                        //         turn = TurnChip(message.turn_id)
+                        //     }
+                        // } else {
+                        //     turn = TurnChip(message.turn_id)
+                        // }
+                        let prevMessage = idx > 0 ? messages[idx - 1] as M : undefined;
                         return (
                             <motion.div
                                 key={message && (message as any).id ? (message as any).id : idx}
@@ -75,8 +74,7 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                                 transition={{ duration: 0.3 }}
                             >
                             
-                            {children(message, idx)}
-                            {turn}
+                            {children(message, idx, prevMessage)}
                         </motion.div>
                     )
                     })}

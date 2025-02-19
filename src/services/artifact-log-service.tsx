@@ -1,6 +1,7 @@
 import useSWR, { SWRResponse } from 'swr';
 import { z } from 'zod';
-
+import { useMutationHook } from './mutation';
+import { useModelEnv } from "../hooks/artifact-log-hook";
 // Types for API responses
 // export interface Branch {
 //     id: number;
@@ -24,8 +25,8 @@ import { z } from 'zod';
 // }
 
 export interface ArtifactLogHeaders {
-    head_id: string;
-    branch_id?: string;
+    head_id: number;
+    branch_id?: number;
 }
 
 const BASE_URL = '/api/ai/artifact_log';
@@ -134,6 +135,27 @@ export const useBranchTurns = (branchId: number | null, headers: ArtifactLogHead
         ([url, headers]) => fetcher(url, headers).then(data => z.array(TurnSchema).parse(data))
     );
 };
+
+
+
+
+
+export const useBranchFromTurn = () => {
+    const env = useModelEnv();
+    const { mutate } = useBranchTurns(env.branch_id, env);
+    return useMutationHook<BranchType, BranchType>({ 
+        endpoint: `${BASE_URL}/branches`, 
+        env,
+        callbacks: {
+            onSuccess: (data) => {
+                mutate();
+            }
+        }
+    });
+};
+
+
+
 
 
 // Example usage:

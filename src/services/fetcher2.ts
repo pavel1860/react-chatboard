@@ -8,7 +8,10 @@ interface FetcherOptions<T> {
     schema: ZodSchema<T>;
     endpoint: string;
     queryParams?: Record<string, any>;
-    env?: string;
+    env?: {
+        head_id?: string;
+        branch_id?: string;
+    };
 }
 
 

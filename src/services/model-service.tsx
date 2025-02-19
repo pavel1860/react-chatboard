@@ -41,20 +41,6 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
         //@ts-ignore
         return useSWR<ModelArtifactType[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(ModelArtifactSchema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
 
-        // return useSWR<z.infer<typeof schema>[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
-        const {
-            data,
-            error,
-            isLoading,
-            mutate
-        } = useSWR<T[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(schema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
-
-        return {
-            data: data || [],
-            error,
-            isLoading,
-            mutate
-        }
     }
 
     function useLastModel(partitions: any) {

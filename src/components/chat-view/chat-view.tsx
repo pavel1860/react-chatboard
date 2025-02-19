@@ -7,6 +7,7 @@ import { Button, Chip } from "@nextui-org/react";
 import { ChatInput } from "../editor/input";
 import { EditorValue } from "../editor/util";
 import { useModelEnv } from "../../hooks/artifact-log-hook";
+import { useBranchFromTurn } from "../../services/artifact-log-service";
 
 
 
@@ -42,7 +43,25 @@ const MessageSchema = z.object({
 type MessageType = z.infer<typeof MessageSchema>
 
 
-
+function TurnChip(turn_id: number) {    
+    const [isHovered, setIsHovered] = useState(false);
+    const { trigger: branchFromTurn, data: branch, error: branchError, isMutating: branchLoading } = useBranchFromTurn()
+    return <div
+            className="flex w-full items-center h-10"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}    
+        >
+        <span className="text-xs text-gray-500">End of Turn {turn_id}</span>
+        <div className="mx-4">
+            <Button
+                size="sm"
+                variant="light"
+                isDisabled={!isHovered}
+                onClick={() => branchFromTurn({turn_id})}
+            >Branch from</Button>
+        </div>
+            </div>
+}
 
 
 const {
@@ -188,8 +207,9 @@ export default function ChatView() {
                     }
                 }
             >
-                {(message: MessageArtifactType) => {
+                {(message: MessageArtifactType, idx: number, prevMessage?: MessageArtifactType) => {
                     return (
+                        <>
                         <MessageBubble role={message.role}>
                             {/* <Chip color="primary">{message.id}</Chip> */}
                             <MessageContent>
@@ -200,6 +220,8 @@ export default function ChatView() {
                                 <MessageTime time={message.created_at}/>
                             </MessageFooter>
                         </MessageBubble>
+                        {prevMessage && prevMessage.turn_id !== message.turn_id ? TurnChip(message.turn_id) : null}
+                        </>
                     )
                 }}
             </InfiniteChat>
