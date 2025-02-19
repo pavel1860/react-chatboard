@@ -3,12 +3,13 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssetItem } from "../../services/chatboard-service";
 import { Chip } from '@nextui-org/react';
+import { BaseArtifactType } from '../../services/model-service';
 
 
 
 
 
-interface InfiniteChatProps<M> {
+interface InfiniteChatProps<M extends BaseArtifactType> {
     messages: M[]
     gap?: string
     width?: string
@@ -23,11 +24,13 @@ function TurnChip(turn_id: number) {
 }
 
 
-export default function InfiniteChat<I, O, M>({messages, children, width, height, fetchMore, gap}: InfiniteChatProps<M>) {
+export default function InfiniteChat<M extends BaseArtifactType>({messages, children, width, height, fetchMore, gap}: InfiniteChatProps<M>) {
     
     const MAX_DATA = 1000;
 
     const hasMore = messages.length < MAX_DATA;
+
+    console.log("###### Infinite Chat messages:", messages)
 
     return (
         <div id="scrollableDiv" style={{
@@ -70,7 +73,7 @@ export default function InfiniteChat<I, O, M>({messages, children, width, height
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
                                 transition={{ duration: 0.3 }}
-                        >
+                            >
                             
                             {children(message, idx)}
                             {turn}

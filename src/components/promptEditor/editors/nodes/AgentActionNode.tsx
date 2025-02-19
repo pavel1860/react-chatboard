@@ -124,12 +124,12 @@ export class AgentActionNode extends TextNode {
         }
     }
 
-    static importJSON(json: any): AgentActionNode {
-        const node = $createAgentActionNode(
-          json.__text,          
-        )
-        return node;
-    }
+    // static importJSON(json: any): AgentActionNode {
+    //     const node = $createAgentActionNode(
+    //       json.__text,          
+    //     )
+    //     return node;
+    // }
   }
   
   export function $createAgentActionNode(text: string): AgentActionNode {

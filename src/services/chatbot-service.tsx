@@ -295,7 +295,7 @@ export function useSendMessage(phoneNumber: string | null, sessionId: string | n
             // const optimisticData = [optimisticMessage(content.text, phoneNumber), ...(fromMessageId ? filterMessagesFromId(oldData, fromMessageId) : oldData)]
             const optimisticData = fromMessageId ? filterMessagesFromId(oldData, fromMessageId) : [optimisticMessage(content.text, phoneNumber), ...oldData]
             await mutate(sendMessageRequest(content.text, oldData, fromMessageId, sessionid, files), {
-                optimisticData: optimisticData,
+                optimisticData: opti misticData,
             });
             // setSending(false)
         } catch (error) {
