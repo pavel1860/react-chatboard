@@ -40,13 +40,15 @@ const useArtifactLog = () => {
 
 
 
-export const useModelEnv = () => {
-    const { selectedBranchId, selectedHeadId } = useAdminStore()
+export const useHeadEnv = () => {
+    const { selectedBranchId, selectedHeadId, setSelectedBranchId, setSelectedHeadId } = useAdminStore()
 
 
     return {
         branch_id: selectedBranchId,
         head_id: selectedHeadId,
+        setSelectedBranchId,
+        setSelectedHeadId,
     }
 }
 

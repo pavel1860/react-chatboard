@@ -2,7 +2,7 @@ import useSWR, { useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { z, ZodSchema } from "zod";
 // import { useModelEnv } from "../state/model-env";
-import { useModelEnv } from "../hooks/artifact-log-hook";
+import { useHeadEnv } from "../hooks/artifact-log-hook";
 import { useMutationHook } from "./mutation";
 import { fetcher } from "./fetcher2";
 
@@ -30,13 +30,13 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
 
     function useGetModel(id: string) {
 
-        const env = useModelEnv();
+        const env = useHeadEnv();
         //@ts-ignore
         return useSWR<ModelArtifactType | null>([`${baseUrl}/${model}/id/${id}`, env], ([url, env]) => fetcher({ schema: ModelArtifactSchema, endpoint: url, env }));
     }
 
     function useGetModelList(partitions?: any, limit: number = 10, offset: number = 0) {
-        const env = useModelEnv();
+        const env = useHeadEnv();
 
         //@ts-ignore
         return useSWR<ModelArtifactType[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(ModelArtifactSchema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
@@ -44,20 +44,20 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
     }
 
     function useLastModel(partitions: any) {
-        const env = useModelEnv();
+        const env = useHeadEnv();
 
         //@ts-ignore
         return useSWR<ModelArtifactType | null>([`${baseUrl}/${model}/last`, partitions, env], ([url, partitions, env]) => fetcher({ ModelArtifactSchema, endpoint: url, queryParams: partitions, env }));
     }
 
     function useCreateModel() {
-        const env = useModelEnv();
+        const env = useHeadEnv();
 
         return useMutationHook<ModelArtifactType, ModelArtifactType>({ schema: ModelArtifactSchema, endpoint: `${baseUrl}/${model}/create`, env });
     }
 
     function useUpdateModel(id?: string) {
-        const env = useModelEnv();
+        const env = useHeadEnv();
 
         return useMutationHook<ModelArtifactType, ModelArtifactType>({ schema: ModelArtifactSchema, endpoint: id && `${baseUrl}/${model}/update/${id}`, env });
     }

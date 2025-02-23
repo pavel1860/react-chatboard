@@ -1,28 +1,8 @@
 import useSWR, { SWRResponse } from 'swr';
 import { z } from 'zod';
 import { useMutationHook } from './mutation';
-import { useModelEnv } from "../hooks/artifact-log-hook";
-// Types for API responses
-// export interface Branch {
-//     id: number;
-//     name: string;
-//     created_at: string;
-//     updated_at: string;
-//     branch_index: number;
-//     turn_counter: number;
-//     forked_from_turn_index?: number;
-//     forked_from_branch_id?: number;
-// }
+import { useHeadEnv } from "../hooks/artifact-log-hook";
 
-// export interface Turn {
-//     id: number;
-//     branch_id: number;
-//     index: number;
-//     status: "STAGED" | "COMMITTED" | "REVERTED";
-//     created_at: string;
-//     ended_at?: string;
-//     message?: string;
-// }
 
 export interface ArtifactLogHeaders {
     head_id: number;
@@ -37,8 +17,8 @@ const BranchSchema = z.object({
     name: z.string(),
     created_at: z.string(),
     updated_at: z.string(),
-    branch_index: z.number(),
-    turn_counter: z.number(),
+    // branch_index: z.number(),
+    // turn_counter: z.number(),
     forked_from_turn_index: z.number().nullable(),
     forked_from_branch_id: z.number().nullable()
 });
@@ -130,6 +110,7 @@ export const useAllTurns = (headers: ArtifactLogHeaders) => {
 };
 
 export const useBranchTurns = (branchId: number | null, headers: ArtifactLogHeaders): SWRResponse<TurnType[]> => {
+    console.log("useBranchTurns", branchId, headers)
     return useSWR<TurnType[]>(
         branchId ? [BASE_URL + `/turns/${branchId}`, headers] : null,
         ([url, headers]) => fetcher(url, headers).then(data => z.array(TurnSchema).parse(data))
@@ -137,11 +118,8 @@ export const useBranchTurns = (branchId: number | null, headers: ArtifactLogHead
 };
 
 
-
-
-
 export const useBranchFromTurn = () => {
-    const env = useModelEnv();
+    const env = useHeadEnv();
     const { mutate } = useBranchTurns(env.branch_id, env);
     return useMutationHook<BranchType, BranchType>({ 
         endpoint: `${BASE_URL}/branches`, 

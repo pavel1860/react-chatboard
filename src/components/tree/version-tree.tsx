@@ -94,13 +94,13 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
             {/* Render forked branches when turn is expanded */}
             {hasBranches && isExpanded(turn.id) && (
                 <div style={{ marginLeft: 20, marginTop: 4 }}>
-                    {turn.forked_branches.map((branch: any) => (
+                    {/* {turn.forked_branches.map((branch: any) => (
                         <ForkBranchTree 
                             key={branch.id} 
                             branch={branch} 
                             indent={indent + 2} 
                         />
-                    ))}
+                    ))} */}
                 </div>
             )}
         </div>
@@ -181,7 +181,7 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
 function MasterBranchTree() {
     const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
     const headers = { head_id: String(head?.id) };
-    
+    console.log("MasterBranchTree", head, headers)
     const { data: turns, isLoading, error } = useBranchTurns(head?.main_branch_id ?? null, headers);
     
     if (!head) return <div>No head selected</div>;

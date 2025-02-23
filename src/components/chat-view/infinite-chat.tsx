@@ -28,8 +28,6 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
 
     const hasMore = messages.length < MAX_DATA;
 
-    console.log("###### Infinite Chat messages:", messages)
-
     return (
         <div id="scrollableDiv" style={{
                 // height: height,
