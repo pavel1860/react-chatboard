@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAllTurns, useBranchTurns } from '../../services/artifact-log-service';
 import { useAdminStore } from '../../stores/admin-store';
-import useArtifactLog from '../../hooks/artifact-log-hook';
+import  { useHeadEnv } from '../../hooks/artifact-log-hook';
 import { Button, Chip } from '@nextui-org/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
 // Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
@@ -19,7 +19,7 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
     const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
 
     return (
-        <div style={{ marginLeft: indent * 20, marginTop: 10, position: 'relative' }}>
+        <div style={{ marginLeft: indent * 20 + 40, position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                 {/* Left column: Git graph visuals */}
                 <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
@@ -38,9 +38,11 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                     <div
                         style={{
                             position: 'relative',
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
+                            width: 10,
+                            // height: 12,
+                            height: 30,
+                            // height: "100%",
+                            // borderRadius: '50%',
                             backgroundColor: getStatusColor(turn.status),
                             border: '2px solid white',
                             marginLeft: 3,
@@ -51,17 +53,17 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                 {/* Right column: Turn content */}
                 <div
                     style={{
-                        backgroundColor: '#f9f9f9',
-                        borderRadius: 4,
-                        padding: 6,
+                        // backgroundColor: '#f9f9f9',
+                        // borderRadius: 4,
+                        // padding: 6,
                         minWidth: 200,
-                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                        // boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                         cursor: hasBranches ? 'pointer' : 'default',
                     }}
                     onClick={() => hasBranches && toggleTurn(turn.id)}
                 >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 'bold' }}>Turn {turn.index}</span>
+                        {/* <span style={{ fontWeight: 'bold', color: '#666' }}>Turn {turn.index}</span> */}
                         {/* <span
                             style={{
                                 marginLeft: 8,
@@ -93,14 +95,17 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
 
             {/* Render forked branches when turn is expanded */}
             {hasBranches && isExpanded(turn.id) && (
-                <div style={{ marginLeft: 20, marginTop: 4 }}>
-                    {/* {turn.forked_branches.map((branch: any) => (
+                <div style={{ 
+                    marginTop: 4,
+                    display: 'flex',
+                }}>
+                    {turn.forked_branches.map((branch: any) => (
                         <ForkBranchTree 
                             key={branch.id} 
                             branch={branch} 
-                            indent={indent + 2} 
+                            indent={indent} 
                         />
-                    ))} */}
+                    ))}
                 </div>
             )}
         </div>
@@ -133,7 +138,10 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
         );
 
     return (
-        <div style={{ marginLeft: indent * 20, marginTop: 4 }}>
+        <div style={{ 
+            // marginLeft: indent * 20, 
+            marginTop: 4
+            }}>
             {/* Branch header styled similar to a commit header */}
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
                 <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
@@ -150,12 +158,12 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                     <div
                         style={{
                             position: 'relative',
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
-                            backgroundColor: '#333',
-                            border: '2px solid white',
-                            marginLeft: 3,
+                            width: 25,
+                            height: 7,
+                            // borderRadius: '50%',
+                            backgroundColor: '#666',
+                            // border: '2px solid white',
+                            marginLeft: 5,
                             zIndex: 1,
                         }}
                     />
@@ -179,12 +187,13 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
 // Component for the Master Branch—that is, the top-level tree
 // which uses the `/all_turns` endpoint.
 function MasterBranchTree() {
-    const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
-    const headers = { head_id: String(head?.id) };
-    console.log("MasterBranchTree", head, headers)
-    const { data: turns, isLoading, error } = useBranchTurns(head?.main_branch_id ?? null, headers);
+    // const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
+    const { mainBranchId, branchId, setBranchId } = useHeadEnv()
+    const headers = { head_id: String(mainBranchId) };
+    console.log("MasterBranchTree", mainBranchId, headers)
+    const { data: turns, isLoading, error } = useBranchTurns(mainBranchId ?? null);
     
-    if (!head) return <div>No head selected</div>;
+    if (!mainBranchId) return <div>No head selected</div>;
 
     
 
@@ -200,8 +209,8 @@ function MasterBranchTree() {
             <Button
                 radius="full"
                 size="sm"
-                color={selectedBranchId === head?.main_branch_id ? "primary" : "secondary"} 
-                onClick={() => setSelectedBranchId(head?.main_branch_id ?? null)}
+                color={branchId === mainBranchId ? "primary" : "secondary"} 
+                onClick={() => setBranchId(mainBranchId ?? null)}
             >Main Branch</Button>
             {turns &&
                 turns.map((turn) => (

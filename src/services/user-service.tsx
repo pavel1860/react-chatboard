@@ -76,8 +76,9 @@ export default function createUserService<T>(userModel: string, schema: ZodSchem
             callbacks: {
                 onSuccess: (data) => {
                     console.log("onSuccess", data)
-                    env.setSelectedHeadId(data.id)                    
-                    env.setSelectedBranchId(data.branch_id)                    
+                    // env.setSelectedHeadId(data.id)                    
+                    // env.setSelectedBranchId(data.branch_id)                    
+                    env.setHeadEnv(data.id, data.branch_id, data.main_branch_id)
                 }
             }
 

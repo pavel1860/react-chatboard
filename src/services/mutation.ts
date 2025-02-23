@@ -10,8 +10,8 @@ interface MutationOptions<T, P> {
     endpoint: string;
     data: T;
     env?: {
-        head_id?: string;
-        branch_id?: string;
+        headId?: string;
+        branchId?: string;
     };
 }
 
@@ -21,8 +21,8 @@ export async function sendRequest<T, P>({ schema, endpoint, data, env }: Mutatio
         "Content-Type": "application/json"
     }
     if (env) {
-        headers["head_id"] = env.head_id
-        headers["branch_id"] = env.branch_id
+        headers["head_id"] = env.headId
+        headers["branch_id"] = env.branchId
     }
 
     const res = await fetch(endpoint, {

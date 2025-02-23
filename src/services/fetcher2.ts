@@ -9,8 +9,8 @@ interface FetcherOptions<T> {
     endpoint: string;
     queryParams?: Record<string, any>;
     env?: {
-        head_id?: string;
-        branch_id?: string;
+        headId?: string;
+        branchId?: string;
     };
 }
 
@@ -32,8 +32,8 @@ export async function fetcher<T>({ schema, endpoint, queryParams, env }: Fetcher
     const headers: any = {}
     if (env) {
         // headers["env"] = env
-        headers["head_id"] = env.head_id
-        headers["branch_id"] = env.branch_id
+        headers["head_id"] = env.headId
+        headers["branch_id"] = env.branchId
     }
 
     const res = await fetch(url, { headers });

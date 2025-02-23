@@ -5,52 +5,68 @@ import { useAdminStore } from "../stores/admin-store";
 
 
 
-
-
-
-
-const useArtifactLog = () => {
-    // const { data: branches, error, isLoading } = useAllBranches({ head_id: headId });
-    // const { dataTurns } = useBranchTurns({ head_id: headId })
+export const useHeadEnv = () => {
     const { 
         selectedBranchId, 
-        setSelectedBranchId,
-        selectedHeadId,
+        selectedHeadId, 
+        setSelectedBranchId, 
         setSelectedHeadId,
+        mainBranchId,
+        setMainBranchId,
+        setHeadEnv,
     } = useAdminStore()
 
+
+    return {
+        branchId: selectedBranchId,
+        headId: selectedHeadId,
+        setBranchId: setSelectedBranchId,
+        setHeadId: setSelectedHeadId,
+        mainBranchId,
+        setMainBranchId,
+        setHeadEnv,
+    }
+}
+
+
+
+
+// const useArtifactLog = () => {
+//     // const { data: branches, error, isLoading } = useAllBranches({ head_id: headId });
+//     // const { dataTurns } = useBranchTurns({ head_id: headId })
+//     // const { 
+//     //     selectedBranchId, 
+//     //     setSelectedBranchId,
+//     //     selectedHeadId,
+//     //     setSelectedHeadId,
+//     // } = useAdminStore()
+//     const {
+//         branchId,
+//         headId,
+//         setBranchId,
+//         setHeadId,
+//     } = useHeadEnv()
     
 
-    const { data: turns, error: turnsError, isLoading: turnsLoading } = useBranchTurns(selectedBranchId ?? null, { head_id: selectedHeadId })
-    const { data: head, error: headError, isLoading: headLoading } = useHead(selectedHeadId ?? null, { head_id: selectedHeadId })
+//     const { data: turns, error: turnsError, isLoading: turnsLoading } = useBranchTurns(branchId ?? null)
+//     const { data: head, error: headError, isLoading: headLoading } = useHead(headId ?? null, { head_id: headId })
 
-    return {
-        selectedBranchId,
-        setSelectedBranchId,
-        selectedHeadId,
-        setSelectedHeadId,
-        turns,
-        turnsError,
-        turnsLoading,
-        head,
-        headError,
-        headLoading,
-    }
-}
-
-
-
-export const useHeadEnv = () => {
-    const { selectedBranchId, selectedHeadId, setSelectedBranchId, setSelectedHeadId } = useAdminStore()
+//     return {
+//         branchId,
+//         setBranchId,
+//         headId,
+//         setHeadId,
+//         turns,
+//         turnsError,
+//         turnsLoading,
+//         head,
+//         headError,
+//         headLoading,
+//     }
+// }
 
 
-    return {
-        branch_id: selectedBranchId,
-        head_id: selectedHeadId,
-        setSelectedBranchId,
-        setSelectedHeadId,
-    }
-}
+
 
 
 
@@ -69,4 +85,4 @@ const useTurns = () => {
 
 export { useTurns }
 
-export default useArtifactLog
+// export default useArtifactLog

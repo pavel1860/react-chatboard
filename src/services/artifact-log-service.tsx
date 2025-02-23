@@ -50,9 +50,9 @@ export type HeadType = z.infer<typeof HeadSchema>;
 
 const getHeaders = (headers: ArtifactLogHeaders): Headers => {
     const requestHeaders = new Headers();
-    requestHeaders.append('head_id', headers.head_id);
-    if (headers.branch_id) {
-        requestHeaders.append('branch_id', headers.branch_id);
+    requestHeaders.append('head_id', headers.headId);
+    if (headers.branchId) {
+        requestHeaders.append('branch_id', headers.branchId);
     }
     return requestHeaders;
 };
@@ -109,18 +109,19 @@ export const useAllTurns = (headers: ArtifactLogHeaders) => {
     );
 };
 
-export const useBranchTurns = (branchId: number | null, headers: ArtifactLogHeaders): SWRResponse<TurnType[]> => {
-    console.log("useBranchTurns", branchId, headers)
+export const useBranchTurns = (branchId: number | null): SWRResponse<TurnType[]> => {
+    const env = useHeadEnv();
+    console.log("useBranchTurns", branchId, env)
     return useSWR<TurnType[]>(
-        branchId ? [BASE_URL + `/turns/${branchId}`, headers] : null,
-        ([url, headers]) => fetcher(url, headers).then(data => z.array(TurnSchema).parse(data))
+        branchId ? [BASE_URL + `/turns/${branchId}`, env] : null,
+        ([url, env]) => fetcher(url, env).then(data => z.array(TurnSchema).parse(data))
     );
 };
 
 
 export const useBranchFromTurn = () => {
     const env = useHeadEnv();
-    const { mutate } = useBranchTurns(env.branch_id, env);
+    const { mutate } = useBranchTurns(env.branch_id);
     return useMutationHook<BranchType, BranchType>({ 
         endpoint: `${BASE_URL}/branches`, 
         env,
