@@ -1,13 +1,16 @@
 import { Navbar, NavbarBrand } from '@nextui-org/react';
-import React from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface LayoutProps {
+    color?: string
     children: React.ReactNode;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Layout = ({ children, color }: LayoutProps) => {
     return (
-        <div className="flex h-screen w-full overflow-hidden">
+        <div className={`flex h-screen w-full overflow-hidden ${color ? `bg-[${color}]` : ''}`}>
             {children}
         </div>
     );
@@ -56,29 +59,75 @@ export const NavBarLayout = ({ children }: LayoutProps) => {
 
 
 
-export const MainViewLayout = ({ children }: LayoutProps) => {
+export const MainViewLayout = ({ children, color }: LayoutProps) => {
     return (
-        <div className="flex-grow w-6/12 h-full overflow-auto">
+        <div 
+            className="flex-grow w-6/12 h-full overflow-auto p-4"
+            style={{ backgroundColor: color }} 
+        >
             {children}
         </div>
     );
 };
 
-export const SideViewLayout = ({ children }: LayoutProps) => {
+export const SideViewLayout = ({ children, color }: LayoutProps) => {
     return (
-        <div className="w-4/12 h-full overflow-auto">
+        <div 
+            className="w-4/12 h-full overflow-auto p-4"
+            style={{ backgroundColor: color }} 
+        >
             {children}
         </div>
     );
 };
 
-export const SideBarLayout = ({ children }: LayoutProps) => {
+export const SideBarLayout = ({ children, color }: LayoutProps) => {
+    const [isOpen, setIsOpen] = useState(true);
+
     return (
-        <div className="w-3/12 h-full overflow-auto">
-            {children}
-        </div>
+        <motion.div
+            animate={{
+                width: isOpen ? "16.666667%" : "40px",
+                transition: { duration: 0.3 }
+            }}
+            className="h-full overflow-hidden border-r-1.5 border-gray-300 relative pt-5"
+            style={{ backgroundColor: color }}
+        >
+            <motion.div
+                animate={{
+                    opacity: isOpen ? 1 : 0,
+                    transition: { duration: 0.2 }
+                }}
+                className="p-4 overflow-auto"
+            >
+                {children}
+            </motion.div>
+
+            <motion.button
+                onClick={() => setIsOpen(!isOpen)}
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+            >
+                {isOpen ? (
+                    <ChevronLeft size={20} />
+                ) : (
+                    <ChevronRight size={20} />
+                )}
+            </motion.button>
+        </motion.div>
     );
 };
 
 
 
+export const Wrapper = ({ children, color="#FFFFFF" }: LayoutProps) => {
+    return (
+        <div 
+            className="rounded-lg border-1 border-gray-200 shadow-sm"
+            style={{ backgroundColor: color }} 
+        >
+            {children}
+        </div>
+    );
+};

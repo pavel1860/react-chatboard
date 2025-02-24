@@ -121,10 +121,10 @@ export const useChat = () => {
         }
         const headers: any = {
             // "Content-Type": "multipart/form-data",
-            "head_id": env.head_id,            
+            "head_id": env.headId,            
         }
-        if (env.branch_id) {
-            headers["branch_id"] = env.branch_id;
+        if (env.branchId) {
+            headers["branch_id"] = env.branchId;
         }
         const res = await fetch(`/api/ai/chat`, {
             method: "POST",
@@ -196,7 +196,7 @@ export default function ChatView() {
     return (
 
             
-        <div className="sticky bottom-0 ">
+        <div className="sticky bottom-0">
             
             <InfiniteChat
                 messages={messages || []}
@@ -212,7 +212,7 @@ export default function ChatView() {
                 {(message: MessageArtifactType, idx: number, prevMessage?: MessageArtifactType) => {
                     return (
                         <>
-                        <MessageBubble role={message.role}>
+                        <MessageBubble role={message.role} assistantColor="#FFFFFF">
                             {/* <Chip color="primary">{message.id}</Chip> */}
                             <MessageContent>
                                 {/* <MessageText text={message.content}/> */}
@@ -236,12 +236,12 @@ export default function ChatView() {
                             // sendMessage(editorState, undefined, sessionIdRef.current)
                         }}
                     />
-            <Button onClick={() => addMessage([{
+            {/* <Button onClick={() => addMessage([{
                 id: (messages?.length || 0) + (extraMessages.length || 0) + 1000,
                 content: "Hello",
                 created_at: "2021-01-01",
                 role: "user"
-            }])}>Add</Button>
+            }])}>Add</Button> */}
         </div>
     )
 }

@@ -25,15 +25,20 @@ function formatDateTime(date: Date) {
 export interface MessageBubbleProps {
     children: React.ReactNode   
     role: "user" | "assistant"
+    userColor?: string
+    assistantColor?: string
 }
 
 
-export function MessageBubble({ children, role }: MessageBubbleProps) {
+export function MessageBubble({ children, role, userColor="#3b82f6", assistantColor="#e5e7eb" }: MessageBubbleProps) {
 
     if (role === "assistant") {
         return (
             <div className="flex">                
-                <div className="max-w-lg bg-gray-200 text-gray-900 p-3 rounded-lg">
+                <div 
+                    className="max-w-lg  text-gray-900 p-3 rounded-lg shadow-sm"
+                    style={{ backgroundColor: assistantColor }}
+                >
                     {children}
                 </div>
                 <div className="p-3">
@@ -48,7 +53,10 @@ export function MessageBubble({ children, role }: MessageBubbleProps) {
                     
                     <User color="blue" />
                 </div>
-                <div className="max-w-lg bg-blue-500 text-white p-3 rounded-lg">
+                <div 
+                    className="max-w-lg text-white p-3 rounded-lg shadow-sm"
+                    style={{ backgroundColor: userColor }}
+                >
                     {children}
                 </div>
             </div>

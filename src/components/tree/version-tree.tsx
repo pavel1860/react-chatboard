@@ -19,12 +19,12 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
     const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
 
     return (
-        <div style={{ marginLeft: indent * 20 + 40, position: 'relative' }}>
+        <div style={{ marginLeft: indent * 20 + 40, position: 'relative', borderLeft: `4px solid ${getStatusColor(turn.status)}`, marginTop: 4 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                 {/* Left column: Git graph visuals */}
                 <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
                     {/* Vertical line behind the commit dot */}
-                    <div
+                    {/* <div
                         style={{
                             position: 'absolute',
                             top: 0,
@@ -33,9 +33,9 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                             width: 2,
                             backgroundColor: '#ccc',
                         }}
-                    />
+                    /> */}
                     {/* Commit dot */}
-                    <div
+                    {/* <div
                         style={{
                             position: 'relative',
                             width: 10,
@@ -48,7 +48,7 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                             marginLeft: 3,
                             zIndex: 1,
                         }}
-                    />
+                    /> */}
                 </div>
                 {/* Right column: Turn content */}
                 <div
@@ -158,8 +158,8 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                     <div
                         style={{
                             position: 'relative',
-                            width: 25,
-                            height: 7,
+                            width: 20,
+                            height: 4,
                             // borderRadius: '50%',
                             backgroundColor: '#666',
                             // border: '2px solid white',
@@ -169,12 +169,14 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                     />
                 </div>
                 {/* <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Branch: {branch.name}</div> */}
-                <Button
-                    radius="full"
-                    size="sm"
+                <div style={{ zIndex: 5}}>
+                    <Button
+                        radius="full"
+                        size="sm"
                     color={selectedBranchId === branch.id ? "primary" : "secondary"} 
                     onClick={() => setSelectedBranchId(branch.id)}
                 >{branch.name}</Button>
+                </div>
             </div>
             {turns &&
                 turns.map((turn) => (
