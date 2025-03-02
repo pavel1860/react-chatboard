@@ -84,7 +84,7 @@ export const useChat = () => {
         isLoading: messagesLoading,
         error: messagesError,
         mutate: mutateMessages
-    } = useGetModelList()
+    } = useGetModelList(10, 0)
     
     const [extraMessages, setExtraMessages] = useState<MessageType[]>([])
 

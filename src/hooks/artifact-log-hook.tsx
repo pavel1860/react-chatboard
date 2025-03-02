@@ -1,6 +1,17 @@
 import { useEffect } from "react";
 import { useAllBranches, useAllTurns, useBranchTurns, useHead } from "../services/artifact-log-service";
 import { useAdminStore } from "../stores/admin-store";
+import { useMutationHook } from "../services/mutation";
+import { HeadType } from "../services/artifact-log-service";
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25,8 +36,45 @@ export const useHeadEnv = () => {
         mainBranchId,
         setMainBranchId,
         setHeadEnv,
+        // changeHead: (headId: number) => {
+        //     changeHead({head_id: headId})
+        // },       
+        // changeHeadIsMutating,
+        // changeHeadError,
     }
 }
+
+
+
+
+// export function useChangeHead(
+//     baseUrl: string = "/api/ai/users",     
+// ) {
+//     const env = useHeadEnv()
+    
+//     const { trigger, isMutating, error } = useMutationHook<{head_id: number, branch_id?: number}, HeadType>({ 
+//         // schema: UserSchema, 
+//         endpoint: `${baseUrl}/Manager/change-head`, 
+//         env,
+//         callbacks: {
+//             onSuccess: (data) => {
+//                 console.log("onSuccess", data)
+//                 // env.setSelectedHeadId(data.id)                    
+//                 // env.setSelectedBranchId(data.branch_id)                    
+//                 env.setHeadEnv(data.id, data.branch_id, data.main_branch_id)
+//             }
+//         }
+//     });
+
+//     return {
+//         changeHead: (headId: number) => {
+//             trigger({head_id: headId})
+//         },
+//         isMutating,
+//         error,
+//     }
+// }
+
 
 
 

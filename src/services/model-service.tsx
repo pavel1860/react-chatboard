@@ -1,6 +1,6 @@
-import useSWR, { useSWRConfig } from "swr"
+import useSWR, { SWRResponse, useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
-import { z, ZodSchema } from "zod";
+import { AnyZodObject, z, ZodSchema } from "zod";
 // import { useModelEnv } from "../state/model-env";
 import { useHeadEnv } from "../hooks/artifact-log-hook";
 import { useMutationHook } from "./mutation";
@@ -34,7 +34,19 @@ export type ModelServiceOptions = {
 }
 
 
-export default function createModelService<T>(model: string, schema: ZodSchema<T>, options: ModelServiceOptions) {
+
+export interface ModelService<T extends AnyZodObject> {
+    ModelArtifactSchema: ZodSchema<T & BaseArtifactType>
+    useGetModel: (id: string) => SWRResponse<T & BaseArtifactType | null>
+    useGetModelList: (limit: number, offset: number) => SWRResponse<(T & BaseArtifactType)[]>
+    useLastModel: (partitions: any) => SWRResponse<T & BaseArtifactType | null>
+    useCreateModel: () => SWRMutationResponse<T & BaseArtifactType, Error>
+    useUpdateModel: (id?: string) => SWRMutationResponse<T & BaseArtifactType, Error>
+}
+
+
+
+export default function createModelService<T extends AnyZodObject>(model: string, schema: T, options: ModelServiceOptions): ModelService<T> {
     const { isArtifact = false, baseUrl = "/api/ai/model", isHead = false } = options;
 
     if (isHead && isArtifact) {
@@ -42,20 +54,20 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
     }
 
     const ModelArtifactSchema = isHead ? BaseHeadSchema.merge(schema) : isArtifact ? BaseArtifactSchema.merge(schema) : schema
-    type ModelArtifactType = T & BaseArtifactType
+    // type ModelArtifactType = T & BaseArtifactType
 
-    function useGetModel(id: string) {
+    function useGetModel(id: string | number): SWRResponse<T & BaseArtifactType | null> {
 
         const env = useHeadEnv();
         //@ts-ignore
         return useSWR<ModelArtifactType | null>([`${baseUrl}/${model}/id/${id}`, env], ([url, env]) => fetcher({ schema: ModelArtifactSchema, endpoint: url, env }));
     }
 
-    function useGetModelList(partitions?: any, limit: number = 10, offset: number = 0) {
+    function useGetModelList(limit: number = 10, offset: number = 0): SWRResponse<(T & BaseArtifactType)[]> {
         const env = useHeadEnv();
 
         //@ts-ignore
-        return useSWR<ModelArtifactType[]>([`${baseUrl}/${model}/list`, partitions, limit, offset, env], ([url, partitions, limit, offset]) => fetcher({ schema: z.array(ModelArtifactSchema), endpoint: url, queryParams: { ...partitions, limit, offset }, env }));
+        return useSWR<ModelArtifactType[]>([`${baseUrl}/${model}/list`, limit, offset, env], ([url, limit, offset]) => fetcher({ schema: z.array(ModelArtifactSchema), endpoint: url, queryParams: { limit, offset }, env }));
 
     }
 
@@ -87,6 +99,11 @@ export default function createModelService<T>(model: string, schema: ZodSchema<T
         useUpdateModel,
     };
 }
+
+
+
+
+
 
 
 

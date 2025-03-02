@@ -5,17 +5,17 @@ import { useModelEnv } from "../state/model-env";
 
 
 
-interface MutationOptions<T, P> {
-    schema?: ZodSchema<P>;
+interface MutationOptions<Params, Data> {
+    schema?: ZodSchema<Data>;
     endpoint: string;
-    data: T;
+    data: Params;
     env?: {
         headId?: string;
         branchId?: string;
     };
 }
 
-export async function sendRequest<T, P>({ schema, endpoint, data, env }: MutationOptions<T, P>): Promise<P> {
+export async function sendRequest<Params, Data>({ schema, endpoint, data, env }: MutationOptions<Params, Data>): Promise<Data> {
 
     const headers: any = {
         "Content-Type": "application/json"
@@ -46,8 +46,8 @@ export async function sendRequest<T, P>({ schema, endpoint, data, env }: Mutatio
 
 
 
-interface UseMutationOptions<T, P> {
-    schema: ZodSchema<P>;
+interface UseMutationOptions<Params, Data> {
+    schema: ZodSchema<Data>;
     // model: string;
     endpoint?: string;
     env?: {
@@ -56,24 +56,23 @@ interface UseMutationOptions<T, P> {
     };
     // id?: string;
     callbacks?: {
-        onSuccess?: (data: P) => void;
+        onSuccess?: (data: Data) => void;
         onError?: (error: any) => void;
     };
 }
 
-export function useMutationHook<T, P>({ schema, endpoint, callbacks, env }: UseMutationOptions<T, P>): SWRMutationResponse<P, Error> {
+export function useMutationHook<Params, Data>({ schema, endpoint, callbacks, env }: UseMutationOptions<Params, Data>): SWRMutationResponse<Data, Error> {
     // const endpoint = id ? `${model}/update/${id}` : `${model}/create`;
-
     
 
-    const { trigger, data, error, isMutating, reset } = useSWRMutation<P>(
+    const { trigger, data, error, isMutating, reset } = useSWRMutation<Data>(
         // `/api/model/${endpoint}`,
         endpoint,
-        async (url: string, { arg }: { arg: T }) => {
+        async (url: string, { arg }: { arg: Params }) => {
             if (!endpoint) {
                 throw new Error("Endpoint is not defined");
             }
-            const response = await sendRequest<T, P>({ schema, endpoint, data: arg, env });
+            const response = await sendRequest<Params, Data>({ schema, endpoint, data: arg, env });
             return response;
         },
         {
