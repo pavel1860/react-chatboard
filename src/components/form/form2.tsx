@@ -52,11 +52,17 @@ export function Form({
         }
     }
 
-    const handleSubmit = methods.handleSubmit(onSubmit);
+    
+
+
+    const handleSubmit = methods.handleSubmit((data) => {
+        if (onSubmit) onSubmit(data);
+    });
+    
 
     return (
         <FormProvider {...extendedMethods}>
-            <form onSubmit={handleSubmit}>{children}</form>
+            <form onSubmit={handleSubmit} >{children}</form>
         </FormProvider>
     );
 }

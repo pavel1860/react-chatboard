@@ -13,6 +13,7 @@ export const BaseArtifactSchema = z.object({
     id: z.number(),
     score: z.number(),
     turn_id: z.number(),
+    branch_id: z.number(),
     created_at: z.string(),
     // updated_at: z.string(),
 })

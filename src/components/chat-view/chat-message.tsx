@@ -27,17 +27,19 @@ export interface MessageBubbleProps {
     role: "user" | "assistant"
     userColor?: string
     assistantColor?: string
+    width?: string
+    padding?: string
 }
 
 
-export function MessageBubble({ children, role, userColor="#3b82f6", assistantColor="#e5e7eb" }: MessageBubbleProps) {
+export function MessageBubble({ children, role, userColor="#3b82f6", assistantColor="#e5e7eb", width = "auto", padding = "5px" }: MessageBubbleProps) {
 
     if (role === "assistant") {
         return (
             <div className="flex">                
                 <div 
-                    className="max-w-lg  text-gray-900 p-3 rounded-lg shadow-sm"
-                    style={{ backgroundColor: assistantColor }}
+                    className="max-w-lg  text-gray-900 rounded-lg shadow-sm"
+                    style={{ backgroundColor: assistantColor, width: width, padding: padding}}
                 >
                     {children}
                 </div>
@@ -49,13 +51,12 @@ export function MessageBubble({ children, role, userColor="#3b82f6", assistantCo
     } else if (role === "user") {
         return (
             <div className="flex justify-end">
-                <div className="p-3 ">
-                    
+                <div className="p-3 ">                    
                     <User color="blue" />
                 </div>
                 <div 
-                    className="max-w-lg text-white p-3 rounded-lg shadow-sm"
-                    style={{ backgroundColor: userColor }}
+                    className="max-w-lg text-white rounded-lg shadow-sm"
+                    style={{ backgroundColor: userColor, width: width, padding: padding }}
                 >
                     {children}
                 </div>

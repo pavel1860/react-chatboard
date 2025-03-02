@@ -28,7 +28,7 @@ const InputComp = ({
         radius: inputRadius,
         size: inputSize,
     } = useInputStyle({variant, radius, size});
-    console.log("sadfsafsd")
+
     if (type === "text") {
         return (
             <Input

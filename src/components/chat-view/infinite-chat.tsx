@@ -30,8 +30,8 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
 
     return (
         <div id="scrollableDiv" style={{
-                // height: height,
-                height: "800px",
+                height: height,
+                // height: "800px",
                 overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column-reverse',
@@ -63,6 +63,7 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                         //     turn = TurnChip(message.turn_id)
                         // }
                         let prevMessage = idx > 0 ? messages[idx - 1] as M : undefined;
+                        
                         return (
                             <motion.div
                                 key={message && (message as any).id ? (message as any).id : idx}

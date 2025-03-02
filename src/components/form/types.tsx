@@ -9,6 +9,7 @@ export interface InputStyleProps {
     iconPlacement?: "left" | "inputStart" | "inputEnd"
     radius?: "none" | "sm" | "md" | "lg" | "full" | undefined
     size?: "sm" | "md" | "lg",
+    color?: "primary" | "secondary" | "tertiary" | "success" | "warning" | "error" | "info" | "default"
 }
 
 

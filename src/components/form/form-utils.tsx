@@ -103,6 +103,7 @@ export const useInputStyle = (props: InputStyleProps) => {
         variant: props.variant || style.variant,
         radius: props.radius || style.radius,
         size: props.size || style.size,
+        color: props.color || style.color,
     }
 }
 
