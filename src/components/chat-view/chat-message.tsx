@@ -107,3 +107,25 @@ export function MessageTime({ time }: { time: string }) {
         <span className="text-xs text-gray-300">{formatDateTime(new Date(time))}</span>
     )
 }
+
+
+
+
+
+
+
+export function Message({ children, role, created_at, width }: { children?: React.ReactNode, role: "user" | "assistant", created_at?: string, width?: string }){
+    return (
+        <MessageBubble role={role} assistantColor="#FFFFFF" width={width}>
+            {/* <Chip color="primary">{message.id}</Chip> */}
+            <MessageContent>
+                {children}
+                {/* <MessageText text={message.content}/> */}
+                {/* <div className="text-sm">{content}</div> */}
+            </MessageContent>
+            <MessageFooter>
+                {created_at && <MessageTime time={created_at} />}
+            </MessageFooter>
+        </MessageBubble>
+    )
+}

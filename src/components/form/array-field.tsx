@@ -81,7 +81,7 @@ export interface ArrayFieldProps<TItem extends FieldValues> {
      * This will be used in `useFieldArray` and to prefix child fields.
      */
     field: string;
-    addComponent?: ReactNode;
+    addComponent?: (addItem: () => void) => ReactNode;
     /**
      * A function that renders each item. 
      * 
@@ -106,6 +106,7 @@ export interface ArrayFieldProps<TItem extends FieldValues> {
 export function ArrayField<TItem extends FieldValues>({
     field,
     children,
+    addComponent,
 }: ArrayFieldProps<TItem>) {
     const { control } = useFormContext();
     const { fields, append, remove } = useFieldArray({
@@ -144,7 +145,8 @@ export function ArrayField<TItem extends FieldValues>({
             {/* <button type="button" onClick={addItem}>
                 + Add Item
             </button> */}
-            <Button onPress={addItem} variant="light" size="sm" color="primary">+ Add Item</Button>
+            {addComponent ? addComponent(addItem) : <Button onPress={addItem} variant="light" size="sm" color="primary">+ Add Item</Button>}
+            
         </div>
     );
 }
