@@ -18,14 +18,30 @@ export const BaseArtifactSchema = z.object({
 })
 
 
+export const BaseHeadSchema = z.object({
+    id: z.number(),    
+    head_id: z.number(),
+})
+
+
 export type BaseArtifactType = z.infer<typeof BaseArtifactSchema>
 
 
+export type ModelServiceOptions = {
+    isArtifact?: boolean,
+    baseUrl?: string,
+    isHead?: boolean,
+}
 
-export default function createModelService<T>(model: string, schema: ZodSchema<T>, baseUrl?: string) {
-    baseUrl = baseUrl || "/api/ai/model";
 
-    const ModelArtifactSchema = BaseArtifactSchema.merge(schema)
+export default function createModelService<T>(model: string, schema: ZodSchema<T>, options: ModelServiceOptions) {
+    const { isArtifact = false, baseUrl = "/api/ai/model", isHead = false } = options;
+
+    if (isHead && isArtifact) {
+        throw new Error("Head and Artifact cannot be true at the same time")
+    }
+
+    const ModelArtifactSchema = isHead ? BaseHeadSchema.merge(schema) : isArtifact ? BaseArtifactSchema.merge(schema) : schema
     type ModelArtifactType = T & BaseArtifactType
 
     function useGetModel(id: string) {

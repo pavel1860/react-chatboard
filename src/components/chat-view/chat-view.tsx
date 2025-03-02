@@ -72,7 +72,7 @@ const {
     useGetModel,
     useCreateModel,
     useUpdateModel,
-} = createModelService<MessageType>("Message", MessageSchema)
+} = createModelService<MessageType>("Message", MessageSchema, { isArtifact: true})
 
 type MessageArtifactType = z.infer<typeof MessageArtifactSchema>
 

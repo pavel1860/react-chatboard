@@ -86,42 +86,19 @@ export default function List<T>({ items, fullHeight, height, selected, onSelecti
                         
                     </div>
                 }
-                // classNames={{
-                //     base: "max-w-xs",
-                //     // list: "max-h-[300px] overflow-scroll",
-                //     list: fullHeight ? "h-full overflow-scroll" : height ? `max-h-[${height}px] overflow-scroll` : "max-h-[300px] overflow-scroll",
-                // }}
 
-                onSelectionChange={(keys: Selection) => {
+
+                onSelectionChange={(key: Selection) => {
                     //@ts-ignore
-                    onSelectionChange && onSelectionChange(keys.currentKey)
+                    onSelectionChange && onSelectionChange(key.currentKey)
                     //@ts-ignore
-                    setSelectedItem(keys.currentKey)
+                    setSelectedItem(key)
                 }}
-                // items={items}
                 variant="flat"
-            // selectionMode="single"
             >
                 {items?.map((item: T, idx: number) => (
                     children?.(item, idx)
                 ))}
-                {/* {(item) => (
-                    <ListboxItem
-                        key={item.key}
-                        href={item.href}
-                        title={item.title}
-                        description={item.description}   
-                        classNames={{
-                            base: cc({
-                                [currSelectionStyle]: selectedItem === item.key
-                            })
-                        }}
-                        showDivider
-                    // shouldHighlightOnFocus
-                    >
-                        <span className="text-small">{item.value}</span>
-                    </ListboxItem>
-                )} */}
             </Listbox>
         </div>
     )
