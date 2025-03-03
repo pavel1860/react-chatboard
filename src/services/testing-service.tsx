@@ -1,4 +1,5 @@
 import createModelService from "./model-service";
+import {useMutationHook} from './mutation'
 import { z } from 'zod';
 
 
@@ -42,6 +43,7 @@ const {
     useGetModel: useGetEvaluator,
     useCreateModel: useCreateEvaluator,
     useUpdateModel: useUpdateEvaluator,
+    useDeleteModel: useDeleteEvaluator,
 } = createModelService("Evaluator", EvaluatorBaseSchema, { isArtifact: false, baseUrl: "/api/ai/evaluators" })
 
 export {
@@ -49,6 +51,7 @@ export {
     useGetEvaluator,
     useCreateEvaluator,
     useUpdateEvaluator,
+    useDeleteEvaluator,
 }
 
 
@@ -69,6 +72,7 @@ const {
     useGetModel: useGetTestCase,
     useCreateModel: useCreateTestCase,
     useUpdateModel: useUpdateTestCase,
+    useDeleteModel: useDeleteTestCase,
 } = createModelService("TestCase", TestCaseBaseSchema, { isArtifact: false, isHead: true, baseUrl: "/api/ai/testing" })
 
 export type TestCaseType = z.infer<typeof TestCaseSchema>;
@@ -79,7 +83,18 @@ export {
     useGetTestCase,
     useCreateTestCase,
     useUpdateTestCase,
+    useDeleteTestCase,
 }
 
 
 
+export const useRunTestCase = () => {
+    
+    const { trigger: runTestCase, isMutating: isRunningTestCase, error: runTestCaseError } = useMutationHook({ endpoint: `/api/ai/testing/TestCase/run`})
+    
+    return {
+        runTestCase,
+        isRunningTestCase,
+        runTestCaseError,
+    }
+}

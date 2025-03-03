@@ -10,7 +10,10 @@ interface LayoutProps {
 
 export const Layout = ({ children, color }: LayoutProps) => {
     return (
-        <div className={`flex h-screen w-full overflow-hidden ${color ? `bg-[${color}]` : ''}`}>
+        <div 
+            // className={`flex h-screen w-full overflow-hidden ${color ? `bg-[${color}]` : ''}`}
+            className={`bg-background flex h-screen w-full overflow-hidden`}
+        >
             {children}
         </div>
     );
@@ -186,7 +189,7 @@ export const SideNavBar = ({ color, items }: SideNavBarProps) => {
 export const Wrapper = ({ children, color = "#FFFFFF" }: LayoutProps) => {
     return (
         <div
-            className="rounded-lg border-1 border-gray-200 shadow-sm"
+            className="rounded-lg border-1 border-gray-200 shadow-sm p-3"
             style={{ backgroundColor: color }}
         >
             {children}

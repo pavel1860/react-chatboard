@@ -29,13 +29,15 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
     const hasMore = messages.length < MAX_DATA;
 
     return (
-        <div id="scrollableDiv" style={{
+        <div id="scrollableDiv" 
+            style={{
                 height: height,
                 // height: "800px",
                 overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column-reverse',
-            }} className="bg-body-tertiary p-3">
+            }} 
+            className="bg-body-tertiary p-3">
             <InfiniteScroll
                 dataLength={ messages.length }
                 next={fetchMore}
@@ -43,7 +45,12 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                 // loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
                 loader={<p className="text-center m-5"></p>}
                 endMessage={<p className="text-center m-5">That&apos;s all folks!🐰🥕</p>}
-                style={{ display: "flex", flexDirection: "column-reverse", overflow: "visible", gap: gap || "10px"}}
+                style={{ 
+                    display: "flex", 
+                    flexDirection: "column-reverse", 
+                    overflow: "visible", 
+                    gap: gap || "10px"
+                }}
                 scrollableTarget="scrollableDiv"
                 inverse={true}
                 // initialScrollY={0}

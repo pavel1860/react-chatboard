@@ -43,6 +43,7 @@ export interface ModelService<T extends AnyZodObject> {
     useLastModel: (partitions: any) => SWRResponse<T & BaseArtifactType | null>
     useCreateModel: () => SWRMutationResponse<T & BaseArtifactType, Error>
     useUpdateModel: (id?: string) => SWRMutationResponse<T & BaseArtifactType, Error>
+    useDeleteModel: (id?: string) => SWRMutationResponse<T & BaseArtifactType, Error>
 }
 
 
@@ -91,6 +92,12 @@ export default function createModelService<T extends AnyZodObject>(model: string
         return useMutationHook<ModelArtifactType, ModelArtifactType>({ schema: ModelArtifactSchema, endpoint: id && `${baseUrl}/${model}/update/${id}`, env });
     }
 
+    function useDeleteModel(id?: string) {
+        const env = useHeadEnv();
+
+        return useMutationHook<ModelArtifactType, ModelArtifactType>({ schema: ModelArtifactSchema, endpoint: id && `${baseUrl}/${model}/delete/${id}`, env });
+    }
+
     return {
         ModelArtifactSchema,        
         useGetModel,
@@ -98,6 +105,7 @@ export default function createModelService<T extends AnyZodObject>(model: string
         useLastModel,
         useCreateModel,
         useUpdateModel,
+        useDeleteModel,
     };
 }
 
