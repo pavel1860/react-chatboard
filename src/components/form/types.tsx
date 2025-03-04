@@ -46,6 +46,7 @@ export interface InputFieldProps extends InputStyleProps {
      */
     prefix?: string;
     icon?: React.ReactNode;
+    classNames?: any
 }
 
 

@@ -90,11 +90,58 @@ export {
 
 export const useRunTestCase = () => {
     
-    const { trigger: runTestCase, isMutating: isRunningTestCase, error: runTestCaseError } = useMutationHook({ endpoint: `/api/ai/testing/TestCase/run`})
+    const { 
+        trigger: runTestCase, 
+        isMutating: isRunningTestCase, 
+        error: runTestCaseError
+    } = useMutationHook({ 
+        // endpoint: `/api/ai/testing/TestCase/run`
+        endpoint: `/api/ai/testing/run`
+    })
     
     return {
         runTestCase,
         isRunningTestCase,
         runTestCaseError,
     }
+}
+
+
+export const EvalResultSchema = z.object({
+    reasoning: z.string(),
+    score: z.number(),
+})
+
+export const TurnResultSchema = z.object({
+    output: z.string(),
+    evaluations: z.array(EvalResultSchema),
+    score: z.number(),
+})
+
+
+export const TestRunBaseSchema = z.object({
+    message: z.string(),
+    results: z.array(TurnResultSchema),
+    final_score: z.number(),
+    status: z.enum(["started", "success", "failure"]),
+    test_case_id: z.number(),
+})
+
+const {
+    ModelArtifactSchema: TestRunSchema,
+    useGetModelList: useGetTestRunList,
+    useGetModel: useGetTestRun,
+    useCreateModel: useCreateTestRun,
+    useUpdateModel: useUpdateTestRun,
+    useDeleteModel: useDeleteTestRun,
+} = createModelService("TestRun", TestRunBaseSchema, { isArtifact: false, isHead: true, baseUrl: "/api/ai/testing" })
+
+
+export {
+    TestRunSchema,
+    useGetTestRunList,
+    useGetTestRun,
+    useCreateTestRun,
+    useUpdateTestRun,
+    useDeleteTestRun,
 }

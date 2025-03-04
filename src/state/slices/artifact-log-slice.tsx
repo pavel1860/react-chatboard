@@ -12,7 +12,7 @@ export type ArtifactLogStoreType = {
     setSelectedTurnId: (turnId: number) => void
     mainBranchId: number | null
     setMainBranchId: (mainBranchId: number) => void
-    setHeadEnv: (headId: number, branchId: number, mainBranchId: number) => void
+    setHeadEnv: (headId: number, branchId: number, mainBranchId: number, turnId: number) => void
     sideView: SideViewType
     setSideView: (sideView: SideViewType) => void
 }
@@ -28,7 +28,7 @@ export const createArtifactLogSlice = (set, get): ArtifactLogStoreType => ({
     setSelectedTurnId: (turnId: number) => set({ selectedTurnId: turnId }),
     mainBranchId: null,
     setMainBranchId: (mainBranchId: number) => set({ mainBranchId: mainBranchId }),
-    setHeadEnv: (headId: number, branchId: number, mainBranchId: number) => set({ selectedHeadId: headId, selectedBranchId: branchId, mainBranchId: mainBranchId }),
+    setHeadEnv: (headId: number, branchId: number, turnId: number, mainBranchId: number) => set({ selectedHeadId: headId, selectedBranchId: branchId, mainBranchId: mainBranchId, selectedTurnId: turnId }),
     sideView: "version-tree",
     setSideView: (sideView: SideViewType) => set({ sideView: sideView }),
 })

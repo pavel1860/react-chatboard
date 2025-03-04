@@ -86,13 +86,13 @@ export default function createModelService<T extends AnyZodObject>(model: string
         return useMutationHook<ModelArtifactType, ModelArtifactType>({ schema: ModelArtifactSchema, endpoint: `${baseUrl}/${model}/create`, env });
     }
 
-    function useUpdateModel(id?: string) {
+    function useUpdateModel(id?: string | number) {
         const env = useHeadEnv();
 
         return useMutationHook<ModelArtifactType, ModelArtifactType>({ schema: ModelArtifactSchema, endpoint: id && `${baseUrl}/${model}/update/${id}`, env });
     }
 
-    function useDeleteModel(id?: string) {
+    function useDeleteModel(id?: string | number) {
         const env = useHeadEnv();
 
         return useMutationHook<ModelArtifactType, ModelArtifactType>({ schema: ModelArtifactSchema, endpoint: id && `${baseUrl}/${model}/delete/${id}`, env });

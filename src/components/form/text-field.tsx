@@ -20,6 +20,7 @@ export function TextField({
     field, 
     prefix,
     icon,
+    classNames,
     ...props
 }: InputFieldProps) {
     const { register, control, formState: { errors }, isReadOnly } = useFormContext();
@@ -68,6 +69,15 @@ export function TextField({
                             //     fieldInfo.onChange(value == "" ? undefined : Number(value));
                             // }}
                             placeholder={label}
+                            classNames={classNames}
+                            // classNames={{
+                            //     // base: "bg-blue-500 text-red-400",
+                            //     inputWrapper: "bg-blue-500",
+                            //     // "innerWrapper": "text-gray-300",
+                            //     // input: "!text-red-500 text-2xl"
+                            //     input: "!text-[#FFFFFF]"
+
+                            // }}
                             
                         />}
 
