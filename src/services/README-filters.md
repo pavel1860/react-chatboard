@@ -1,140 +1,175 @@
 # Model Service Filtering Capabilities
 
-This document explains how to use the filtering capabilities in the model service.
+The model service provides powerful filtering capabilities that align with the backend query system. These filters can be used with the following hooks:
+
+- `useGetModelList<M>(limit, offset, filters)`
+- `useGetModel<M>(id, filters)`
+- `useLastModel<M>(filters)`
 
 ## Basic Usage
 
-All the main hooks in the model service now support filtering:
-
-### useGetModelList
+All filters are optional parameters that allow you to narrow down your query results.
 
 ```typescript
-const { data, error, isLoading } = modelService.useGetModelList<MyModelType>(
-  limit,    // number of items per page
-  offset,   // starting position
-  filters   // optional filtering criteria
-);
-```
+// Simple equality filter
+const { data } = useGetModelList<UserModel>(10, 0, { name: 'John' });
 
-### useGetModel
+// Advanced filter with operations
+const { data } = useGetModelList<UserModel>(10, 0, {
+  score: { operation: FilterOperation.GREATER_THAN, value: 80 }
+});
 
-```typescript
-const { data, error, isLoading } = modelService.useGetModel<MyModelType>(
-  id,       // model ID
-  filters   // optional filtering criteria
-);
-```
-
-### useLastModel
-
-```typescript
-const { data, error, isLoading } = modelService.useLastModel<MyModelType>(
-  partitions, // partitioning criteria
-  filters     // optional filtering criteria
+// Compound filter with logical operations
+const { data } = useGetModelList<UserModel>(10, 0, 
+  and(
+    { isActive: true },
+    { role: 'admin' }
+  )
 );
 ```
 
 ## Filter Types
 
-There are two ways to specify filters:
-
 ### 1. Type-Safe Filters (Recommended)
 
-For type safety, use the `TypedModelFilters` type with your model type:
+The model service provides type-safe filtering through the `TypedModelFilters<T>` type:
 
 ```typescript
-import { TypedModelFilters } from '../services/model-service';
-import { z } from 'zod';
-
-// Define your model schema
-const MySchema = z.object({
-  name: z.string(),
-  value: z.number(),
-  isActive: z.boolean(),
-});
+import { TypedModelFilters, FilterOperation, RangeFilter } from '../services/model-service';
 
 // Define your model type
-type MyModelType = z.infer<typeof MySchema> & BaseArtifactType;
+type UserModel = {
+  name: string;
+  age: number;
+  isActive: boolean;
+  role: string;
+  created_at: string;
+};
 
 // Create type-safe filters
-const filters: TypedModelFilters<MyModelType> = {
-  name: 'example',       // TypeScript knows this should be a string
-  value: 42,             // TypeScript knows this should be a number
-  isActive: true         // TypeScript knows this should be a boolean
-};
-```
-
-With this approach, TypeScript will provide type checking for both field names and values:
-
-```typescript
-// This will cause a TypeScript error because 'unknown_field' is not in MyModelType
-filters.unknown_field = 'value';
-
-// This will cause a TypeScript error because 'name' should be a string
-filters.name = 123;
-```
-
-### 2. Untyped Filters (Legacy)
-
-For backward compatibility, you can still use the untyped `ModelFilters` type:
-
-```typescript
-import { ModelFilters } from '../services/model-service';
-
-const filters: ModelFilters = {
-  name: 'example',
-  value: 42,
-  isActive: true
-};
-```
-
-## Advanced Filtering with Operations
-
-Both filter types support advanced operations:
-
-```typescript
-import { FilterOperation, TypedModelFilters } from '../services/model-service';
-
-const filters: TypedModelFilters<MyModelType> = {
+const filters: TypedModelFilters<UserModel> = {
   // Simple equality filter
-  name: 'example',
+  name: 'John',
   
-  // Advanced filters with operations
-  value: {
+  // Advanced filter with operation
+  age: {
     operation: FilterOperation.GREATER_THAN,
-    value: 50  // TypeScript ensures this is a number
+    value: 25
   },
-  created_at: {
-    operation: FilterOperation.LESS_THAN,
-    value: '2023-01-01'
+  
+  // Range filter
+  score: {
+    operation: FilterOperation.RANGE,
+    value: {
+      gt: 75,  // greater than
+      lt: 100, // less than
+      // Can also use ge (greater than or equal) and le (less than or equal)
+    } as RangeFilter<number>
+  },
+  
+  // IN filter (multiple values)
+  role: {
+    operation: FilterOperation.IN,
+    value: ['admin', 'manager']
   }
 };
 ```
 
+### 2. Compound Filters
+
+Compound filters allow you to create complex logical conditions using AND and OR operations:
+
+```typescript
+import { and, or, CompoundFilter } from '../services/model-service';
+
+// AND filter - all conditions must match
+const andFilter = and<UserModel>(
+  { isActive: true },
+  { role: 'admin' },
+  { age: { operation: FilterOperation.GREATER_THAN, value: 30 } }
+);
+
+// OR filter - any condition can match
+const orFilter = or<UserModel>(
+  { role: 'admin' },
+  { role: 'manager' }
+);
+
+// Nested compound filters
+const complexFilter = or<UserModel>(
+  { role: 'admin' },
+  and<UserModel>(
+    { isActive: true },
+    { age: { operation: FilterOperation.GREATER_THAN, value: 25 } }
+  )
+);
+```
+
 ## Available Filter Operations
 
-The following operations are supported:
+The `FilterOperation` enum provides the following operations:
 
-- `EQUALS` (eq): Equal to the specified value
-- `GREATER_THAN` (gt): Greater than the specified value
-- `LESS_THAN` (lt): Less than the specified value
-- `GREATER_THAN_OR_EQUAL` (gte): Greater than or equal to the specified value
-- `LESS_THAN_OR_EQUAL` (lte): Less than or equal to the specified value
+```typescript
+enum FilterOperation {
+  EQUALS = 'eq',                    // field = value
+  NOT_EQUALS = 'ne',                // field != value
+  GREATER_THAN = 'gt',              // field > value
+  GREATER_THAN_OR_EQUAL = 'ge',     // field >= value
+  LESS_THAN = 'lt',                 // field < value
+  LESS_THAN_OR_EQUAL = 'le',        // field <= value
+  IN = 'in',                        // field IN (value1, value2, ...)
+  NOT_IN = 'nin',                   // field NOT IN (value1, value2, ...)
+  CONTAINS = 'contains',            // field CONTAINS value (for strings)
+  STARTS_WITH = 'startswith',       // field STARTS WITH value (for strings)
+  ENDS_WITH = 'endswith',           // field ENDS WITH value (for strings)
+  IS_NULL = 'isnull',               // field IS NULL
+  RANGE = 'range',                  // field is within a range
+}
+```
 
-## Example Component
+## Logical Operations
 
-See the `FilterExample.tsx` component for a complete example of how to implement filtering in a React component with type safety.
+The `QueryOperation` enum provides logical operations for compound filters:
+
+```typescript
+enum QueryOperation {
+  AND = 'and',  // All conditions must match
+  OR = 'or'     // Any condition can match
+}
+```
 
 ## Backend Implementation
 
-The filters are passed as query parameters to the backend API. The format is:
+Filters are passed to the backend API as query parameters. The model service automatically converts the filter objects to the appropriate query parameter format:
 
-- For simple equality: `field=value`
-- For operations: `field_operation=value`
+### Simple Filters
 
-For example:
-- `name=example`
-- `value_gt=50`
-- `created_at_lt=2023-01-01`
+Simple equality filters are converted to: `field=value`
 
-Make sure your backend API can handle these query parameter formats. 
+Example:
+```typescript
+{ name: 'John' } → ?name=John
+```
+
+### Advanced Filters
+
+Advanced filters with operations are converted to: `field_operation=value`
+
+Examples:
+```typescript
+{ age: { operation: FilterOperation.GREATER_THAN, value: 25 } } → ?age_gt=25
+{ score: { operation: FilterOperation.RANGE, value: { gt: 75, lt: 100 } } } → ?score_range={"gt":75,"lt":100}
+{ role: { operation: FilterOperation.IN, value: ['admin', 'manager'] } } → ?role_in=admin,manager
+```
+
+### Compound Filters
+
+Compound filters are converted to a JSON string in the `filter` query parameter:
+
+```typescript
+and({ isActive: true }, { role: 'admin' }) → ?filter={"op":"and","filters":[{"isActive":true},{"role":"admin"}]}
+```
+
+## Example Component
+
+See the `FilterExample.tsx` component for a complete example of how to use these filtering capabilities. 
