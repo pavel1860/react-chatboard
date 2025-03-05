@@ -127,6 +127,9 @@ export const TestRunBaseSchema = z.object({
     test_case_id: z.number(),
 })
 
+
+export type TestRunType = z.infer<typeof TestRunSchema>;
+
 const {
     ModelArtifactSchema: TestRunSchema,
     useGetModelList: useGetTestRunList,

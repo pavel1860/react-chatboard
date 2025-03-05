@@ -25,6 +25,9 @@ export async function fetcher<T>({ schema, endpoint, queryParams, env }: Fetcher
     if (queryParams) {
         const params = new URLSearchParams(
             Object.entries(queryParams).map(([key, value]) => [key, String(value)])
+            // {
+            //     filters: JSON.stringify(queryParams)
+            // }
         );
         url += `?${params.toString()}`;
     }
