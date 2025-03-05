@@ -67,9 +67,9 @@ function TurnChip({turn_id}: {turn_id: number}) {
 
 
 const {
-    ModelArtifactSchema: MessageArtifactSchema,
-    useGetModelList,
-    useGetModel,
+    ModelSchema: MessageArtifactSchema,
+    useModelList: useGetModelList,
+    useModel: useGetModel,
     useCreateModel,
     useUpdateModel,
 } = createModelService<MessageType>("Message", MessageSchema, { isArtifact: true})

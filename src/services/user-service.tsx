@@ -7,6 +7,7 @@ import { useMutationHook } from "./mutation";
 import { fetcher } from "./fetcher2";
 import { HeadType } from "./artifact-log-service";
 import createModelService from "./model-service";
+import createHeadModelService from "./head-model-service";
 
 
 
@@ -18,7 +19,7 @@ export const BaseUserSchema = z.object({
     image: z.string().nullable(),
     emailVerified: z.string(),
     is_admin: z.boolean(),
-    head_id: z.number(),
+    // head_id: z.number(),
 })
 
 
@@ -75,8 +76,14 @@ export default function createUserService<T>(userModel: string, schema: ZodSchem
         });
     
         return {
-            changeHead: (headId: number) => {
-                return trigger({head_id: headId})
+            // changeHead: (headId: number) => {
+            //     return trigger({head_id: headId})
+            // },
+            changeBranch: (branchId: number, turnId: number) => {
+                env.setBranchEnv(branchId, turnId)
+            },
+            changeHead: (head: HeadType) => {
+                env.setHeadEnv(head.id, head.branch_id, head.turn_id, head.main_branch_id)
             },
             isMutating,
             error,
@@ -84,12 +91,12 @@ export default function createUserService<T>(userModel: string, schema: ZodSchem
     }
     
     const {
-        ModelArtifactSchema: UserSchema,
-        useGetModelList: useGetUserList,
-        useGetModel: useGetUser,
-        useCreateModel: useCreateUser,
-        useUpdateModel: useUpdateUser,
-    } = createModelService("Manager", BaseUserSchema.merge(schema), {isArtifact: false, isHead: true, baseUrl})
+        HeadModelSchema: UserSchema,
+        useHeadModelList: useGetUserList,
+        useHeadModel: useGetUser,
+        useCreateHeadModel: useCreateUser,
+        useUpdateHeadModel: useUpdateUser,
+    } = createHeadModelService("Manager", BaseUserSchema.merge(schema), { baseUrl })
     
 
     return {

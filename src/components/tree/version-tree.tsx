@@ -4,6 +4,7 @@ import { useAdminStore } from '../../stores/admin-store';
 import  { useHeadEnv } from '../../hooks/artifact-log-hook';
 import { Button, Chip } from '@nextui-org/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
+import { GitMerge } from 'lucide-react';
 // Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
 
 // Helper: Get commit dot color based on status.
@@ -22,6 +23,7 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
         <div style={{ marginLeft: indent * 20 + 40, position: 'relative', borderLeft: `4px solid ${getStatusColor(turn.status)}`, marginTop: 4 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                 {/* Left column: Git graph visuals */}
+                
                 <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
                     {/* Vertical line behind the commit dot */}
                     {/* <div
@@ -76,6 +78,7 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                         >
                             {turn.status.toUpperCase()}
                         </span> */}
+                        <span style={{ color: '#666', fontSize: '12px' }}>#{turn.id}</span>
                         <span style={{ marginLeft: 8, color: '#666', fontSize: '12px' }}>
                             {new Date(turn.created_at).toLocaleTimeString()}
                         </span>
@@ -137,6 +140,8 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
             </div>
         );
 
+    const isSelected = selectedBranchId === branch.id
+
     return (
         <div style={{ 
             // marginLeft: indent * 20, 
@@ -173,9 +178,12 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                     <Button
                         radius="full"
                         size="sm"
-                    color={selectedBranchId === branch.id ? "primary" : "secondary"} 
+                    color={isSelected? "primary" : "secondary"} 
+                    variant={isSelected ? 'solid' :'bordered'}
                     onClick={() => setSelectedBranchId(branch.id)}
-                >{branch.name}</Button>
+                    startContent={<GitMerge size={16} color={isSelected ? 'white' : 'purple'} className='mx-2' />}
+                ><span className='text-sm '>#{branch.id}</span></Button>
+                <span className='text-sm mx-3 text-gray-500'>{branch.name}</span>
                 </div>
             </div>
             {turns &&
@@ -203,6 +211,8 @@ function MasterBranchTree() {
     if (error)
         return <div>Error loading master branch turns: {error.message}</div>;
 
+    const isSelected = branchId === mainBranchId
+
     return (
         <div>
             {/* <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: 8 }}>
@@ -211,13 +221,17 @@ function MasterBranchTree() {
             <Button
                 radius="full"
                 size="sm"
-                color={branchId === mainBranchId ? "primary" : "secondary"} 
+                startContent={<GitMerge size={16} color={isSelected ? 'white' : 'gray'} className='mx-2' />}
+                color={isSelected ? "primary" : "secondary"} 
                 onClick={() => setBranchId(mainBranchId ?? null)}
-            >Main Branch</Button>
+                variant={isSelected ? 'solid' :'bordered'}
+            ><span>#{mainBranchId}</span></Button>
+            <span className='text-sm mx-3 text-gray-500'>main branch</span>
             {turns &&
                 turns.map((turn) => (
                     <TurnNode key={turn.id} turn={turn} indent={0} />
                 ))}
+            
         </div>
     );
 }

@@ -35,12 +35,13 @@ const TurnSchema = z.object({
     forked_branches: z.array(BranchSchema)
 });
 
-const HeadSchema = z.object({
+export const HeadSchema = z.object({
     id: z.number(),
-    main_branch_id: z.number(),
-    branch_id: z.number(),
-    turn_id: z.number(),
+    main_branch_id: z.number().nullable(),
+    branch_id: z.number().nullable(),
+    turn_id: z.number().nullable(),
     created_at: z.string(),
+    updated_at: z.string(),
 });
 
 // Types inferred from Zod schemas
@@ -111,7 +112,6 @@ export const useAllTurns = (headers: ArtifactLogHeaders) => {
 
 export const useBranchTurns = (branchId: number | null): SWRResponse<TurnType[]> => {
     const env = useHeadEnv();
-    console.log("useBranchTurns", branchId, env)
     return useSWR<TurnType[]>(
         branchId ? [BASE_URL + `/turns/${branchId}`, env] : null,
         ([url, env]) => fetcher(url, env).then(data => z.array(TurnSchema).parse(data))

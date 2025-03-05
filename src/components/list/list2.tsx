@@ -27,10 +27,11 @@ export interface ListProps<T> {
     addItemLabel?: string
     selectionStyle?: string
     children?: (item: T, idx: number) => React.ReactNode
+    ariaLabel?: string
 }
 
 
-export default function List<T>({ items, fullHeight, height, selected, onSelectionChange, addItemLabel, onAddItem, loading, error, selectionStyle, children }: ListProps<T>): React.ReactElement {
+export default function List<T>({ items, fullHeight, height, selected, onSelectionChange, addItemLabel, onAddItem, loading, error, selectionStyle, children, ariaLabel = "List" }: ListProps<T>): React.ReactElement {
 
     const [selectedItem, setSelectedItem] = React.useState<any>(selected)
     const [currSelectionStyle, setCurrSelectionStyle] = React.useState<string>(selectionStyle || "bg-slate-300")
@@ -62,6 +63,7 @@ export default function List<T>({ items, fullHeight, height, selected, onSelecti
                 disallowEmptySelection
                 selectionMode="single"
                 selectedKeys={[selected]}
+                aria-label={ariaLabel}
                 topContent={
                     <div className="">
                         {onAddItem && 

@@ -22,7 +22,7 @@ const FilterExample: React.FC = () => {
   const [filters, setFilters] = useState<TypedModelFilters<ExampleModelType>>({});
 
   // Use the model service with filters
-  const { data: examples, error, isLoading } = exampleService.useGetModelList<ExampleModelType>(limit, offset, filters);
+  const { data: examples, error, isLoading } = exampleService.useModelList<ExampleModelType>(limit, offset, filters);
 
   // Example filter handlers with proper typing
   const applyNameFilter = (name: string) => {

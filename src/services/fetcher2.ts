@@ -4,14 +4,18 @@ import { useModelEnv } from "../state/model-env";
 
 
 
-interface FetcherOptions<T> {
+export interface VersionEnv {
+    headId?: number;
+    branchId?: number;
+    turnId?: number;
+}
+
+
+export interface FetcherOptions<T> {
     schema: ZodSchema<T>;
     endpoint: string;
     queryParams?: Record<string, any>;
-    env?: {
-        headId?: string;
-        branchId?: string;
-    };
+    env?: VersionEnv;
 }
 
 
@@ -35,8 +39,15 @@ export async function fetcher<T>({ schema, endpoint, queryParams, env }: Fetcher
     const headers: any = {}
     if (env) {
         // headers["env"] = env
-        headers["head_id"] = env.headId
-        headers["branch_id"] = env.branchId
+        if (env.headId) {
+            headers["head_id"] = env.headId
+        }
+        if (env.branchId) {
+            headers["branch_id"] = env.branchId
+        }
+        if (env.turnId) {
+            headers["turn_id"] = env.turnId
+        }
     }
 
     const res = await fetch(url, { headers });

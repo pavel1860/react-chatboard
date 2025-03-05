@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import useSearchParams from "./search-params-hook"
+import { useParams } from "next/navigation"
 
 
 
@@ -27,4 +28,19 @@ export function useParamState<T>(defaultValue: T, paramName: string){
     }, [state])
 
     return [state, setState] as const
+}
+
+
+
+
+export const useIntParamId = (name: string) => {
+    const params = useParams();
+    const { [name]: paramId = undefined } = params || {}
+    if (!paramId) {
+        return undefined
+    }
+    if (Array.isArray(paramId)) {
+        return Number.parseInt(paramId[0])
+    }
+    return Number.parseInt(paramId)
 }

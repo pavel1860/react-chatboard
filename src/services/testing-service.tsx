@@ -1,3 +1,4 @@
+import createHeadModelService from "./head-model-service";
 import createModelService from "./model-service";
 import {useMutationHook} from './mutation'
 import { z } from 'zod';
@@ -6,7 +7,8 @@ import { z } from 'zod';
 
 
 
-export const EvaluatorBaseSchema = z.object({
+export const EvaluatorSchema = z.object({
+    id: z.number(),
     name: z.string(),
     task: z.string(),
     rules: z.array(z.string()).default([]),
@@ -38,13 +40,12 @@ export const TestTurnSchema = z.object({
 
 
 const {
-    ModelArtifactSchema: EvaluatorSchema,
-    useGetModelList: useGetEvaluatorList,
-    useGetModel: useGetEvaluator,
+    useModelList: useGetEvaluatorList,
+    useModel: useGetEvaluator,
     useCreateModel: useCreateEvaluator,
     useUpdateModel: useUpdateEvaluator,
     useDeleteModel: useDeleteEvaluator,
-} = createModelService("Evaluator", EvaluatorBaseSchema, { isArtifact: false, baseUrl: "/api/ai/evaluators" })
+} = createModelService("Evaluator", EvaluatorSchema, { baseUrl: "/api/ai/evaluators" })
 
 export {
     useGetEvaluatorList,
@@ -68,13 +69,13 @@ export const TestCaseBaseSchema = z.object({
 
 
 const {
-    ModelArtifactSchema: TestCaseSchema,
-    useGetModelList: useGetTestCaseList,
-    useGetModel: useGetTestCase,
-    useCreateModel: useCreateTestCase,
-    useUpdateModel: useUpdateTestCase,
-    useDeleteModel: useDeleteTestCase,
-} = createModelService("TestCase", TestCaseBaseSchema, { isArtifact: false, isHead: true, baseUrl: "/api/ai/testing" })
+    HeadModelSchema: TestCaseSchema,
+    useHeadModelList: useGetTestCaseList,
+    useHeadModel: useGetTestCase,
+    useCreateHeadModel: useCreateTestCase,
+    useUpdateHeadModel: useUpdateTestCase,
+    useDeleteHeadModel: useDeleteTestCase,
+} = createHeadModelService("TestCase", TestCaseBaseSchema, { baseUrl: "/api/ai/testing" })
 
 export type TestCaseType = z.infer<typeof TestCaseSchema>;
 
@@ -132,19 +133,19 @@ export const TestRunBaseSchema = z.object({
 export type TestRunType = z.infer<typeof TestRunSchema>;
 
 const {
-    ModelArtifactSchema: TestRunSchema,
-    useGetModelList: useGetTestRunList,
-    useGetModel: useGetTestRun,
-    useCreateModel: useCreateTestRun,
-    useUpdateModel: useUpdateTestRun,
-    useDeleteModel: useDeleteTestRun,
-} = createModelService("TestRun", TestRunBaseSchema, { isArtifact: false, isHead: true, baseUrl: "/api/ai/testing" })
+    HeadModelSchema: TestRunSchema,
+    useHeadModelList: useTestRunList,
+    useHeadModel: useTestRun,
+    useCreateHeadModel: useCreateTestRun,
+    useUpdateHeadModel: useUpdateTestRun,
+    useDeleteHeadModel: useDeleteTestRun,
+} = createHeadModelService("TestRun", TestRunBaseSchema, { baseUrl: "/api/ai/testing" })
 
 
 export {
     TestRunSchema,
-    useGetTestRunList,
-    useGetTestRun,
+    useTestRunList,
+    useTestRun,
     useCreateTestRun,
     useUpdateTestRun,
     useDeleteTestRun,

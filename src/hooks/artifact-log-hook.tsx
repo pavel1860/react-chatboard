@@ -27,6 +27,7 @@ export const useHeadEnv = () => {
         mainBranchId,
         setMainBranchId,
         setHeadEnv,
+        setBranchEnv,
     } = useAdminStore()
 
 
@@ -40,6 +41,7 @@ export const useHeadEnv = () => {
         mainBranchId,
         setMainBranchId,
         setHeadEnv,
+        setBranchEnv,
         // changeHead: (headId: number) => {
         //     changeHead({head_id: headId})
         // },       
