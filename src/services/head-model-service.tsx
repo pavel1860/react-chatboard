@@ -15,7 +15,7 @@ import { HeadSchema } from "./artifact-log-service";
 export const BaseHeadSchema = z.object({
     id: z.number(),
     // head_id: z.number(),
-    head: HeadSchema
+    // head: HeadSchema
 })
 
 

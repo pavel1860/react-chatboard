@@ -101,7 +101,7 @@ export default function createUserService<T>(userModel: string, schema: ZodSchem
 
     return {
         UserSchema,
-        useChangeHead,
+        // useChangeHead,
         useGetUserList,
         useGetUser,
         useCreateUser,

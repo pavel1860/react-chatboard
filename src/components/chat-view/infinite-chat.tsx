@@ -2,7 +2,7 @@ import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssetItem } from "../../services/chatboard-service";
-import { Chip } from '@nextui-org/react';
+import { Chip, Spinner } from '@nextui-org/react';
 import { BaseArtifactType } from '../../services/model-service';
 
 
@@ -16,13 +16,14 @@ interface InfiniteChatProps<M extends BaseArtifactType> {
     height?: string
     fetchMore: () => void,
     children: (message: M, idx: number, prevMessage?: M) => React.ReactNode
+    loading?: boolean
 }
 
 
 
 
 
-export default function InfiniteChat<M extends BaseArtifactType>({messages, children, width, height, fetchMore, gap}: InfiniteChatProps<M>) {
+export default function InfiniteChat<M extends BaseArtifactType>({messages, children, width, height, fetchMore, gap, loading}: InfiniteChatProps<M>) {
     
     const MAX_DATA = 1000;
 
@@ -38,12 +39,14 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                 flexDirection: 'column-reverse',
             }} 
             className="bg-body-tertiary p-3">
+            {loading && <Spinner classNames={{label: "text-foreground mt-4"}} label="wave" variant="wave" />}
             <InfiniteScroll
                 dataLength={ messages.length }
                 next={fetchMore}
                 hasMore={hasMore}
-                // loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
-                loader={<p className="text-center m-5"></p>}
+                loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
+                // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
+                // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
                 endMessage={<p className="text-center m-5">That&apos;s all folks!🐰🥕</p>}
                 style={{ 
                     display: "flex", 
@@ -85,8 +88,10 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                         </motion.div>
                     )
                     })}
-                </AnimatePresence>
+                    
+                </AnimatePresence>                
             </InfiniteScroll>
+            
         </div>
     )
 }

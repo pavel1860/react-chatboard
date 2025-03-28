@@ -10,7 +10,7 @@ import createModelService, { DefaultFilter, UseQueryBuilderHook } from "./model-
 
 export const BaseArtifactSchema = z.object({
     id: z.number(),
-    score: z.number(),
+    score: z.number().nullable().optional(),
     turn_id: z.number(),
     branch_id: z.number(),
     created_at: z.string(),
