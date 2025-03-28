@@ -19,9 +19,7 @@ import { HeadType } from "../services/artifact-log-service";
 export const useHeadEnv = () => {
     const { 
         selectedBranchId, 
-        selectedHeadId, 
         setSelectedBranchId, 
-        setSelectedHeadId,
         selectedTurnId,
         setSelectedTurnId,
         mainBranchId,
@@ -33,9 +31,7 @@ export const useHeadEnv = () => {
 
     return {
         branchId: selectedBranchId,
-        headId: selectedHeadId,
         setBranchId: setSelectedBranchId,
-        setHeadId: setSelectedHeadId,
         turnId: selectedTurnId,
         setTurnId: setSelectedTurnId,
         mainBranchId,

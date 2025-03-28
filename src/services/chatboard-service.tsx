@@ -278,7 +278,7 @@ export function useAssetDocumentsService(asset: string){
 
 export function useGetRuns(limit: number, offset: number, runNames: string[]) : EndpointHook<any>{
     const fetchRuns = (url: string) => fetcher(url, { limit, offset, runNames });
-    const { data, error, isLoading } = useSWR('promptboard/get_runs', fetchRuns);
+    const { data, error, isLoading } = useSWR('ai/tracing/get_runs', fetchRuns);
     
     return {
         data,
@@ -289,7 +289,7 @@ export function useGetRuns(limit: number, offset: number, runNames: string[]) : 
 
 
 export function useGetTree(id: string | null){
-    const { data, error, isLoading } = useSWR(id ? ['promptboard/get_run_tree', id] : null, 
+    const { data, error, isLoading } = useSWR(id ? ['ai/tracing/get_run_tree', id] : null, 
         ([url, id]) => fetcher(url, { run_id: id })
     ); 
 

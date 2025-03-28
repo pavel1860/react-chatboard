@@ -1,7 +1,7 @@
 import { BranchType, HeadType } from "@/src/services/artifact-log-service"
 
 
-export type SideViewType = "version-tree" | "test-case"
+export type SideViewType = "version-tree" | "test-case" | "tracer-view"
 
 export type ArtifactLogStoreType = {
     selectedBranchId: number | null
@@ -23,7 +23,7 @@ export const createArtifactLogSlice = (set, get): ArtifactLogStoreType => ({
     setSelectedBranchId: (branchId: number) => set({ selectedBranchId: branchId }),
     selectedTurnId: null,
     setSelectedTurnId: (turnId: number) => set({ selectedTurnId: turnId }),
-    mainBranchId: null,
+    mainBranchId: 1,
     setMainBranchId: (mainBranchId: number) => set({ mainBranchId: mainBranchId }),
     setHeadEnv: (headId: number, branchId: number, turnId: number, mainBranchId: number) => set({ selectedHeadId: headId, selectedBranchId: branchId, mainBranchId: mainBranchId, selectedTurnId: turnId }),
     setBranchEnv: (branchId: number, turnId: number) => set({ selectedBranchId: branchId, selectedTurnId: turnId }),

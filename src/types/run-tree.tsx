@@ -101,12 +101,12 @@ export class RunTreeContext {
     }
 
     get model(){
-        return this.metadata.model
+        return this.outputs?.model
     }
 
     get modelType(): ModelType{
         const model = this.model
-        if (model.search('claude') > -1){
+        if (model && model.search('claude') > -1){
             return "anthropic"
         }
         return "openai"
