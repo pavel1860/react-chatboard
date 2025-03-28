@@ -100,7 +100,7 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
             {hasBranches && isExpanded(turn.id) && (
                 <div style={{ 
                     marginTop: 4,
-                    display: 'flex',
+                    // display: 'flex',
                 }}>
                     {turn.forked_branches.map((branch: any) => (
                         <ForkBranchTree 
@@ -145,10 +145,14 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
     return (
         <div style={{ 
             // marginLeft: indent * 20, 
-            marginTop: 4
+            marginTop: 4,
             }}>
             {/* Branch header styled similar to a commit header */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+            <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    marginBottom: 4 
+                }}>
                 <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
                     <div
                         style={{
@@ -186,7 +190,7 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                 <span className='text-sm mx-3 text-gray-500'>{branch.name}</span>
                 </div>
             </div>
-            {turns &&
+            {isSelected && turns &&
                 turns.map((turn) => (
                     <TurnNode key={turn.id} turn={turn} indent={indent + 1} />
                 ))}

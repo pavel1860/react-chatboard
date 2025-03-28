@@ -96,7 +96,7 @@ export default function createUserService<T>(userModel: string, schema: ZodSchem
         useHeadModel: useGetUser,
         useCreateHeadModel: useCreateUser,
         useUpdateHeadModel: useUpdateUser,
-    } = createHeadModelService("Manager", BaseUserSchema.merge(schema), { baseUrl })
+    } = createHeadModelService(userModel, BaseUserSchema.merge(schema), { baseUrl })
     
 
     return {

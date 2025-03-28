@@ -73,8 +73,9 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                         
                         return (
                             <motion.div
-                                key={message && (message as any).id ? (message as any).id : idx}
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                // key={message && (message as any).id ? (message as any).id : idx}
+                                key={message.id}
+                                initial={ idx < 2 ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
                                 transition={{ duration: 0.3 }}
