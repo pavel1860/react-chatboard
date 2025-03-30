@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAllBranches, useAllTurns, useBranchTurns, useHead } from "../services/artifact-log-service";
-import { useAdminStore } from "../stores/admin-store";
+import { useChatStore } from "../stores/chat-store";
 import { useMutationHook } from "../services/mutation";
 import { HeadType } from "../services/artifact-log-service";
 
@@ -26,7 +26,7 @@ export const useHeadEnv = () => {
         setMainBranchId,
         setHeadEnv,
         setBranchEnv,
-    } = useAdminStore()
+    } = useChatStore()
 
 
     return {
@@ -122,7 +122,7 @@ export const useHeadEnv = () => {
 
 
 const useTurns = () => {
-    const { selectedBranchId, selectedHeadId } = useAdminStore()
+    const { selectedBranchId, selectedHeadId } = useChatStore()
     const { data, error, isLoading } = useBranchTurns(selectedBranchId ?? null, { head_id: selectedHeadId })
 
     return {

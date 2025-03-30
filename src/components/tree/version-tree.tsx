@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAllTurns, useBranchTurns } from '../../services/artifact-log-service';
-import { useAdminStore } from '../../stores/admin-store';
+import { useChatStore } from '../../stores/chat-store';
 import  { useHeadEnv } from '../../hooks/artifact-log-hook';
 import { Button, Chip } from '@nextui-org/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
@@ -117,7 +117,7 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
 
 // Component to fetch and render turns for a given forked branch.
 function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }) {
-    const { selectedHeadId, selectedBranchId, setSelectedBranchId } = useAdminStore();
+    const { selectedHeadId, selectedBranchId, setSelectedBranchId } = useChatStore();
     const headers = { head_id: String(selectedHeadId) };
     const { data: turns, isLoading, error } = useBranchTurns(branch.id, headers);
 

@@ -32,6 +32,8 @@ const TurnSchema = z.object({
     created_at: z.string(),
     ended_at: z.string().nullable(),
     message: z.string().nullable(),
+    user_context: z.any().optional(),
+    trace_id: z.string().nullable().optional(),
     forked_branches: z.array(BranchSchema)
 });
 

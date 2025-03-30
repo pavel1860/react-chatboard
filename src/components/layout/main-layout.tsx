@@ -1,7 +1,14 @@
+import { useArtifact } from '../../stores/chat-store';
 import { Button, Navbar, NavbarBrand, Tab, Tabs } from '@nextui-org/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import VersionTree from '../tree/version-tree';
+
 import React, { useState } from 'react';
+import { TopAdminBar } from './admin-bar';
+import { useSideView } from '../../stores/layout-store';
+import { TestCaseNewForm } from '../testing/test-case/test-case-new-form';
+import { TracerView } from '../traces/tracer-view';
 
 interface LayoutProps {
     color?: string
@@ -62,14 +69,57 @@ export const NavBarLayout = ({ children }: LayoutProps) => {
 
 
 
-export const MainViewLayout = ({ children, color }: LayoutProps) => {
+interface MainViewLayoutProps extends LayoutProps {
+    closable?: boolean
+    onClose?: () => void
+}
+
+export const MainViewLayout = ({ children, color, closable = false, onClose }: MainViewLayoutProps) => {
+
     return (
         <div
-            className="flex-grow w-6/12 h-full overflow-auto p-4"
+            className="flex-grow w-6/12 h-full overflow-auto p-4 "
             style={{ backgroundColor: color }}
         >
+            <div className="relative">
+            {closable && (
+                <div className="absolute top-10 right-2 z-60">
+                    <Button isIconOnly variant='light' color='default' radius='sm' size='sm' onClick={onClose}>
+                        <X />
+                    </Button>
+                </div>
+            )}
+            </div>
             {children}
+            
         </div>
+    );
+};
+
+
+interface ArtifactViewLayoutProps {
+    children: (artifactView: string | null | undefined, setArtifactView: (artifactView: string) => void, artifactId: number | null | undefined, artifactType: string | null | undefined) => React.ReactNode
+    showAdminBar?: boolean
+    color?: string
+}
+
+export const ArtifactViewLayout = ({ children, showAdminBar = false, color = "#EFF1F3"   }: ArtifactViewLayoutProps) => {
+
+    const { artifactView, setArtifactView, artifactId, setArtifactId, artifactType, setArtifactType } = useArtifact()
+    const { sideView, setSideView, traceId, setTraceId } = useSideView()
+
+    return (
+        <MainViewLayout color={color} closable={artifactView !== null} onClose={() => {
+            setArtifactView(null)
+            setArtifactId(null)
+            setArtifactType(null)
+        }}>
+            {showAdminBar && <TopAdminBar />}
+            {sideView === "test-case" && <TestCaseNewForm />}
+            {sideView === "version-tree" && <Wrapper><VersionTree /></Wrapper>}
+            {sideView === "tracer-view" && traceId && <Wrapper><TracerView traceId={traceId} /></Wrapper>}
+            {sideView === "artifact-view" && artifactView && children(artifactView, setArtifactView, artifactId, artifactType)}
+        </MainViewLayout>
     );
 };
 

@@ -1,14 +1,25 @@
-import { useAdminStore } from "../stores/admin-store"
+import { useChatStore } from "../stores/chat-store"
 
 
 
 
-export const useLayout = () => {
-    const { sideView, setSideView } = useAdminStore()
+export const useArtifactLayout = () => {
+    const { 
+        artifactView, 
+        setArtifactView,
+        artifactId,
+        setArtifactId,
+        artifactType,
+        setArtifactType,
+    } = useChatStore()
 
     return {
-        sideView,
-        setSideView,
-        isTestFormOpen: sideView === "test-case",
+        artifactView,
+        setArtifactView,
+        isTestFormOpen: artifactView === "test-case",
+        artifactId,
+        setArtifactId,
+        artifactType,
+        setArtifactType,
     }
 }

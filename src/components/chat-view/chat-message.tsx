@@ -110,7 +110,13 @@ export function MessageTime({ time }: { time: string }) {
 
 
 
-
+export function ToolCall({ tool_call }: { tool_call: any }) {
+    return (
+        <div>
+            {tool_call.name}
+        </div>
+    )
+}
 
 
 

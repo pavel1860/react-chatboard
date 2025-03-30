@@ -1,28 +1,69 @@
-import { create} from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { IMessage } from '../services/types';
+import { create, StoreApi } from 'zustand'
+import { createArtifactLogSlice, ArtifactLogStoreType } from "../state/slices/artifact-log-slice";
+import { createContext, useContext, useEffect, useRef } from 'react';
+import { useStore } from 'zustand';
+import { AdminLayoutSliceType, createAdminLayoutSlice } from '../state/slices/layout-slice';
+
+
+
+export type ChatStoreType = ArtifactLogStoreType
 
 
 
 
-export type ChatStore = {
-    messages: IMessage[]
-    loading: boolean
-    error: any
-    limit: number
-    sending: boolean
-    setMessages: (messages: IMessage[]) => void
+// export const useAdminStore = create<ChatStoreType>((...a) => ({
+//     ...createArtifactLogSlice(...a),
+// }))
+
+
+
+export const createChatStore = (artifactViews: string[], defaultView: string | null = null) =>
+    create<ChatStoreType>((...a) => ({
+        ...createArtifactLogSlice(artifactViews, defaultView)(...a),
+    }))
+
+
+const ChatContext = createContext<StoreApi<ChatStoreType> | null>(null);
+
+
+
+interface ChatProviderProps {
+    children: React.ReactNode,
+    artifactViews: string[],
+    defaultView?: string | null
+}
+
+export const ChatProvider = ({ children, artifactViews, defaultView }: ChatProviderProps) => {
+    const storeRef = useRef<StoreApi<ChatStoreType>>(null);
+
+    if (!storeRef.current) {
+        storeRef.current = createChatStore(artifactViews, defaultView);
+    }
+
+    return <ChatContext.Provider value={storeRef.current}>{children}</ChatContext.Provider>
 }
 
 
-//@ts-ignore
-export const createChatSlice = (set, get): ChatStore => ({
-    messages: [],
-    loading: false,
-    error: null,
-    limit: 10,
-    sending: false,
-    setMessages: (messages: IMessage[]) => {
-        set({messages})
+
+
+
+export const useChatStore = <T,>(selector: (state: ChatStoreType) => T) => {
+    const store = useContext(ChatContext);
+    if (!store) {
+        throw new Error('useChatStore must be used within a ChatProvider');
     }
-})
+    return useStore(store, selector);
+}
+
+
+export const useArtifact = () => {
+    const artifactView = useChatStore((state) => state.artifactView);
+    const setArtifactView = useChatStore((state) => state.setArtifactView);
+    const artifactId = useChatStore((state) => state.artifactId);
+    const setArtifactId = useChatStore((state) => state.setArtifactId);
+    const artifactType = useChatStore((state) => state.artifactType);
+    const setArtifactType = useChatStore((state) => state.setArtifactType);
+    return { artifactView, setArtifactView, artifactId, setArtifactId, artifactType, setArtifactType };
+}
+
+
