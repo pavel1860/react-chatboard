@@ -39,7 +39,7 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                 flexDirection: 'column-reverse',
             }} 
             className="bg-body-tertiary p-3">
-            {loading && <Spinner classNames={{label: "text-foreground mt-4"}} label="wave" variant="wave" />}
+            {loading && <Spinner classNames={{label: "text-foreground mt-4"}} variant="wave" />}
             <InfiniteScroll
                 dataLength={ messages.length }
                 next={fetchMore}

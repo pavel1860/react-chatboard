@@ -24,3 +24,10 @@ export const useSideView = () => {
     return { sideView, setSideView, traceId, setTraceId }
 }
 
+export const useViews = () => {
+    const leftFlex = useBoundStore((state) => state.leftFlex)
+    const setLeftFlex = useBoundStore((state) => state.setLeftFlex)
+    const rightFlex = useBoundStore((state) => state.rightFlex)
+    const setRightFlex = useBoundStore((state) => state.setRightFlex)
+    return { leftFlex, setLeftFlex, rightFlex, setRightFlex }
+}

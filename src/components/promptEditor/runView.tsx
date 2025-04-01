@@ -15,7 +15,7 @@ import { useExamples, useRunList, useRunState, useRunTree } from './state/runsCo
 // import { IconCtx } from '../components/aux/icons';
 // import { useQuery } from '@apollo/client';
 // import { GET_RUN_TREE } from '../../graphql/runQueries';
-import { Button, Spacer, Popover, PopoverTrigger, PopoverContent, Accordion, AccordionItem, Input, Spinner} from '@nextui-org/react';
+import { Button, Chip, Spacer, Popover, PopoverTrigger, PopoverContent, Accordion, AccordionItem, Input, Spinner} from '@nextui-org/react';
 // import { TbDots } from 'react-icons/tb';
 // import { FaCommentDots } from 'react-icons/fa';
 import { GeneratedMessage, Message, MessageType } from './messages';
@@ -31,7 +31,7 @@ import { EditExampleForm } from './editExampleForm';
 import { InputCard, OutputCard } from './run-cards/io-cards';
 import { useRunMetadata } from '../../state/chatboard-state';
 // import { roundTo } from '../utils/math';
-
+import { Hammer, RotateCcw } from 'lucide-react';
 
 
 
@@ -269,13 +269,36 @@ const StateOutput = ({ outputs }: {outputs: any}) => {
 
 
 
+const ToolCallChip = ({ toolCall }: {toolCall: any}) => {
+    const [isOpen, setIsOpen] = useState(false)
+    return (
+        <>
+        <Popover
+            isOpen={isOpen}
+            padding={10}
+            positions={['right']} // preferred positions by priority
+        >
+            <PopoverTrigger>
+                <Button size="md" startContent={<Hammer />} variant="bordered" color="default" onClick={() => setIsOpen(!isOpen)}>{toolCall.name}</Button>
+            </PopoverTrigger>
+            <PopoverContent>
+                <JSONTree data={toolCall} />
+                {/* <TimelineView state={toolCall} /> */}
+            </PopoverContent>
+        </Popover>
+        </>
+    )
+}
 
-const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
+
+const RunTree = ({ run, depth, parentRun, index }: RunTreeProps) => {
 
     const {
         collapsed,
         toggleCollapse,
-    } = useRunState(run.id)    
+    } = useRunState(run.id)   
+    
+    const [horizontal, setHorizontal] = useState(false)
 
     depth = depth || 0
     // const {states} = useStateGraph(run, data.states)
@@ -291,6 +314,14 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
         comp = <PromptRun run={run} parentRun={parentRun}/>
     } else if (run.run_type === 'llm'){
         comp = parentRun && <LlmRun run={run} name={parentRun.name} parentRun={parentRun}/>
+        if (index > 0){
+            comp = <div>
+                <div className='w-full flex justify-center'>
+                    <Chip size="md" startContent={<RotateCcw />} variant="bordered" color="warning">Retry {index}</Chip>
+                </div>                
+                {comp}
+            </div>
+        }
     } else if (run.run_type === 'tool'){
         comp = <ToolRun run={run} parentRun={parentRun}/>
     }
@@ -302,10 +333,13 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
             style={{marginBottom: 10}}
             >
             {comp}
+            { run.run_type == "chain" &&
+                <Button variant="light" className="text-nowrap" size="sm" color="default" onClick={() => setHorizontal(!horizontal)}>{horizontal ? "vertical" : "horizontal"}</Button>
+            }
             {/* {run.inputs?.input && <div>
                 <InputCard input={run.inputs.input} />
             </div>} */}
-            <div className="flex h-full">            
+            <div className="flex h-full" >            
                 {run.child_runs && <div 
                     // className="w-4 ml-3 bg-slate-300 cursor-pointer min-h-full hover:bg-slate-400 shadow-sm"
                     className={"w-4 ml-3  cursor-pointer min-h-full  shadow-sm " + (collapsed ? "bg-slate-300 hover:bg-slate-200" : "bg-slate-200 hover:bg-slate-300")}
@@ -314,12 +348,23 @@ const RunTree = ({ run, depth, parentRun }: RunTreeProps) => {
                 {collapsed && <Button variant="light" className="text-nowrap" size="sm" color="default" onClick={() => toggleCollapse()}>
                             <span className="text-slate-400">{numChildren == 1 ? `${numChildren} item` : `${numChildren} items`}</span>
                         </Button>}
-                <div className='w-full'>
-                    {!collapsed && run.child_runs?.map((chiledRun: any, i: number) => <RunTree key={i} run={chiledRun} depth={depth || 1} parentRun={run}/>)}
+                <div className='w-full' style={{display: horizontal ? "flex" : "block"}}>
+                    {!collapsed && run.child_runs?.map((chiledRun: any, i: number) => <RunTree key={i} index={i} run={chiledRun} depth={depth || 1} parentRun={run}/>)}
                 </div>
             </div>
-            {run.outputs?.output?.output && <div>
+            {/* {run.outputs?.output?.output && <div>
                 <OutputCard output={run.outputs.output} runName={run.name} runType={run.run_type} />
+            </div>} */}
+            {run.outputs?.response && <div>
+                {run.outputs.response.tool_calls && run.outputs.response.tool_calls.map((toolCall: any, i: number) => 
+                    <div key={i}>
+                        <ToolCallChip toolCall={toolCall} />
+                        
+                        {/* <span>{toolCall.input}</span> */}
+                        {/* <span>{toolCall.output}</span> */}
+                    </div>
+                
+                )}
             </div>}
         </div>
     )

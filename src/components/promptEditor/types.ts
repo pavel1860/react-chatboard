@@ -59,5 +59,6 @@ export interface RunTreeProps {
     run: RunTreeContext
     parentRun?: RunTreeContext
     depth?: number
+    index?: number
 }
 

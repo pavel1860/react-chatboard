@@ -55,6 +55,8 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
                         id: `${run.id}_input_${idx}`,
                         role: m.role,
                         content: m.content,
+                        tool_calls: m.tool_calls,
+                        tool_call_id: m.tool_call_id
                     })
             ).map((message: MessageType, idx: number) => (
                 ((!isHistoryHidden) || (idx == inLen - 1)) && 
@@ -68,9 +70,9 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
                 </div>))
         }
         
-        <div className="w-full p-2 bg-slate-100">
+        <div className="w-full p-2 ">
             {/* <h1 className='text-lg text-slate-500'>Generation</h1> */}
-            <div className="flex flex-col items-center w-full ">
+            {/* <div className="flex flex-col items-center w-full ">
                 <div className="w-[10px] h-[10px] bg-slate-400">&nbsp;</div>
                 <Chip
                     startContent={<BrainCircuit size={20} />}
@@ -80,7 +82,9 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
                 </Chip>
                 
                 <div className="w-[10px] h-[10px] bg-slate-400">&nbsp;</div>
-            </div>
+                
+            </div> */}
+            <span className="text-slate-500">Output</span>
             {run.outputMessages.map((message: MessageType, idx: number) => (
                 <div key={`output-msg-${idx}`} className='w-full py-3'>
                     <GeneratedMessage message={message}

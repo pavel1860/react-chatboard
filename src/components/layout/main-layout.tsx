@@ -1,7 +1,7 @@
 import { useArtifact } from '../../stores/chat-store';
 import { Button, Navbar, NavbarBrand, Tab, Tabs } from '@nextui-org/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Columns2, PanelLeft, PanelRight, X } from 'lucide-react';
 import VersionTree from '../tree/version-tree';
 
 import React, { useState } from 'react';
@@ -15,6 +15,7 @@ interface LayoutProps {
     children: React.ReactNode;
 }
 
+
 export const Layout = ({ children, color }: LayoutProps) => {
     return (
         <div 
@@ -25,6 +26,33 @@ export const Layout = ({ children, color }: LayoutProps) => {
         </div>
     );
 };
+
+
+
+interface TopLayoutProps {
+    // children: (leftFlex: number, rightFlex: number) => React.ReactNode;
+    children: React.ReactNode;
+    color?: string
+}
+
+export const TopLayout = ({ children, color }: TopLayoutProps) => {
+    const [leftFlex, setLeftFlex] = useState(1);
+    const [rightFlex, setRightFlex] = useState(1);
+    
+    return (
+        <div className='w-full'>
+            <TopAdminBar />
+            <div 
+                // className={`flex h-screen w-full overflow-hidden ${color ? `bg-[${color}]` : ''}`}
+                className={`bg-background flex h-screen w-full overflow-hidden`}
+            >
+                {/* {children(leftFlex, rightFlex)} */}
+                {children}
+            </div>
+        </div>
+    );
+};
+
 
 
 
@@ -70,16 +98,18 @@ export const NavBarLayout = ({ children }: LayoutProps) => {
 
 
 interface MainViewLayoutProps extends LayoutProps {
+    flex?: number
     closable?: boolean
     onClose?: () => void
 }
 
-export const MainViewLayout = ({ children, color, closable = false, onClose }: MainViewLayoutProps) => {
+export const MainViewLayout = ({ children, color, closable = false, onClose, flex = 1 }: MainViewLayoutProps) => {
 
     return (
         <div
-            className="flex-grow w-6/12 h-full overflow-auto p-4 "
-            style={{ backgroundColor: color }}
+            // className="flex-grow w-6/12 h-full overflow-auto p-4 "
+            className="flex-grow h-full overflow-auto p-4 "
+            style={{ backgroundColor: color, flex: flex }}
         >
             <div className="relative">
             {closable && (
@@ -100,10 +130,12 @@ export const MainViewLayout = ({ children, color, closable = false, onClose }: M
 interface ArtifactViewLayoutProps {
     children: (artifactView: string | null | undefined, setArtifactView: (artifactView: string) => void, artifactId: number | null | undefined, artifactType: string | null | undefined) => React.ReactNode
     showAdminBar?: boolean
-    color?: string
+    color?: string,
+    refetchChat?: () => void
+    flex?: number
 }
 
-export const ArtifactViewLayout = ({ children, showAdminBar = false, color = "#EFF1F3"   }: ArtifactViewLayoutProps) => {
+export const ArtifactViewLayout = ({ children, showAdminBar = false, color = "#EFF1F3", refetchChat, flex = 1 }: ArtifactViewLayoutProps) => {
 
     const { artifactView, setArtifactView, artifactId, setArtifactId, artifactType, setArtifactType } = useArtifact()
     const { sideView, setSideView, traceId, setTraceId } = useSideView()
@@ -113,10 +145,10 @@ export const ArtifactViewLayout = ({ children, showAdminBar = false, color = "#E
             setArtifactView(null)
             setArtifactId(null)
             setArtifactType(null)
-        }}>
-            {showAdminBar && <TopAdminBar />}
+        }} flex={flex}>
+            {/* {showAdminBar && <TopAdminBar />} */}
             {sideView === "test-case" && <TestCaseNewForm />}
-            {sideView === "version-tree" && <Wrapper><VersionTree /></Wrapper>}
+            {sideView === "version-tree" && <Wrapper><VersionTree refetchChat={refetchChat} /></Wrapper>}
             {sideView === "tracer-view" && traceId && <Wrapper><TracerView traceId={traceId} /></Wrapper>}
             {sideView === "artifact-view" && artifactView && children(artifactView, setArtifactView, artifactId, artifactType)}
         </MainViewLayout>

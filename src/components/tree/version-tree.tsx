@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useAllTurns, useBranchTurns } from '../../services/artifact-log-service';
+import { useAllTurns, useBranchTurns, useUpdateTurn } from '../../services/artifact-log-service';
 import { useChatStore } from '../../stores/chat-store';
-import  { useHeadEnv } from '../../hooks/artifact-log-hook';
-import { Button, Chip } from '@nextui-org/react';
+import { useHeadEnv } from '../../hooks/artifact-log-hook';
+import { Button, Chip, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@nextui-org/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
-import { GitMerge } from 'lucide-react';
+import { Ellipsis, Eye, EyeOff, GitMerge, GitPullRequest, TextSearch } from 'lucide-react';
+import { useSideView } from '../../stores/layout-store';
 // Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
 
 // Helper: Get commit dot color based on status.
@@ -14,16 +15,104 @@ function getStatusColor(status: string): string {
     return '#dc3545';
 }
 
+
+const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
+
+
+    const { trigger: updateTurn } = useUpdateTurn(turn.id)
+
+    const { refetchChat } = useVersionTree()
+    
+    return (
+        <Dropdown>
+            <DropdownTrigger>
+                <Button size="sm" isIconOnly variant="light" color="default" startContent={<Ellipsis size={15} color="gray" />}/>                
+            </DropdownTrigger>
+            <DropdownMenu 
+                aria-label="Dropdown menu with description" 
+                variant="faded" 
+                selectedKeys={[turn.status]}
+                selectionMode="single"
+                onSelectionChange={async (keys)=>{
+                    console.log("keys", keys)
+                    const newStatus = [...keys]
+                    if (newStatus.length > 0) {
+                        await updateTurn({ status: newStatus[0] })
+                        refetch()
+                        refetchChat()
+                    }
+                }}
+            >
+                <DropdownSection showDivider title="Change Status">                    
+                    <DropdownItem
+                        key="committed"
+                        color="success"
+                        // description="Committed"
+                        // shortcut="⌘C"
+                        // startContent={<CopyDocumentIcon className={iconClasses} />}
+                    >
+                        Committed
+                    </DropdownItem>
+                    <DropdownItem
+                        key="staged"
+                        color="warning"
+                        // description="Staged"
+                        // shortcut="⌘N"
+                        // startContent={<AddNoteIcon className={iconClasses} />}
+                    >
+                        Staged
+                    </DropdownItem>
+                    <DropdownItem
+                        key="reverted"
+                        color="danger"
+                        // description="Reverted"
+                        // shortcut="⌘⇧E"
+                        // startContent={<EditDocumentIcon className={iconClasses} />}
+                    >
+                        Reverted
+                    </DropdownItem>
+                </DropdownSection>
+                {/* <DropdownSection title="Danger zone">
+                    <DropdownItem
+                        key="delete"
+                        className="text-danger"
+                        color="danger"
+                        description="Permanently delete the file"
+                        shortcut="⌘⇧D"
+                        // startContent={<DeleteDocumentIcon className={cn(iconClasses, "text-danger")} />}
+                    >
+                        Delete file
+                    </DropdownItem>
+                </DropdownSection> */}
+            </DropdownMenu>
+        </Dropdown>
+    );
+}
+
+
+
+
 // Component to render a single turn node
-function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
+function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, refetch: () => void }) {
     const { isExpanded, toggleTurn } = useVersionTree();
     const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
-
+    const { trigger: updateTurn } = useUpdateTurn(turn.id)
+    const { setSideView, setTraceId } = useSideView()
+    const { refetchChat } = useVersionTree()
     return (
-        <div style={{ marginLeft: indent * 20 + 40, position: 'relative', borderLeft: `4px solid ${getStatusColor(turn.status)}`, marginTop: 4 }}>
+        <div
+            style={{
+                marginLeft: indent * 20 + 40,
+                position: 'relative',
+                borderLeft: `4px solid ${getStatusColor(turn.status)}`,
+                marginTop: 4,
+                cursor: 'pointer'
+            }}
+
+        >
             <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                 {/* Left column: Git graph visuals */}
-                
+
                 <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
                     {/* Vertical line behind the commit dot */}
                     {/* <div
@@ -92,21 +181,39 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
                                 [{turn.forked_branches.length} branches]
                             </span>
                         )}
+                        {turn.trace_id && <Button size="sm" isIconOnly variant="light" color="default" onClick={() => {
+                            setSideView("tracer-view")
+                            setTraceId(turn.trace_id as string)
+                        }}>
+                            <TextSearch size={15} color="gray" />
+                        </Button>}
+                        {turn.status !== 'staged' && <Button size="sm" isIconOnly variant="light" color="default" onClick={async () => {
+                            if (turn.status === 'staged') {
+                                return
+                            }
+                            const newStatus = turn.status === 'committed' ? 'reverted' : 'committed'
+                            await updateTurn({ status: newStatus })
+                            refetch()
+                            refetchChat()
+                        }}>
+                            {turn.status === 'committed' ? <Eye size={15} color="gray" /> : <EyeOff size={15} color="gray" />}
+                        </Button>}
+                        {turn && <TurnDropdown turn={turn} refetch={refetch} />}
                     </div>
                 </div>
             </div>
 
             {/* Render forked branches when turn is expanded */}
             {hasBranches && isExpanded(turn.id) && (
-                <div style={{ 
+                <div style={{
                     marginTop: 4,
                     // display: 'flex',
                 }}>
                     {turn.forked_branches.map((branch: any) => (
-                        <ForkBranchTree 
-                            key={branch.id} 
-                            branch={branch} 
-                            indent={indent} 
+                        <ForkBranchTree
+                            key={branch.id}
+                            branch={branch}
+                            indent={indent}
                         />
                     ))}
                 </div>
@@ -119,7 +226,7 @@ function TurnNode({ turn, indent = 0 }: { turn: any; indent?: number }) {
 function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }) {
     const { selectedHeadId, selectedBranchId, setSelectedBranchId } = useChatStore();
     const headers = { head_id: String(selectedHeadId) };
-    const { data: turns, isLoading, error } = useBranchTurns(branch.id, headers);
+    const { data: turns, isLoading, error, mutate } = useBranchTurns(branch.id, headers);
 
     if (isLoading)
         return (
@@ -143,16 +250,16 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
     const isSelected = selectedBranchId === branch.id
 
     return (
-        <div style={{ 
+        <div style={{
             // marginLeft: indent * 20, 
             marginTop: 4,
-            }}>
+        }}>
             {/* Branch header styled similar to a commit header */}
-            <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    marginBottom: 4 
-                }}>
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: 4
+            }}>
                 <div style={{ position: 'relative', marginRight: 8, width: 20 }}>
                     <div
                         style={{
@@ -178,21 +285,21 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                     />
                 </div>
                 {/* <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Branch: {branch.name}</div> */}
-                <div style={{ zIndex: 5}}>
+                <div style={{ zIndex: 5 }}>
                     <Button
                         radius="full"
                         size="sm"
-                    color={isSelected? "primary" : "secondary"} 
-                    variant={isSelected ? 'solid' :'bordered'}
-                    onClick={() => setSelectedBranchId(branch.id)}
-                    startContent={<GitMerge size={16} color={isSelected ? 'white' : 'purple'} className='mx-2' />}
-                ><span className='text-sm '>#{branch.id}</span></Button>
-                <span className='text-sm mx-3 text-gray-500'>{branch.name}</span>
+                        color={isSelected ? "primary" : "secondary"}
+                        variant={isSelected ? 'solid' : 'bordered'}
+                        onClick={() => setSelectedBranchId(branch.id)}
+                        startContent={<GitMerge size={16} color={isSelected ? 'white' : 'purple'} className='mx-2' />}
+                    ><span className='text-sm '>#{branch.id}</span></Button>
+                    <span className='text-sm mx-3 text-gray-500'>{branch.name}</span>
                 </div>
             </div>
             {isSelected && turns &&
                 turns.map((turn) => (
-                    <TurnNode key={turn.id} turn={turn} indent={indent + 1} />
+                    <TurnNode key={turn.id} turn={turn} indent={indent + 1} refetch={() => mutate()} />
                 ))}
         </div>
     );
@@ -205,11 +312,11 @@ function MasterBranchTree() {
     const { mainBranchId, branchId, setBranchId } = useHeadEnv()
     const headers = { head_id: String(mainBranchId) };
     console.log("MasterBranchTree", mainBranchId, headers)
-    const { data: turns, isLoading, error } = useBranchTurns(mainBranchId ?? null);
-    
+    const { data: turns, isLoading, error, mutate } = useBranchTurns(mainBranchId ?? null, headers);
+
     if (!mainBranchId) return <div>No head selected</div>;
 
-    
+
 
     if (isLoading) return <div>Loading master branch turns...</div>;
     if (error)
@@ -221,29 +328,29 @@ function MasterBranchTree() {
         <div>
             {/* <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: 8 }}>
                 Main Branch
-            </div> */}            
+            </div> */}
             <Button
                 radius="full"
                 size="sm"
                 startContent={<GitMerge size={16} color={isSelected ? 'white' : 'gray'} className='mx-2' />}
-                color={isSelected ? "primary" : "secondary"} 
+                color={isSelected ? "primary" : "secondary"}
                 onClick={() => setBranchId(mainBranchId ?? null)}
-                variant={isSelected ? 'solid' :'bordered'}
+                variant={isSelected ? 'solid' : 'bordered'}
             ><span>#{mainBranchId}</span></Button>
             <span className='text-sm mx-3 text-gray-500'>main branch</span>
             {turns &&
                 turns.map((turn) => (
-                    <TurnNode key={turn.id} turn={turn} indent={0} />
+                    <TurnNode key={turn.id} turn={turn} indent={0} refetch={() => mutate()} />
                 ))}
-            
+
         </div>
     );
 }
 
 // Main component wraps the tree with the context provider
-function VersionTree() {
+function VersionTree({ refetchChat }: { refetchChat: () => void }) {
     return (
-        <VersionTreeProvider>
+        <VersionTreeProvider refetchChat={refetchChat}>
             <div className="p-10">
                 <MasterBranchTree />
             </div>

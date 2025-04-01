@@ -121,6 +121,21 @@ export const useBranchTurns = (branchId: number | null): SWRResponse<TurnType[]>
 };
 
 
+export const useUpdateTurn = (turnId: number) => {
+    return useMutationHook<TurnType, TurnType>({
+        endpoint: `${BASE_URL}/turns/update/${turnId}`,
+        // env,
+        callbacks: {
+            onSuccess: (data) => {
+                // mutate();
+            }
+        }
+    });
+}
+
+
+
+
 export const useBranchFromTurn = () => {
     const env = useHeadEnv();
     const { mutate } = useBranchTurns(env.branch_id);

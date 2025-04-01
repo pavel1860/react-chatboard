@@ -27,13 +27,13 @@ const ChatContext = createContext<StoreApi<ChatStoreType> | null>(null);
 
 
 
-interface ChatProviderProps {
+interface ChatStoreProviderProps {
     children: React.ReactNode,
     artifactViews: string[],
     defaultView?: string | null
 }
 
-export const ChatProvider = ({ children, artifactViews, defaultView }: ChatProviderProps) => {
+export const ChatStoreProvider = ({ children, artifactViews, defaultView }: ChatStoreProviderProps) => {
     const storeRef = useRef<StoreApi<ChatStoreType>>(null);
 
     if (!storeRef.current) {

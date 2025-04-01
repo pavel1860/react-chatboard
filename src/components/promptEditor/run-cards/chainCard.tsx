@@ -16,11 +16,11 @@ export const ChainRun = ({run}: RunProps ) => {
 
     return (
         // <div className='p-1  border-1 border-purple-200 rounded-lg'>
-        <RunCard color="green">
+        <RunCard >
             <RunCardHeader run={run}/>
             
             <div className='mx-5 flex'>                
-                <ErrorPopup error={run.error}/>
+                {/* <ErrorPopup error={run.error}/> */}
                 {run.outputs?.state && isShowPreview && 
                     <TimelineView state={run.outputs.state} />
                 }

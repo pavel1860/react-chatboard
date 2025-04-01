@@ -19,6 +19,8 @@ const InputComp = ({
         variant, 
         radius, 
         size, 
+        startContent,
+        endContent,
         // icon 
     }: InputFieldProps & {fieldName: string, fieldInfo: any}) => {
 
@@ -40,6 +42,8 @@ const InputComp = ({
                 // startContent={icon}
 
                 {...fieldInfo}
+                startContent={startContent}
+                endContent={endContent}
                 placeholder={label}
             />
         );
@@ -57,6 +61,8 @@ const InputComp = ({
                     const value = e.target.value;
                     fieldInfo.onChange(value == "" ? undefined : Number(value));
                 }}
+                startContent={startContent}
+                endContent={endContent}
                 placeholder={label}
                 // classNames={{
                 //     // mainWrapper: "h-1",

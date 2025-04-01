@@ -1,6 +1,7 @@
-import { Button, Chip, Link, Navbar, NavbarContent, NavbarItem, Tab, Tabs } from '@nextui-org/react';
-import { BrainCog, GitGraph, Boxes } from 'lucide-react';
-import { useSideView } from '../../stores/layout-store';
+import { Button, ButtonGroup, Chip, Link, Navbar, NavbarContent, NavbarItem, Tab, Tabs } from '@nextui-org/react';
+import { BrainCog, GitGraph, Boxes, PanelLeft, Columns2, PanelRight } from 'lucide-react';
+import { useSideView, useViews } from '../../stores/layout-store';
+import { useState } from 'react';
 // import { useSideView } from '../../stores/chat-store';
 
 
@@ -11,9 +12,48 @@ import { useSideView } from '../../stores/layout-store';
 export const TopAdminBar = () => {
 
     const { sideView, setSideView } = useSideView()
+    const { leftFlex, setLeftFlex, rightFlex, setRightFlex } = useViews()
+
 
     return (
         <Navbar height = '30px' isBordered >
+            <NavbarContent>
+                <ButtonGroup>
+                    <Button 
+                        isIconOnly 
+                        variant='light' 
+                        color='default' 
+                        size='sm' 
+                    startContent={<PanelLeft />}
+                    onClick={() => {
+                        setLeftFlex(1)
+                        setRightFlex(3)
+                    }}
+                />
+                <Button 
+                    isIconOnly 
+                    variant='light' 
+                    color='default' 
+                    size='sm' 
+                    startContent={<Columns2 />}
+                    onClick={() => {
+                        setLeftFlex(1)
+                        setRightFlex(1)
+                    }}
+                />
+                <Button 
+                    isIconOnly 
+                    variant='light' 
+                    color='default' 
+                    size='sm' 
+                    startContent={<PanelRight />}
+                    onClick={() => {
+                        setLeftFlex(3)
+                        setRightFlex(1)
+                    }}
+                    />
+                </ButtonGroup>
+            </NavbarContent>
             <NavbarContent>
                 <NavbarItem isActive={sideView === "artifact-view"} >
                     <Button isIconOnly variant='light' color={sideView === "artifact-view" ? 'primary' : 'default'} radius='sm' size='sm' onClick={() => setSideView("artifact-view")}>
@@ -32,8 +72,7 @@ export const TopAdminBar = () => {
                         <GitGraph />
                     </Button>
                 </NavbarItem>
-                
-            </NavbarContent>
+            </NavbarContent>            
         </Navbar>
     )
 }

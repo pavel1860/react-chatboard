@@ -1,7 +1,7 @@
 import { RunTreeContext } from "../../../types/run-tree"
 import { Chip } from "@nextui-org/react"
 import { Bot, BrainCircuit, Route, SquareTerminal, Timer } from "lucide-react"
-import { InputPopup, OutputPopup, RunJsonPopup } from "../stateJsonView"
+import { ErrorPopup, InputPopup, OutputPopup, RunJsonPopup } from "../stateJsonView"
 
 
 
@@ -93,6 +93,7 @@ export const RunCardHeader = ({run, children}: RunCardHeaderProps) => {
                 </RunJsonPopup>            
                 <span className="">{run.name}</span>
             </div>
+            <ErrorPopup error={run.error}/>
             <RunDuration run={run}/>
             {/* <div className="flex items-center gap-2">
                 <Timer size={17}/>
@@ -122,7 +123,7 @@ export const RunCard = ({children, color}: RunCardProps) => {
 
     return (
         // <div className="p-3 rounded-lg border-1 border-red-500 ">
-        <div className={`p-3 rounded-lg border-1 border-${color || 'gray'}-300 `}>
+        <div className={`py-1 px-3 rounded-lg border-1 border-${color || 'gray'}-300 `}>
             {children}
         </div>
     )

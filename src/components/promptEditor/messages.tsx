@@ -4,7 +4,8 @@ import { useDagDisplayRouter } from './state/dagRouterContext'
 import { JsonState } from './stateJsonView';
 import { ModelType } from '../../types/run-tree';
 import { Chip } from '@nextui-org/react';
-import { Bot, Hammer, Settings, User } from 'lucide-react';
+import { Bot, BrainCircuit, Hammer, Settings, User } from 'lucide-react';
+import { JSONTree } from 'react-json-tree';
 
 
 
@@ -14,6 +15,7 @@ export interface MessageType {
     role: "system" | "user" | "assistant"
     content: string | any[]
     tool_calls?: any
+    tool_call_id?: string
 }
 
 
@@ -103,14 +105,29 @@ export const MessageRoleTag = ({role}: {role: string}) => {
 
 
 
-export const MessageHeader = ({message}: {message: MessageType}) => {
+interface MessageHeaderProps {
+    children?: React.ReactNode
+}
+
+
+// export const MessageHeader = ({message, children}: MessageHeaderProps) => {
+
+//     return (
+//         <div className="flex gap-2 items-center">
+//             <MessageRoleTag role={message.role}/>
+//         </div>
+//     )
+// }
+
+export const MessageHeader = ({children}: MessageHeaderProps) => {
 
     return (
         <div className="flex gap-2 items-center">
-            <MessageRoleTag role={message.role}/>
+            {children}
         </div>
     )
 }
+
 
 
 export const MessageCard = ({children}: {children: React.ReactNode}) => {
@@ -127,6 +144,7 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
 
 
     // const isExample = content ? content.search("EXAMPLE") > -1 : false
+    console.log(message)
 
     return (
         <MessageCard>        
@@ -134,7 +152,10 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
                 {role}
             </span>
             {isExample && <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-purple-600 text-slate-50' >Example</span>} */}
-            <MessageHeader message={message}/>
+            <MessageHeader>
+                <MessageRoleTag role={role}/>
+                {message.tool_call_id && <Chip size="sm" startContent={<Hammer size={15} />} variant="bordered" color="default">{message.tool_call_id}</Chip>}
+            </MessageHeader>
             
             <PromptTextEditor 
                 paragraphLabel={role === "assistant" ? "editor-paragraph-output" : "editor-paragraph-input"} 
@@ -143,6 +164,14 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
                 isCompact={!isExpended}
                 onChangeText={onChange}
             />
+            {message.tool_calls?.length > 0 && <div className='w-full flex'>
+                {/* <JSONTree data={message.tool_calls} /> */}
+                {message.tool_calls.map((tool_call: any, index: number) => (
+                    <div key={index}>
+                        <Chip size="sm" startContent={<Hammer size={15} />} variant="bordered" color="default">{tool_call.id}</Chip>
+                    </div>
+                ))}
+            </div>}
             <div className="w-full flex justify-end">
                 {controls}
                 {/* <ExampleKeyButton message={message}/>
@@ -226,7 +255,16 @@ export const GeneratedMessage = ({ message, model, modelType, controls }: Messag
 
     return (
         <MessageCard>
-            <MessageRoleTag role={"assistant"}/>
+            <MessageHeader>
+                <MessageRoleTag role={"assistant"}/>
+                <Chip
+                    variant="light"
+                    startContent={<BrainCircuit size={20} />}
+                color="danger"
+            >
+                    {model}
+                </Chip>
+            </MessageHeader>
             <GeneratedMessageContent message={message} modelType={modelType}/>
             <GeneratedMessageTools message={message} modelType={modelType}/>
         </MessageCard>
