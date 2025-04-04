@@ -1,4 +1,4 @@
-import { BranchType, HeadType } from "@/src/services/artifact-log-service"
+import { BranchType, HeadType } from "@/src/model/services/artifact-log-service"
 
 
 
@@ -10,6 +10,8 @@ export type ArtifactLogStoreType = {
     setSelectedTurnId: (turnId: number) => void
     mainBranchId: number | null
     setMainBranchId: (mainBranchId: number) => void
+    partitionId: number | null
+    setPartitionId: (partitionId: number | null) => void
     setHeadEnv: (headId: number, branchId: number, mainBranchId: number, turnId: number) => void
     setBranchEnv: (branchId: number, turnId: number) => void
 
@@ -33,6 +35,8 @@ export const createArtifactLogSlice = (artifactViews: string[], defaultView: str
             setSelectedTurnId: (turnId: number) => set({ selectedTurnId: turnId }),
             mainBranchId: 1,
             setMainBranchId: (mainBranchId: number) => set({ mainBranchId: mainBranchId }),
+            partitionId: null,
+            setPartitionId: (partitionId: number | null) => set({ partitionId: partitionId }),
             setHeadEnv: (headId: number, branchId: number, turnId: number, mainBranchId: number) => set({ selectedHeadId: headId, selectedBranchId: branchId, mainBranchId: mainBranchId, selectedTurnId: turnId }),
             setBranchEnv: (branchId: number, turnId: number) => set({ selectedBranchId: branchId, selectedTurnId: turnId }),
             artifactView: defaultView,

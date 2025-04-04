@@ -3,7 +3,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssetItem } from "../../services/chatboard-service";
 import { Chip, Spinner } from '@nextui-org/react';
-import { BaseArtifactType } from '../../services/model-service';
+import { BaseArtifactType } from '../../model/services/model-service';
 
 
 
@@ -27,12 +27,13 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
     
     const MAX_DATA = 1000;
 
-    const hasMore = messages.length < MAX_DATA;
+    // const hasMore = messages.length < MAX_DATA;
+    const hasMore = false;
 
     return (
         <div id="scrollableDiv" 
             style={{
-                height: height,
+                // height: height,
                 // height: "800px",
                 overflow: 'auto',
                 display: 'flex',
@@ -47,7 +48,7 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                 loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
                 // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
                 // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
-                endMessage={<p className="text-center m-5">That&apos;s all folks!🐰🥕</p>}
+                endMessage={<p className="text-center m-5">{messages.length > 0 ? "No more messages" : "No messages"}</p>}
                 style={{ 
                     display: "flex", 
                     flexDirection: "column-reverse", 

@@ -9,13 +9,14 @@ interface MutationOptions<Params, Data> {
     schema?: ZodSchema<Data>;
     endpoint: string;
     data: Params;
+    method?: string;
     env?: {
         headId?: string;
         branchId?: string;
     };
 }
 
-export async function sendRequest<Params, Data>({ schema, endpoint, data, env }: MutationOptions<Params, Data>): Promise<Data> {
+export async function sendRequest<Params, Data>({ schema, endpoint, data, env, method = 'POST' }: MutationOptions<Params, Data>): Promise<Data> {
 
     const headers: any = {
         "Content-Type": "application/json"
@@ -26,7 +27,7 @@ export async function sendRequest<Params, Data>({ schema, endpoint, data, env }:
     }
 
     const res = await fetch(endpoint, {
-        method: 'POST',
+        method,
         body: JSON.stringify(data),
         headers
     });
@@ -55,13 +56,14 @@ interface UseMutationOptions<Params, Data> {
         branch_id?: string;
     };
     // id?: string;
+    method?: string;
     callbacks?: {
         onSuccess?: (data: Data) => void;
         onError?: (error: any) => void;
     };
 }
 
-export function useMutationHook<Params, Data>({ schema, endpoint, callbacks, env }: UseMutationOptions<Params, Data>): SWRMutationResponse<Data, Error> {
+export function useMutationHook<Params, Data>({ schema, endpoint, callbacks, env, method = 'POST' }: UseMutationOptions<Params, Data>): SWRMutationResponse<Data, Error> {
     // const endpoint = id ? `${model}/update/${id}` : `${model}/create`;
     
 
@@ -72,7 +74,7 @@ export function useMutationHook<Params, Data>({ schema, endpoint, callbacks, env
             if (!endpoint) {
                 throw new Error("Endpoint is not defined");
             }
-            const response = await sendRequest<Params, Data>({ schema, endpoint, data: arg, env });
+            const response = await sendRequest<Params, Data>({ schema, endpoint, data: arg, env, method });
             return response;
         },
         {

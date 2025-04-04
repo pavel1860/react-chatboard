@@ -1,5 +1,5 @@
 import createHeadModelService from "./head-model-service";
-import createModelService from "./model-service";
+import createModelService from "../model/services/model-service";
 import {useMutationHook} from './mutation'
 import { z } from 'zod';
 

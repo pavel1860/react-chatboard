@@ -105,6 +105,7 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
         <LexicalComposer initialConfig={editorConfig}>
             <div 
                 // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}                
+                // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm text-left font-normal leading-5 text-gray-900`}
                 className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm text-left font-normal leading-5 text-gray-900`}
                 key={`editor-${dependentVersion}`}
                 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useAllTurns, useBranchTurns, useUpdateTurn } from '../../services/artifact-log-service';
+import { useAllTurns, useBranchTurns, useUpdateTurn } from '../../model/services/artifact-log-service';
 import { useChatStore } from '../../stores/chat-store';
-import { useHeadEnv } from '../../hooks/artifact-log-hook';
+import { useHeadEnv } from '../../model/hooks/artifact-head-hooks';
 import { Button, Chip, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@nextui-org/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
 import { Ellipsis, Eye, EyeOff, GitMerge, GitPullRequest, TextSearch } from 'lucide-react';

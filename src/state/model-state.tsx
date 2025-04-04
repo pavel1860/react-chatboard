@@ -1,4 +1,4 @@
-import createModelService from "../services/model-service";
+import createModelService from "../model/services/model-service";
 import { z, ZodSchema } from "zod";
 import { StateCreator, StoreApi, UseBoundStore } from 'zustand';
 import { StateStorage, persist, createJSONStorage} from "zustand/middleware";

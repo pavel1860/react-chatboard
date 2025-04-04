@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { z } from 'zod';
-import createModelService, { FilterOperation, TypedModelFilters, BaseArtifactType } from '../services/model-service';
+import createModelService, { FilterOperation, TypedModelFilters, BaseArtifactType } from '../model/services/model-service';
 
 // Define a schema for your model
 const ExampleSchema = z.object({

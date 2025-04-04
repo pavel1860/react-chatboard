@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useAllBranches, useAllTurns, useBranchTurns, useHead } from "../services/artifact-log-service";
-import { useChatStore } from "../stores/chat-store";
-import { useMutationHook } from "../services/mutation";
+import { useChatStore } from "../../stores/chat-store";
+import { useMutationHook } from "../../services/mutation";
 import { HeadType } from "../services/artifact-log-service";
+import { VersionEnv } from "@/src/services/fetcher2";
 
 
 
@@ -16,28 +17,31 @@ import { HeadType } from "../services/artifact-log-service";
 
 
 
-export const useHeadEnv = () => {
-    const { 
-        selectedBranchId, 
-        setSelectedBranchId, 
-        selectedTurnId,
-        setSelectedTurnId,
-        mainBranchId,
-        setMainBranchId,
-        setHeadEnv,
-        setBranchEnv,
-    } = useChatStore()
+export const useHeadEnv = (env: VersionEnv | null = null) => {
+
+    const selectedBranchId = useChatStore((state) => state.selectedBranchId)
+    const setSelectedBranchId = useChatStore((state) => state.setSelectedBranchId)
+    const selectedTurnId = useChatStore((state) => state.selectedTurnId)
+    const setSelectedTurnId = useChatStore((state) => state.setSelectedTurnId)
+    const mainBranchId = useChatStore((state) => state.mainBranchId)
+    const setMainBranchId = useChatStore((state) => state.setMainBranchId)
+    const partitionId = useChatStore((state) => state.partitionId)
+    const setPartitionId = useChatStore((state) => state.setPartitionId)
+    const setHeadEnv = useChatStore((state) => state.setHeadEnv)
+    const setBranchEnv = useChatStore((state) => state.setBranchEnv)
 
 
     return {
-        branchId: selectedBranchId,
+        branchId: env?.branchId || selectedBranchId,
         setBranchId: setSelectedBranchId,
-        turnId: selectedTurnId,
+        turnId: env?.turnId || selectedTurnId,
         setTurnId: setSelectedTurnId,
-        mainBranchId,
+        mainBranchId: mainBranchId,
         setMainBranchId,
         setHeadEnv,
         setBranchEnv,
+        partitionId: env?.partitionId || partitionId,
+        setPartitionId,
         // changeHead: (headId: number) => {
         //     changeHead({head_id: headId})
         // },       

@@ -6,11 +6,11 @@ import { Form, InputField, ArrayField, TextField } from "@/react-chatboard/src/c
 import { TestCaseBaseSchema, TestCaseSchema, useCreateTestCase, useDeleteTestCase, useGetTestCase, useRunTestCase, useUpdateTestCase } from "@/react-chatboard/src/services/testing-service"
 import { Button, Spinner } from "@nextui-org/react"
 
-import { MessageSchema, MessageType, useMessageList } from "@/src/services/message-service";
+import { MessageSchema, MessageType, useMessageList } from "@/src/services/chat-service";
 
 import { useEffect, useState } from "react"
 
-import { useHeadEnv } from "@/react-chatboard/src/hooks/artifact-log-hook"
+import { useHeadEnv } from "@/react-chatboard/src/model/hooks/artifact-head-hooks"
 import { Wrapper } from "@/react-chatboard/src/components/layout/main-layout";
 import { Play } from "lucide-react";
 import { useArtifactLayout } from "@/react-chatboard/src/hooks/layout-hook";

@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
-import createModelService from "../../services/model-service";
+import createModelService from "../../model/services/model-service";
 import { MessageBubble, MessageContent, MessageFooter, MessageText, MessageTime } from "./chat-message";
 import InfiniteChat from "./infinite-chat"
 import { z, ZodSchema } from "zod";
 import { Button, Chip } from "@nextui-org/react";
 import { ChatInput } from "../editor/input";
 import { EditorValue } from "../editor/util";
-import { useHeadEnv } from "../../hooks/artifact-log-hook";
-import { useBranchFromTurn } from "../../services/artifact-log-service";
+import { useHeadEnv } from "../../model/hooks/artifact-head-hooks";
+import { useBranchFromTurn } from "../../model/services/artifact-log-service";
 
 
 

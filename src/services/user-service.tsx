@@ -2,11 +2,11 @@ import useSWR, { useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { z, ZodSchema } from "zod";
 // import { useModelEnv } from "../state/model-env";
-import { useHeadEnv } from "../hooks/artifact-log-hook";
+import { useHeadEnv } from "../model/hooks/artifact-head-hooks";
 import { useMutationHook } from "./mutation";
 import { fetcher } from "./fetcher2";
-import { HeadType } from "./artifact-log-service";
-import createModelService from "./model-service";
+import { HeadType } from "../model/services/artifact-log-service";
+import createModelService from "../model/services/model-service";
 import createHeadModelService from "./head-model-service";
 
 

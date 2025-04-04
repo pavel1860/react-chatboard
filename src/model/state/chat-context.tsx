@@ -1,8 +1,8 @@
 import { createContext, useContext, ReactNode, useState, useCallback } from "react";
 import { z } from "zod";
 import createArtifactService, { BaseArtifactType } from "../services/artifact-service";
-import { useHeadEnv } from "../hooks/artifact-log-hook";
-import { useArtifactLayout } from "../hooks/layout-hook";
+import { useHeadEnv } from "../hooks/artifact-head-hooks";
+import { useArtifactLayout } from "../../hooks/layout-hook";
 
 export interface ChatContextType<T> {
     messages: T[];

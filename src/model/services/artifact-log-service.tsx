@@ -1,7 +1,7 @@
 import useSWR, { SWRResponse } from 'swr';
 import { z } from 'zod';
-import { useMutationHook } from './mutation';
-import { useHeadEnv } from "../hooks/artifact-log-hook";
+import { useMutationHook } from '../../services/mutation';
+import { useHeadEnv } from "../hooks/artifact-head-hooks";
 
 
 export interface ArtifactLogHeaders {

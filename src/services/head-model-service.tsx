@@ -2,12 +2,12 @@ import useSWR, { SWRResponse, useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { AnyZodObject, z, ZodSchema } from "zod";
 // import { useModelEnv } from "../state/model-env";
-import { useHeadEnv } from "../hooks/artifact-log-hook";
+import { useHeadEnv } from "../model/hooks/artifact-head-hooks";
 import { useMutationHook } from "./mutation";
 import { fetcher, VersionEnv } from "./fetcher2";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import createModelService, { DefaultFilter, ModelServiceOptions, UseQueryBuilderHook } from "./model-service";
-import { HeadSchema } from "./artifact-log-service";
+import createModelService, { DefaultFilter, ModelServiceOptions, UseQueryBuilderHook } from "../model/services/model-service";
+import { HeadSchema } from "../model/services/artifact-log-service";
 
 
 
