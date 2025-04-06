@@ -2,9 +2,9 @@ import useSWR, { SWRResponse, useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { AnyZodObject, z, ZodSchema } from "zod";
 // import { useModelEnv } from "../state/model-env";
-import { useHeadEnv } from "../hooks/artifact-head-hooks";
+import { useHeadEnv, useVersionHead } from "../hooks/artifact-head-hooks";
 import { useMutationHook } from "../../services/mutation";
-import { fetcher, VersionEnv } from "../../services/fetcher2";
+import { fetcher, VersionHead } from "../../services/fetcher3";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import createModelService, { DefaultFilter, ModelServiceOptions, UseQueryBuilderHook } from "./model-service";
 import { useQueryBuilder } from "../../services/query-builder";
@@ -91,7 +91,7 @@ export default function createArtifactService<T extends AnyZodObject>(model: str
 
 
     function useArtifact<M extends z.infer<T> & BaseArtifactType>(artifactId: string | undefined, version: string | undefined = undefined) {
-        const env = useHeadEnv();
+        const head = useVersionHead();
 
 
         const url = useMemo(() => {
@@ -106,23 +106,19 @@ export default function createArtifactService<T extends AnyZodObject>(model: str
 
 
         return useSWR<M | null>(
-            url ? [url, env] : null,
-            ([url, env]) => fetcher({
-                schema,
-                endpoint: url,
-                env
-            })
+            url ? [url, head] : null,
+            ([url, head]: [string, VersionHead]) => fetcher<M>(url, { schema: ArtifactSchema, head })
         )
     }
 
 
 
-    function useArtifactList<M extends z.infer<T> & BaseArtifactType>(branchId?: number, turnId?: number, limit?: number, offset?: number, defaultFilters?: DefaultFilter<M>[], env: VersionEnv = {}) {
+    function useArtifactList<M extends z.infer<T> & BaseArtifactType>(branchId?: number, turnId?: number, limit?: number, offset?: number, defaultFilters?: DefaultFilter<M>[], head: VersionHead = {}) {
         const [currBranchId, setCurrBranchId] = useState<number | undefined>(branchId)
         const [currTurnId, setCurrTurnId] = useState<number | undefined>(turnId)
-        const currEnv = useHeadEnv(env)
+        const currHead = useVersionHead(head)
 
-        const isActive = currBranchId !== undefined
+        const isActive = currHead.partitionId !== undefined
         
         const { filters, where, build, reset, queryString } = useQueryBuilder(schema, defaultFilters);
 
@@ -138,13 +134,9 @@ export default function createArtifactService<T extends AnyZodObject>(model: str
 
         //@ts-ignore
         const getArtifactList = useSWR<M[]>(
-            isActive ? [`${baseUrl}/${model}/list`, limit, offset, queryString, env, env.branchId, env.turnId] : null,
-            ([url, limit, offset, queryString, env]) => fetcher({
-                schema: z.array(schema),
-                endpoint: url,
-                queryParams,
-                env: currEnv
-            })
+            isActive ? [`${baseUrl}/${model}/list`, limit, offset, queryString, currHead] : null,
+            ([url, limit, offset, queryString, currHead]: [string, number, number, string, VersionHead]) => 
+                fetcher<M[]>(url, { schema: z.array(ArtifactSchema), queryParams, head: currHead })
         );
 
         return {
@@ -163,7 +155,7 @@ export default function createArtifactService<T extends AnyZodObject>(model: str
 
 
     function useLastArtifact<M extends z.infer<T> & BaseArtifactType>(partitions: any, filters?: DefaultFilter<M>) {
-        const env = useHeadEnv();
+        const head = useVersionHead();
 
         const queryParams: Record<string, any> = { ...partitions };
 
@@ -172,30 +164,25 @@ export default function createArtifactService<T extends AnyZodObject>(model: str
         }
 
         return useSWR<M | null>(
-            [`${baseUrl}/${model}/last`, queryParams, env],
-            ([url, queryParams, env]) => fetcher({
-                schema,
-                endpoint: url,
-                queryParams,
-                env
-            })
+            [`${baseUrl}/${model}/last`, queryParams, head],
+            ([url, queryParams, head]: [string, Record<string, any>, VersionHead]) => fetcher<M>(url, { schema: ArtifactSchema, queryParams, head })
         )
     }
 
     function useCreateArtifact<M extends z.infer<T> & BaseArtifactType>() {
-        const env = useHeadEnv();
+        const head = useVersionHead();
 
-        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}`, env, method: 'POST' });
+        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}`, head, method: 'POST' });
     }
 
     function useUpdateArtifact<M extends z.infer<T> & BaseArtifactType>(artifactId: string | undefined) {
-        const env = useHeadEnv();
-        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}/${artifactId}`, env, method: 'PUT' });
+        const head = useVersionHead();
+        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}/${artifactId}`, head, method: 'PUT' });
     }
 
     function useDeleteArtifact<M extends z.infer<T> & BaseArtifactType>(artifactId: string | undefined) {
-        const env = useHeadEnv();        
-        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}/${artifactId}`, env, method: 'DELETE' });
+        const head = useVersionHead();
+        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}/${artifactId}`, head, method: 'DELETE' });
     }
 
     return {

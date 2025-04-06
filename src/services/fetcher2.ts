@@ -5,10 +5,10 @@ import { useModelEnv } from "../state/model-env";
 
 
 export interface VersionEnv {
-    headId?: number;
-    branchId?: number;
-    turnId?: number;
-    partitionId?: number;
+    headId?: number | null;
+    branchId?: number | null;
+    turnId?: number | null;
+    partitionId?: number | null;
 }
 
 

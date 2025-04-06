@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAllBranches, useAllTurns, useBranchTurns, useHead } from "../services/artifact-log-service";
+import { useAllBranches, useAllTurns, useBranchTurns } from "../services/artifact-log-service";
 import { useChatStore } from "../../stores/chat-store";
 import { useMutationHook } from "../../services/mutation";
 import { HeadType } from "../services/artifact-log-service";
@@ -52,6 +52,23 @@ export const useHeadEnv = (env: VersionEnv | null = null) => {
 
 
 
+
+
+export const useVersionHead = (head?: VersionEnv) => {
+
+    const { branchId, turnId, mainBranchId, partitionId } = useHeadEnv(head)
+
+    return {
+        branchId,
+        turnId,
+        partitionId,
+    }
+}
+
+
+
+
+// export const usePara
 
 // export function useChangeHead(
 //     baseUrl: string = "/api/ai/users",     

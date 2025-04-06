@@ -1,12 +1,14 @@
 import useSWR, { SWRResponse } from 'swr';
 import { z } from 'zod';
 import { useMutationHook } from '../../services/mutation';
-import { useHeadEnv } from "../hooks/artifact-head-hooks";
+import { useHeadEnv, useVersionHead } from "../hooks/artifact-head-hooks";
+import {fetcher as fetcher3, VersionHead } from '../../services/fetcher3';
 
 
 export interface ArtifactLogHeaders {
     head_id: number;
     branch_id?: number;
+    partition_id?: number;
 }
 
 const BASE_URL = '/api/ai/artifact_log';
@@ -46,10 +48,26 @@ export const HeadSchema = z.object({
     updated_at: z.string(),
 });
 
+
+export const ParticipantSchema = z.object({
+    id: z.number(),
+    user_id: z.number(),
+});
+
+export const PartitionSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    created_at: z.string(),
+    updated_at: z.string(),
+    participants: z.array(ParticipantSchema),
+});
+
+
 // Types inferred from Zod schemas
 export type BranchType = z.infer<typeof BranchSchema>;
 export type TurnType = z.infer<typeof TurnSchema>;
 export type HeadType = z.infer<typeof HeadSchema>;
+export type PartitionType = z.infer<typeof PartitionSchema>;
 
 const getHeaders = (headers: ArtifactLogHeaders): Headers => {
     const requestHeaders = new Headers();
@@ -75,26 +93,28 @@ const fetcher = async (url: string, headers: ArtifactLogHeaders) => {
 };
 
 
-export const useHead = (headId: number | null, headers: ArtifactLogHeaders) => {
-    return useSWR<HeadType>(
-        headId ? [BASE_URL + `/heads/${headId}`, headers] : null,
-        ([url, headers]) => fetcher(url, headers).then(data => HeadSchema.parse(data))
-    );
-};
 
 
-export const useAllHeads = (headers: ArtifactLogHeaders) => {
-    return useSWR<BranchType[]>(
-        [BASE_URL + '/heads', headers],
-        ([url, headers]) => fetcher(url, headers).then(data => z.array(BranchSchema).parse(data))
-    );
-};
+
+
 
 // SWR Hooks
 export const useAllBranches = (headers: ArtifactLogHeaders) => {
     return useSWR<BranchType[]>(
         [BASE_URL + '/branches', headers],
         ([url, headers]) => fetcher(url, headers).then(data => z.array(BranchSchema).parse(data))
+    );
+};
+
+
+
+
+
+export const usePartitions = (head: VersionHead) => {
+    const env = useVersionHead(head);
+    return useSWR<PartitionType[]>(
+        [BASE_URL + '/partitions', env],
+        ([url, env]: [string, VersionHead]) => fetcher3<PartitionType[]>(url, {schema: z.array(PartitionSchema), head: env})
     );
 };
 

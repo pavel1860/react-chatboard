@@ -1,8 +1,11 @@
 import { createContext, useContext, ReactNode, useState, useCallback } from "react";
 import { z } from "zod";
-import createArtifactService, { BaseArtifactType } from "../services/artifact-service";
-import { useHeadEnv } from "../hooks/artifact-head-hooks";
-import { useArtifactLayout } from "../../hooks/layout-hook";
+import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
+import { useHeadEnv, useVersionHead } from "../model/hooks/artifact-head-hooks";
+import { useArtifactLayout } from "../hooks/layout-hook";
+import { buildHeaders } from "../services/utils";
+
+
 
 export interface ChatContextType<T> {
     messages: T[];
@@ -14,11 +17,7 @@ export interface ChatContextType<T> {
 }
 
 
-
-
 export const createChatProvider = <T extends { content: string; role: string }>(messageName: string, messageSchema: z.ZodType<T>) => {
-
-
     
     const {
         ArtifactSchema: MessageArtifactSchema,
@@ -27,10 +26,6 @@ export const createChatProvider = <T extends { content: string; role: string }>(
         useCreateArtifact: useCreateMessage,
         useUpdateArtifact: useUpdateMessage,
     } = createArtifactService(messageName, messageSchema)
-    
-    
-
-
 
     const ChatContext = createContext<ChatContextType<any>>({} as ChatContextType<any>);
 
@@ -39,9 +34,8 @@ export const createChatProvider = <T extends { content: string; role: string }>(
         messageSchema: z.ZodType<T>;
     }
 
-
     function useSendMessage(currentData: T[], mutate: (key: string, data: any, options?: any) => Promise<any>) {
-        const env = useHeadEnv();
+        const head = useVersionHead()
         // const { mutate } = useSWRConfig();
         const baseUrl = "/api/ai/chat"
         const model = "Message"
@@ -52,7 +46,7 @@ export const createChatProvider = <T extends { content: string; role: string }>(
         const sendMessage = useCallback(async (message: T, fromMessageId?: string | null, sessionId?: string | null, files?: any) => {
             try {
                 setSending(true);
-                const listKey = [`${baseUrl}/${model}/list`, 10, 0, env];
+                const listKey = [`${baseUrl}/${model}/list`, 10, 0, head];
                 // const currentData = await mutate(listKey);
                 
                 const mock_message = {
@@ -73,21 +67,13 @@ export const createChatProvider = <T extends { content: string; role: string }>(
                         formData.append('file', files);
                     }
                     
-                    const headers: any = {
-                        "head_id": env.headId,
-                    };
-                    
-                    if (env.branchId) {
-                        headers["branch_id"] = env.branchId;
-                    }
-                    
-                    if (fromMessageId) {
-                        headers["from_message_id"] = fromMessageId;
-                    }
-                    
-                    if (sessionId) {
-                        headers["session_id"] = sessionId;
-                    }
+                    const headers = buildHeaders({
+                        "partition_id": head.partitionId,
+                        "branch_id": head.branchId,
+                        "turn_id": head.turnId,
+                        "from_message_id": fromMessageId,
+                        "session_id": sessionId                        
+                    })
                     
                     const res = await fetch(`/api/ai/chat`, {
                         method: "POST",
@@ -133,7 +119,7 @@ export const createChatProvider = <T extends { content: string; role: string }>(
             } finally {
                 setSending(false);
             }
-        }, [env, currentData, mutate]);
+        }, [head, currentData, mutate]);
     
     
         return {
@@ -147,7 +133,6 @@ export const createChatProvider = <T extends { content: string; role: string }>(
         children, 
         messageSchema, 
     }: ChatProviderProps<T>) {
-        const env = useHeadEnv();
         const [error, setError] = useState<Error | null>(null);
 
         const {
