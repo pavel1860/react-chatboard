@@ -63,7 +63,22 @@ export const useArtifact = () => {
     const setArtifactId = useChatStore((state) => state.setArtifactId);
     const artifactType = useChatStore((state) => state.artifactType);
     const setArtifactType = useChatStore((state) => state.setArtifactType);
-    return { artifactView, setArtifactView, artifactId, setArtifactId, artifactType, setArtifactType };
+    return { 
+        artifact: {
+            artifactView, 
+            artifactId, 
+        },
+        setArtifact: ( artifactId: string, artifactView: string) => {
+            setArtifactId(artifactId)
+            setArtifactView(artifactView)
+        },
+        artifactView, 
+        setArtifactView, 
+        artifactId, 
+        setArtifactId, 
+        artifactType, 
+        setArtifactType
+    };
 }
 
 

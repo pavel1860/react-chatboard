@@ -31,7 +31,7 @@ import { EditExampleForm } from './editExampleForm';
 import { InputCard, OutputCard } from './run-cards/io-cards';
 import { useRunMetadata } from '../../state/chatboard-state';
 // import { roundTo } from '../utils/math';
-import { Hammer, RotateCcw } from 'lucide-react';
+import { Hammer, RotateCcw, ChevronDown } from 'lucide-react';
 
 
 
@@ -343,9 +343,9 @@ const RunTree = ({ run, depth, parentRun, index }: RunTreeProps) => {
                 {run.child_runs && <div 
                     // className="w-4 ml-3 bg-slate-300 cursor-pointer min-h-full hover:bg-slate-400 shadow-sm"
                     // className={"w-5 border-l-slate-200 border-l-2  cursor-pointer min-h-full  shadow-sm " + (collapsed ? "bg-slate-300 hover:bg-slate-200" : "bg-slate-200 hover:bg-slate-300")}
-                    className={"w-5 border-l-slate-200 border-l-2  cursor-pointer min-h-full shadow-sm " + (collapsed ? "bg-none hover:bg-slate-100" : "bg-none hover:bg-slate-100")}
+                    className={"flex items-center justify-center w-5 border-l-slate-200 border-l-2  cursor-pointer min-h-full shadow-sm " + (collapsed ? "bg-none hover:bg-blue-500" : "bg-none hover:bg-slate-100")}                    
                     onClick={()=>{toggleCollapse()}}
-                >&nbsp;</div>}
+                >{collapsed && <ChevronDown />}</div>}
                 {collapsed && <Button variant="light" className="text-nowrap" size="sm" color="default" onClick={() => toggleCollapse()}>
                             <span className="text-slate-400">{numChildren == 1 ? `${numChildren} item` : `${numChildren} items`}</span>
                         </Button>}

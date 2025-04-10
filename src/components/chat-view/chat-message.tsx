@@ -37,28 +37,30 @@ export function MessageBubble({ children, role, userColor="#3b82f6", assistantCo
     if (role === "assistant") {
         return (
             <div className="flex">                
+                <div className="p-3">
+                    <Bot color="blue"/>   
+                </div>
                 <div 
-                    className="max-w-lg  text-gray-900 rounded-lg shadow-sm"
+                    className="max-w-lg  text-gray-900 rounded-2xl rounded-tl-md shadow-sm"
                     style={{ backgroundColor: assistantColor, width: width, padding: padding}}
                 >
                     {children}
                 </div>
-                <div className="p-3">
-                    <Bot color="blue"/>   
-                </div>
+                
             </div>
         )
     } else if (role === "user") {
         return (
             <div className="flex justify-end">
-                <div className="p-3 ">                    
-                    <User color="blue" />
-                </div>
+                
                 <div 
-                    className="max-w-lg text-white rounded-lg shadow-sm"
+                    className="max-w-lg text-white rounded-2xl rounded-tr-md shadow-sm"
                     style={{ backgroundColor: userColor, width: width, padding: padding }}
                 >
                     {children}
+                </div>
+                <div className="p-3 ">                    
+                    <User color="blue" />
                 </div>
             </div>
         )
@@ -95,7 +97,7 @@ export function MessageText({ text, isEditing, setText }: { text: string, isEdit
 
 export function MessageFooter({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex justify-end">
+        <div className="flex justify-end px-3">
             {children}
         </div>
     )

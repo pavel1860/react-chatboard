@@ -4,6 +4,7 @@ import createArtifactService, { BaseArtifactType } from "../model/services/artif
 import { useHeadEnv, useVersionHead } from "../model/hooks/artifact-head-hooks";
 import { useArtifactLayout } from "../hooks/layout-hook";
 import { buildHeaders } from "../services/utils";
+import { useArtifact } from "../stores/chat-store";
 
 
 
@@ -17,7 +18,15 @@ export interface ChatContextType<T> {
 }
 
 
-export const createChatProvider = <T extends { content: string; role: string }>(messageName: string, messageSchema: z.ZodType<T>) => {
+export const createChatProvider = <T extends { content: string; role: string }>(
+    messageName: string, 
+    messageSchema: z.ZodType<T>, 
+    handler: (
+        toolCall: any, 
+        artifact: { artifactView: string, artifactId: string }, 
+        setArtifact: (artifactId: string, artifactView: string) => void
+    ) => void
+) => {
     
     const {
         ArtifactSchema: MessageArtifactSchema,
@@ -41,7 +50,8 @@ export const createChatProvider = <T extends { content: string; role: string }>(
         const model = "Message"
         const [sending, setSending] = useState(false);
     
-        const { artifactView, setArtifactView } = useArtifactLayout()
+        // const { artifactView, setArtifactView } = useArtifactLayout()
+        const { artifact, setArtifact } = useArtifact()
     
         const sendMessage = useCallback(async (message: T, fromMessageId?: string | null, sessionId?: string | null, files?: any) => {
             try {
@@ -86,10 +96,11 @@ export const createChatProvider = <T extends { content: string; role: string }>(
                         for (const message of responseMessages) {
                             if (message.tool_calls.length > 0) {
                                 for (const tool_call of message.tool_calls) {
-                                    if (tool_call.name === "ChangeUserView"){
-                                        console.log("### tool_call", tool_call)
-                                        setArtifactView(tool_call.tool.view_name)
-                                    }
+                                    handler(tool_call, artifact, setArtifact)
+                                    // if (tool_call.name === "ChangeUserView"){
+                                    //     console.log("### tool_call", tool_call)
+                                    //     setArtifactView(tool_call.tool.view_name)
+                                    // }
                                 }
                             }
                         }
