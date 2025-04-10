@@ -1,17 +1,11 @@
-import { useChatStore } from "../stores/chat-store"
+import { useArtifact, useChatStore } from "../stores/chat-store"
 
 
 
 
 export const useArtifactLayout = () => {
-    const { 
-        artifactView, 
-        setArtifactView,
-        artifactId,
-        setArtifactId,
-        artifactType,
-        setArtifactType,
-    } = useChatStore()
+    
+    const { artifactView, setArtifactView, artifactId, setArtifactId, artifactType, setArtifactType } = useArtifact()
 
     return {
         artifactView,

@@ -96,9 +96,9 @@ export default function createArtifactService<T extends AnyZodObject>(model: str
 
         const url = useMemo(() => {
             if (version) {
-                return `${baseUrl}/${model}/id/${artifactId}/version/${version}`
+                return `${baseUrl}/${model}/${artifactId}/version/${version}`
             } else if (artifactId) {
-                return `${baseUrl}/${model}/id/${artifactId}`
+                return `${baseUrl}/${model}/${artifactId}`
             } else {
                 return null
             }

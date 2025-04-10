@@ -128,7 +128,7 @@ export const MainViewLayout = ({ children, color, closable = false, onClose, fle
 
 
 interface ArtifactViewLayoutProps {
-    children: (artifactView: string | null | undefined, setArtifactView: (artifactView: string) => void, artifactId: number | null | undefined, artifactType: string | null | undefined) => React.ReactNode
+    children: (artifactView: string | null | undefined, setArtifactView: (artifactView: string) => void, artifactId: string | null | undefined, artifactType: string | null | undefined) => React.ReactNode
     showAdminBar?: boolean
     color?: string,
     refetchChat?: () => void

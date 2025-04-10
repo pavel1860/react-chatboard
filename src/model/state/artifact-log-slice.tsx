@@ -17,8 +17,8 @@ export type ArtifactLogStoreType = {
 
     artifactView: string | null
     setArtifactView: (sideView: string | null) => void
-    artifactId: number | null
-    setArtifactId: (artifactId: number | null) => void
+    artifactId: string | null
+    setArtifactId: (artifactId: string | null) => void
     artifactType: string | null
     setArtifactType: (artifactId: string | null) => void
 }

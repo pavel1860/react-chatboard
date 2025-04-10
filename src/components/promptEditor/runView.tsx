@@ -342,7 +342,8 @@ const RunTree = ({ run, depth, parentRun, index }: RunTreeProps) => {
             <div className="flex h-full" >            
                 {run.child_runs && <div 
                     // className="w-4 ml-3 bg-slate-300 cursor-pointer min-h-full hover:bg-slate-400 shadow-sm"
-                    className={"w-4 ml-3  cursor-pointer min-h-full  shadow-sm " + (collapsed ? "bg-slate-300 hover:bg-slate-200" : "bg-slate-200 hover:bg-slate-300")}
+                    // className={"w-5 border-l-slate-200 border-l-2  cursor-pointer min-h-full  shadow-sm " + (collapsed ? "bg-slate-300 hover:bg-slate-200" : "bg-slate-200 hover:bg-slate-300")}
+                    className={"w-5 border-l-slate-200 border-l-2  cursor-pointer min-h-full shadow-sm " + (collapsed ? "bg-none hover:bg-slate-100" : "bg-none hover:bg-slate-100")}
                     onClick={()=>{toggleCollapse()}}
                 >&nbsp;</div>}
                 {collapsed && <Button variant="light" className="text-nowrap" size="sm" color="default" onClick={() => toggleCollapse()}>
