@@ -4,12 +4,12 @@ interface VersionTreeContextType {
     expandedTurns: Set<number>;
     toggleTurn: (turnId: number) => void;
     isExpanded: (turnId: number) => boolean;
-    refetchChat: () => void;
+    refetchChat?: () => void;
 }
 
 const VersionTreeContext = createContext<VersionTreeContextType | undefined>(undefined);
 
-export function VersionTreeProvider({ children, refetchChat }: { children: React.ReactNode, refetchChat: () => void }) {
+export function VersionTreeProvider({ children, refetchChat }: { children: React.ReactNode, refetchChat?: () => void }) {
     const [expandedTurns, setExpandedTurns] = useState<Set<number>>(new Set());
 
     const toggleTurn = (turnId: number) => {

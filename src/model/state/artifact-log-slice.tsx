@@ -25,9 +25,8 @@ export type ArtifactLogStoreType = {
 
 
 //@ts-ignore
-
 export const createArtifactLogSlice = (artifactViews: string[], defaultView: string | null = null) => {
-    
+
         return (set: any, get: any): ArtifactLogStoreType => ({
             selectedBranchId: 1,
             setSelectedBranchId: (branchId: number) => set({ selectedBranchId: branchId }),
@@ -42,7 +41,7 @@ export const createArtifactLogSlice = (artifactViews: string[], defaultView: str
             artifactView: defaultView,
             setArtifactView: (sideView: string | null) => set({ artifactView: sideView }),
             artifactId: null,
-            setArtifactId: (artifactId: number | null) => set({ artifactId: artifactId }),
+            setArtifactId: (artifactId: string | null) => set({ artifactId: artifactId }),
             artifactType: null,
             setArtifactType: (artifactId: string | null) => set({ artifactType: artifactId }),
     })

@@ -1,6 +1,6 @@
 import useSWR, { SWRResponse, useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
-import { AnyZodObject, z, ZodSchema } from "zod";
+import { AnyZodObject, z, ZodSchema, ZodObject, ZodTypeAny, ZodType } from "zod";
 // import { useModelEnv } from "../state/model-env";
 import { useHeadEnv, useVersionHead } from "../hooks/artifact-head-hooks";
 import { useMutationHook } from "../../services/mutation";
@@ -84,13 +84,13 @@ export interface ArtifactService<T extends AnyZodObject> {
 
 
 
-export default function createArtifactService<T extends AnyZodObject>(model: string, schema: ZodSchema<T>, options: ModelServiceOptions = {}) {
+export default function createArtifactService<T extends AnyZodObject>(model: string, schema: T, options: ModelServiceOptions = {}) {
     const { baseUrl = "/api/ai/artifact" } = options;
 
     const ArtifactSchema = BaseArtifactSchema.merge(schema)
 
 
-    function useArtifact<M extends z.infer<T> & BaseArtifactType>(artifactId: string | undefined, version: string | undefined = undefined) {
+    function useArtifact<M extends (z.infer<T> & BaseArtifactType)>(artifactId: string | undefined, version: string | undefined = undefined) {
         const head = useVersionHead();
 
 

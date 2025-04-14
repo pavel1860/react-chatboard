@@ -1,8 +1,7 @@
 import { create, StoreApi } from 'zustand'
 import { createArtifactLogSlice, ArtifactLogStoreType } from "../model/state/artifact-log-slice";
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
-import { AdminLayoutSliceType, createAdminLayoutSlice } from '../state/slices/layout-slice';
 
 
 

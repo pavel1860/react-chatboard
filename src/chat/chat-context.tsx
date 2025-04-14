@@ -1,21 +1,8 @@
 import { createContext, useContext, ReactNode, useState, useCallback } from "react";
-import { z } from "zod";
+import { AnyZodObject, z } from "zod";
 import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
-import { useHeadEnv, useVersionHead } from "../model/hooks/artifact-head-hooks";
-import { useArtifactLayout } from "../hooks/layout-hook";
+import { useVersionHead } from "../model/hooks/artifact-head-hooks";
 import { buildHeaders } from "../services/utils";
-import { useArtifact } from "../stores/chat-store";
-
-
-
-export interface ChatContextType<T> {
-    messages: T[];
-    loading: boolean;
-    error: Error | null;
-    sending: boolean;
-    sendMessage: (message: T, fromMessageId?: string | null, sessionId?: string | null, files?: any) => Promise<void>;
-    mutate: () => void;
-}
 
 
 export interface ToolCall {
@@ -24,14 +11,26 @@ export interface ToolCall {
 }
 
 
+export interface ChatContextType<T> {
+    messages: T[];
+    loading: boolean;
+    error: Error | null;
+    sending: boolean;
+    sendMessage: (message: T, toolCalls?: ToolCall[], state?: any, fromMessageId?: string | null, sessionId?: string | null, files?: any) => Promise<void>;
+    mutate: () => void;
+}
+
+
+
+
 export interface ChatOptions {
     completeUrl: string
 }
 
 
-export const createChatProvider = <T extends { content: string; role: string }>(
+export const createChatProvider = <T extends AnyZodObject>(
     messageName: string, 
-    messageSchema: z.ZodType<T>, 
+    messageSchema: T, 
     handler: (
         toolCall: any, 
     ) => void
@@ -54,8 +53,8 @@ export const createChatProvider = <T extends { content: string; role: string }>(
     }
 
     function useSendMessage(
-        currentData: T[], 
-        mutate: (key: string, data: any, options?: any) => Promise<any>,
+        history: T[], 
+        mutate: (data: any, options?: any) => Promise<any>,
         options: ChatOptions = {
             completeUrl: "/api/ai/complete"
         }
@@ -70,25 +69,25 @@ export const createChatProvider = <T extends { content: string; role: string }>(
     
         const sendMessage = useCallback(async (
             message: T, 
-            toolCalls: ToolCall[],
-            state: any,
+            toolCalls?: ToolCall[],
+            state?: any,
             fromMessageId?: string | null, 
             sessionId?: string | null,
             files?: any) => {
             try {
                 setSending(true);
-                // const listKey = [`${baseUrl}/${model}/list`, 10, 0, head];
-                // const currentData = await mutate(listKey);
                 
                 const mock_message = {
-                    id: currentData && currentData.length > 0 ? currentData[0].id + 1 : 10000,
+                    // @ts-ignore
+                    id: history && history.length > 0 ? history[0].id + 1 : 10000,
                     score: -1,
-                    turn_id: currentData && currentData.length > 0 ? currentData[0].turn_id + 1 : 1,
+                    // @ts-ignore
+                    turn_id: history && history.length > 0 ? history[0].turn_id + 1 : 1,
                     created_at: new Date().toISOString(),
                     ...message,
                 } as T & BaseArtifactType;
                 
-                const optimisticData = [mock_message, ...(currentData || [])];
+                const optimisticData = [mock_message, ...(history || [])];
                 
                 const sendMessageRequest = async (message: T, state: any, messageHistory: any[], files?: any) => {
                     const formData = new FormData();
@@ -132,11 +131,10 @@ export const createChatProvider = <T extends { content: string; role: string }>(
                 };
                 
                 await mutate(
-                    // listKey,
                     sendMessageRequest(
                         message, 
                         state, 
-                        currentData || [], 
+                        history || [], 
                         files
                     ),
                     {
@@ -149,7 +147,7 @@ export const createChatProvider = <T extends { content: string; role: string }>(
             } finally {
                 setSending(false);
             }
-        }, [head, currentData, mutate]);
+        }, [head, history, mutate]);
     
     
         return {
@@ -159,11 +157,10 @@ export const createChatProvider = <T extends { content: string; role: string }>(
     }
     
 
-    function ChatProvider<T extends { content: string; role: string }>({ 
+    function ChatProvider<T>({ 
         children, 
         messageSchema, 
     }: ChatProviderProps<T>) {
-        const [error, setError] = useState<Error | null>(null);
 
         const {
             data: messages,
@@ -172,12 +169,12 @@ export const createChatProvider = <T extends { content: string; role: string }>(
             mutate: mutateMessages
         } = useMessageList(1, undefined, 10, 0)
 
-        const { sendMessage, sending } = useSendMessage(messages || [], mutateMessages)
+        const { sendMessage, sending } = useSendMessage(messages || [] as any, mutateMessages)
         return (
             <ChatContext.Provider value={{
-                messages,
+                messages: messages || [],
                 loading,
-                error,
+                error: messagesError,
                 sending,
                 sendMessage,
                 mutate: mutateMessages

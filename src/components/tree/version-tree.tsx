@@ -284,7 +284,6 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                         }}
                     />
                 </div>
-                {/* <div style={{ fontWeight: 'bold', fontSize: '14px' }}>Branch: {branch.name}</div> */}
                 <div style={{ zIndex: 5 }}>
                     <Button
                         radius="full"
@@ -309,7 +308,8 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
 // which uses the `/all_turns` endpoint.
 function MasterBranchTree() {
     // const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
-    const { mainBranchId, branchId, setBranchId } = useHeadEnv()
+    const { branchId, setBranchId } = useHeadEnv()
+    const mainBranchId = 1
     const headers = { head_id: String(mainBranchId) };
     console.log("MasterBranchTree", mainBranchId, headers)
     const { data: turns, isLoading, error, mutate } = useBranchTurns(mainBranchId ?? null, headers);
@@ -348,7 +348,7 @@ function MasterBranchTree() {
 }
 
 // Main component wraps the tree with the context provider
-function VersionTree({ refetchChat }: { refetchChat: () => void }) {
+function VersionTree({ refetchChat }: { refetchChat?: () => void }) {
     return (
         <VersionTreeProvider refetchChat={refetchChat}>
             <div className="p-10">

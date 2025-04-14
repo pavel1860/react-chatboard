@@ -1,4 +1,4 @@
-import { z, ZodSchema } from "zod";
+import { AnyZodObject, z, ZodSchema } from "zod";
 import { useModelEnv } from "../state/model-env";
 
 
@@ -12,8 +12,8 @@ export interface VersionEnv {
 }
 
 
-export interface FetcherOptions<T> {
-    schema: ZodSchema<T>;
+export interface FetcherOptions<T extends AnyZodObject> {
+    schema: T;
     endpoint: string;
     queryParams?: Record<string, any>;
     env?: VersionEnv;
@@ -22,7 +22,7 @@ export interface FetcherOptions<T> {
 
 
 
-export async function fetcher<T>({ schema, endpoint, queryParams, env }: FetcherOptions<T>): Promise<T | null> {
+export async function fetcher<T extends AnyZodObject>({ schema, endpoint, queryParams, env }: FetcherOptions<T>): Promise<T | null> {
 
 
     let url = `${endpoint}`;

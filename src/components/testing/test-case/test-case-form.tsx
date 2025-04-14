@@ -1,8 +1,6 @@
 // import { ArrayField } from "@/react-chatboard/src/components/form/array-field"
-// import { Form } from "@/react-chatboard/src/components/form/form2"
-// import { InputField } from "@/react-chatboard/src/components/form/input-field"
-import { Form, InputField, ArrayField } from "@/react-chatboard/src/components/form"
-import { TestCaseSchema, useGetTestCase } from "@/react-chatboard/src/services/testing-service"
+import { Form, InputField, ArrayField } from "../../form"
+import { TestCaseSchema, useGetTestCase } from "../../../services/testing-service"
 import { Button, Spinner } from "@nextui-org/react"
 
 
