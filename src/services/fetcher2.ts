@@ -53,6 +53,7 @@ export async function fetcher<T>({ schema, endpoint, queryParams, env }: Fetcher
             headers["partition_id"] = env.partitionId
         }
     }
+
     console.log("headers", headers)
 
     const res = await fetch(url, { headers });

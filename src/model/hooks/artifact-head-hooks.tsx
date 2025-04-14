@@ -12,41 +12,30 @@ import { VersionEnv } from "@/src/services/fetcher2";
 
 
 
+export type HeadEnvType = {
 
+}
 
 
 
 
 export const useHeadEnv = (env: VersionEnv | null = null) => {
 
-    const selectedBranchId = useChatStore((state) => state.selectedBranchId)
-    const setSelectedBranchId = useChatStore((state) => state.setSelectedBranchId)
-    const selectedTurnId = useChatStore((state) => state.selectedTurnId)
-    const setSelectedTurnId = useChatStore((state) => state.setSelectedTurnId)
-    const mainBranchId = useChatStore((state) => state.mainBranchId)
-    const setMainBranchId = useChatStore((state) => state.setMainBranchId)
+    const barnchId = useChatStore((state) => state.selectedBranchId)
+    const setBranchId = useChatStore((state) => state.setSelectedBranchId)
+    const turnId = useChatStore((state) => state.selectedTurnId)
+    const setTurnId = useChatStore((state) => state.setSelectedTurnId)
     const partitionId = useChatStore((state) => state.partitionId)
     const setPartitionId = useChatStore((state) => state.setPartitionId)
-    const setHeadEnv = useChatStore((state) => state.setHeadEnv)
-    const setBranchEnv = useChatStore((state) => state.setBranchEnv)
 
 
     return {
-        branchId: env?.branchId || selectedBranchId,
-        setBranchId: setSelectedBranchId,
-        turnId: env?.turnId || selectedTurnId,
-        setTurnId: setSelectedTurnId,
-        mainBranchId: mainBranchId,
-        setMainBranchId,
-        setHeadEnv,
-        setBranchEnv,
+        branchId: env?.branchId || barnchId,
+        setBranchId: setBranchId,
+        turnId: env?.turnId || turnId,
+        setTurnId: setTurnId,
         partitionId: env?.partitionId || partitionId,
-        setPartitionId,
-        // changeHead: (headId: number) => {
-        //     changeHead({head_id: headId})
-        // },       
-        // changeHeadIsMutating,
-        // changeHeadError,
+        setPartitionId,        
     }
 }
 

@@ -14,10 +14,11 @@ import createHeadModelService from "./head-model-service";
 
 export const BaseUserSchema = z.object({
     id: z.number(),
+    cookie_id: z.string().nullable(),
     name: z.string().nullable(),
-    email: z.string(),
+    email: z.string().nullable(),
     image: z.string().nullable(),
-    emailVerified: z.string(),
+    emailVerified: z.string().nullable(),
     is_admin: z.boolean(),
     // head_id: z.number(),
 })

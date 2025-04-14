@@ -18,15 +18,25 @@ export interface ChatContextType<T> {
 }
 
 
+export interface ToolCall {
+    name: string;
+    payload: any;
+}
+
+
+export interface ChatOptions {
+    completeUrl: string
+}
+
+
 export const createChatProvider = <T extends { content: string; role: string }>(
     messageName: string, 
     messageSchema: z.ZodType<T>, 
     handler: (
         toolCall: any, 
-        artifact: { artifactView: string, artifactId: string }, 
-        setArtifact: (artifactId: string, artifactView: string) => void
     ) => void
 ) => {
+
     
     const {
         ArtifactSchema: MessageArtifactSchema,
@@ -43,20 +53,31 @@ export const createChatProvider = <T extends { content: string; role: string }>(
         messageSchema: z.ZodType<T>;
     }
 
-    function useSendMessage(currentData: T[], mutate: (key: string, data: any, options?: any) => Promise<any>) {
+    function useSendMessage(
+        currentData: T[], 
+        mutate: (key: string, data: any, options?: any) => Promise<any>,
+        options: ChatOptions = {
+            completeUrl: "/api/ai/complete"
+        }
+    ) {
         const head = useVersionHead()
         // const { mutate } = useSWRConfig();
-        const baseUrl = "/api/ai/chat"
+        // const baseUrl = "/api/ai/chat"
         const model = "Message"
         const [sending, setSending] = useState(false);
+
+
     
-        // const { artifactView, setArtifactView } = useArtifactLayout()
-        const { artifact, setArtifact } = useArtifact()
-    
-        const sendMessage = useCallback(async (message: T, fromMessageId?: string | null, sessionId?: string | null, files?: any) => {
+        const sendMessage = useCallback(async (
+            message: T, 
+            toolCalls: ToolCall[],
+            state: any,
+            fromMessageId?: string | null, 
+            sessionId?: string | null,
+            files?: any) => {
             try {
                 setSending(true);
-                const listKey = [`${baseUrl}/${model}/list`, 10, 0, head];
+                // const listKey = [`${baseUrl}/${model}/list`, 10, 0, head];
                 // const currentData = await mutate(listKey);
                 
                 const mock_message = {
@@ -69,10 +90,10 @@ export const createChatProvider = <T extends { content: string; role: string }>(
                 
                 const optimisticData = [mock_message, ...(currentData || [])];
                 
-                const sendMessageRequest = async (message: T, userContext: any, messageHistory: any[], files?: any) => {
+                const sendMessageRequest = async (message: T, state: any, messageHistory: any[], files?: any) => {
                     const formData = new FormData();
                     formData.append("message_json", JSON.stringify(message));
-                    formData.append("user_context_json", JSON.stringify(userContext));
+                    formData.append("state_json", JSON.stringify(state || {}));
                     if (files) {
                         formData.append('file', files);
                     }
@@ -85,7 +106,7 @@ export const createChatProvider = <T extends { content: string; role: string }>(
                         "session_id": sessionId                        
                     })
                     
-                    const res = await fetch(`/api/ai/chat`, {
+                    const res = await fetch(options.completeUrl, {
                         method: "POST",
                         body: formData,
                         headers: headers,
@@ -96,7 +117,7 @@ export const createChatProvider = <T extends { content: string; role: string }>(
                         for (const message of responseMessages) {
                             if (message.tool_calls.length > 0) {
                                 for (const tool_call of message.tool_calls) {
-                                    handler(tool_call, artifact, setArtifact)
+                                    handler(tool_call)
                                     // if (tool_call.name === "ChangeUserView"){
                                     //     console.log("### tool_call", tool_call)
                                     //     setArtifactView(tool_call.tool.view_name)
@@ -114,9 +135,7 @@ export const createChatProvider = <T extends { content: string; role: string }>(
                     // listKey,
                     sendMessageRequest(
                         message, 
-                        {
-                            "artifact_view": artifactView
-                        }, 
+                        state, 
                         currentData || [], 
                         files
                     ),

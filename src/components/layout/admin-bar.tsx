@@ -1,5 +1,7 @@
 import { Button, ButtonGroup, Chip, Link, Navbar, NavbarContent, NavbarItem, Tab, Tabs } from '@nextui-org/react';
 import { BrainCog, GitGraph, Boxes, PanelLeft, Columns2, PanelRight } from 'lucide-react';
+import { useVersionHead } from "../../model/hooks/artifact-head-hooks";
+import { useArtifact } from "../../stores/chat-store";
 import { useSideView, useViews } from '../../stores/layout-store';
 import { useState } from 'react';
 // import { useSideView } from '../../stores/chat-store';
@@ -13,10 +15,19 @@ export const TopAdminBar = () => {
 
     const { sideView, setSideView } = useSideView()
     const { leftFlex, setLeftFlex, rightFlex, setRightFlex } = useViews()
+    const { branchId, partitionId, turnId } = useVersionHead()
+    const { artifactView, setArtifactView, artifactId, setArtifactId, artifactType, setArtifactType } = useArtifact()
 
 
     return (
         <Navbar height = '30px' isBordered >
+            <NavbarContent>
+                {branchId && <Chip className="text-sm" variant="dot" size='sm'>branch {branchId}</Chip>}
+                {turnId && <Chip className="text-sm" variant="dot" size='sm'>turn {turnId}</Chip>}
+                { partitionId && <Chip className="text-sm" variant="dot" size='sm'>partition {partitionId}</Chip>}
+                { artifactId && <Chip className="text-sm" variant="dot" size='sm'>Artifact {artifactId}</Chip>}
+                { artifactView && <Chip className="text-sm" variant="dot" size='sm'>View {artifactView}</Chip>}
+            </NavbarContent>
             <NavbarContent>
                 <ButtonGroup>
                     <Button 
