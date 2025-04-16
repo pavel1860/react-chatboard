@@ -1,7 +1,7 @@
 // InputField.jsx
 import React from "react";
 import { Controller, useForm, useFormContext } from "react-hook-form";
-import { Input, Select, SelectItem, Skeleton, Form, Button } from '@nextui-org/react';
+import { Input, Select, SelectItem, Skeleton, Form, Button } from '@heroui/react';
 import { InputFieldProps, InputStyleProps } from "./types";
 import { z } from "zod";
 import { useFieldValues, useInputStyle } from "./form-utils";

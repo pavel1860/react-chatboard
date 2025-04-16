@@ -1,7 +1,7 @@
 // InputField.jsx
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Input, Select, SelectItem, Skeleton, Form, Button, Textarea } from '@nextui-org/react';
+import { Input, Select, SelectItem, Skeleton, Form, Button, Textarea } from '@heroui/react';
 import { InputFieldProps, InputStyleProps } from "./types";
 import { useInputStyle } from "./form-utils";
 import PromptTextEditor from "../promptEditor/editors/promptTextEditor";

@@ -15,7 +15,7 @@ import { useExamples, useRunList, useRunState, useRunTree } from './state/runsCo
 // import { IconCtx } from '../components/aux/icons';
 // import { useQuery } from '@apollo/client';
 // import { GET_RUN_TREE } from '../../graphql/runQueries';
-import { Button, Chip, Spacer, Popover, PopoverTrigger, PopoverContent, Accordion, AccordionItem, Input, Spinner} from '@nextui-org/react';
+import { Button, Chip, Spacer, Popover, PopoverTrigger, PopoverContent, Accordion, AccordionItem, Input, Spinner} from '@heroui/react';
 // import { TbDots } from 'react-icons/tb';
 // import { FaCommentDots } from 'react-icons/fa';
 import { GeneratedMessage, Message, MessageType } from './messages';

@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Chip, Link, Navbar, NavbarContent, NavbarItem, Tab, Tabs } from '@nextui-org/react';
+import { Button, ButtonGroup, Chip, Link, Navbar, NavbarContent, NavbarItem, Tab, Tabs } from '@heroui/react';
 import { BrainCog, GitGraph, Boxes, PanelLeft, Columns2, PanelRight } from 'lucide-react';
 import { useVersionHead } from "../../model/hooks/artifact-head-hooks";
 import { useArtifact } from "../../stores/chat-store";

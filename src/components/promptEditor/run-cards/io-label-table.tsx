@@ -7,7 +7,7 @@ import { useAsyncList } from "@react-stately/data";
 import { useRag } from "../../../state/rag-state";
 import Link from "next/link";
 import { JSONTree } from 'react-json-tree'
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Skeleton, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Skeleton, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@heroui/react";
 import React, { useEffect } from "react";
 import { useRunRagListExample } from "../exampleHook";
 

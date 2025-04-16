@@ -3,7 +3,7 @@ import PromptTextEditor from './editors/promptTextEditor';
 import { useDagDisplayRouter } from './state/dagRouterContext'
 import { JsonState } from './stateJsonView';
 import { ModelType } from '../../types/run-tree';
-import { Chip } from '@nextui-org/react';
+import { Chip } from '@heroui/react';
 import { Bot, BrainCircuit, Hammer, Settings, User } from 'lucide-react';
 import { JSONTree } from 'react-json-tree';
 

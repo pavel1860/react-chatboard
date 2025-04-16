@@ -1,5 +1,5 @@
 import PromptTextEditor from "../promptEditor/editors/promptTextEditor";
-import { Bot,  User } from "lucide-react"
+
 
 
 
@@ -25,24 +25,28 @@ function formatDateTime(date: Date) {
 export interface MessageBubbleProps {
     children: React.ReactNode   
     role: "user" | "assistant"
-    userColor?: string
-    assistantColor?: string
+    icon?: React.ReactNode
+    // userColor?: string
+    // assistantColor?: string
+    color?: string
     width?: string
     padding?: string
+    radius?: string
 }
 
-
-export function MessageBubble({ children, role, userColor="#3b82f6", assistantColor="#e5e7eb", width = "auto", padding = "5px" }: MessageBubbleProps) {
+// userColor="#3b82f6", assistantColor="#e5e7eb"
+export function MessageBubble({ children, role, icon, color="#FFFFFF", width = "auto", padding = "5px", radius="5px" }: MessageBubbleProps) {
 
     if (role === "assistant") {
         return (
             <div className="flex">                
-                <div className="p-3">
-                    <Bot color="blue"/>   
-                </div>
+                {icon && <div className="p-3">
+                    {icon}   
+                </div>}
                 <div 
-                    className="max-w-lg  text-gray-900 rounded-2xl rounded-tl-md shadow-sm"
-                    style={{ backgroundColor: assistantColor, width: width, padding: padding}}
+                    // className="max-w-lg  text-gray-900 rounded-2xl rounded-tl-md shadow-sm"
+                    className="max-w-lg  text-gray-900 shadow-sm"
+                    style={{ backgroundColor: color, width: width, padding: padding, borderRadius: radius}}
                 >
                     {children}
                 </div>
@@ -54,14 +58,14 @@ export function MessageBubble({ children, role, userColor="#3b82f6", assistantCo
             <div className="flex justify-end">
                 
                 <div 
-                    className="max-w-lg text-white rounded-2xl rounded-tr-md shadow-sm"
-                    style={{ backgroundColor: userColor, width: width, padding: padding }}
+                    className="max-w-lg text-white shadow-sm"
+                    style={{ backgroundColor: color, width: width, padding: padding, borderRadius: radius }}
                 >
                     {children}
                 </div>
-                <div className="p-3 ">                    
-                    <User color="blue" />
-                </div>
+                {icon && <div className="p-3 ">                    
+                    {icon}
+                </div>}
             </div>
         )
     } else {
@@ -122,9 +126,20 @@ export function ToolCall({ tool_call }: { tool_call: any }) {
 
 
 
-export function Message({ children, role, created_at, width }: { children?: React.ReactNode, role: "user" | "assistant", created_at?: string, width?: string }){
+interface MessageProps {
+    children?: React.ReactNode
+    role: "user" | "assistant"
+    created_at?: string
+    width?: string
+    icon?: React.ReactNode
+    color?: string
+    radius?: string
+}
+
+
+export function Message({ children, role, created_at, width, icon, color="#FFFFFF", radius="5px" }: MessageProps){
     return (
-        <MessageBubble role={role} assistantColor="#FFFFFF" width={width}>
+        <MessageBubble role={role} assistantColor={color} width={width} icon={icon} radius={radius}>
             {/* <Chip color="primary">{message.id}</Chip> */}
             <MessageContent>
                 {children}

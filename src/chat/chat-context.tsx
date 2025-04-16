@@ -3,6 +3,7 @@ import { AnyZodObject, z } from "zod";
 import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
 import { useVersionHead } from "../model/hooks/artifact-head-hooks";
 import { buildHeaders } from "../services/utils";
+import { VersionHead } from "../services/fetcher3";
 
 
 export interface ToolCall {
@@ -18,6 +19,12 @@ export interface ChatContextType<T> {
     sending: boolean;
     sendMessage: (message: T, toolCalls?: ToolCall[], state?: any, fromMessageId?: string | null, sessionId?: string | null, files?: any) => Promise<void>;
     mutate: () => void;
+    branchId: number;
+    setBranchId: (branchId: number) => void;
+    turnId: number | undefined;
+    setTurnId: (turnId: number) => void;
+    partitionId: number | undefined;
+    setPartitionId: (partitionId: number) => void;
 }
 
 
@@ -31,9 +38,9 @@ export interface ChatOptions {
 export const createChatProvider = <T extends AnyZodObject>(
     messageName: string, 
     messageSchema: T, 
-    handler: (
-        toolCall: any, 
-    ) => void
+    // handler?: (
+    //     toolCall: any, 
+    // ) => void
 ) => {
 
     
@@ -49,17 +56,17 @@ export const createChatProvider = <T extends AnyZodObject>(
 
     interface ChatProviderProps<T> {
         children: ReactNode;
-        messageSchema: z.ZodType<T>;
     }
 
     function useSendMessage(
         history: T[], 
         mutate: (data: any, options?: any) => Promise<any>,
+        head: VersionHead = {},
         options: ChatOptions = {
             completeUrl: "/api/ai/complete"
         }
     ) {
-        const head = useVersionHead()
+        // const head = useVersionHead()
         // const { mutate } = useSWRConfig();
         // const baseUrl = "/api/ai/chat"
         const model = "Message"
@@ -71,9 +78,11 @@ export const createChatProvider = <T extends AnyZodObject>(
             message: T, 
             toolCalls?: ToolCall[],
             state?: any,
+            handler?: (toolCall: ToolCall) => void,
             fromMessageId?: string | null, 
             sessionId?: string | null,
-            files?: any) => {
+            files?: any
+        ) => {
             try {
                 setSending(true);
                 
@@ -102,7 +111,7 @@ export const createChatProvider = <T extends AnyZodObject>(
                         "branch_id": head.branchId,
                         "turn_id": head.turnId,
                         "from_message_id": fromMessageId,
-                        "session_id": sessionId                        
+                        "session_id": sessionId
                     })
                     
                     const res = await fetch(options.completeUrl, {
@@ -116,11 +125,7 @@ export const createChatProvider = <T extends AnyZodObject>(
                         for (const message of responseMessages) {
                             if (message.tool_calls.length > 0) {
                                 for (const tool_call of message.tool_calls) {
-                                    handler(tool_call)
-                                    // if (tool_call.name === "ChangeUserView"){
-                                    //     console.log("### tool_call", tool_call)
-                                    //     setArtifactView(tool_call.tool.view_name)
-                                    // }
+                                    handler && handler(tool_call)
                                 }
                             }
                         }
@@ -158,18 +163,26 @@ export const createChatProvider = <T extends AnyZodObject>(
     
 
     function ChatProvider<T>({ 
-        children, 
-        messageSchema, 
+        children,  
     }: ChatProviderProps<T>) {
+
+        const [branchId, setBranchId] = useState<number>(1)
+        const [turnId, setTurnId] = useState<number | undefined>(undefined)
+        const [partitionId, setPartitionId] = useState<number | undefined>(undefined)
 
         const {
             data: messages,
             isLoading: loading,
             error: messagesError,
             mutate: mutateMessages
-        } = useMessageList(1, undefined, 10, 0)
+        } = useMessageList(branchId, turnId, partitionId)
 
-        const { sendMessage, sending } = useSendMessage(messages || [] as any, mutateMessages)
+        const { sendMessage, sending } = useSendMessage(messages || [] as any, mutateMessages, {
+            branchId,
+            turnId,
+            partitionId,
+        })
+
         return (
             <ChatContext.Provider value={{
                 messages: messages || [],
@@ -177,7 +190,13 @@ export const createChatProvider = <T extends AnyZodObject>(
                 error: messagesError,
                 sending,
                 sendMessage,
-                mutate: mutateMessages
+                mutate: mutateMessages,
+                branchId,
+                setBranchId,
+                turnId,
+                setTurnId,
+                partitionId,
+                setPartitionId,
             }}>
                 {children}
             </ChatContext.Provider>

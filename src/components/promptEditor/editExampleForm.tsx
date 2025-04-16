@@ -12,7 +12,7 @@ import {
   DropdownTrigger, 
   DropdownMenu, 
   DropdownItem 
-} from "@nextui-org/react"
+} from "@heroui/react"
 import { create } from "domain"
 import useDebounce from "./hooks/helperHooks"
 import { EditExampleProvider, useEditExample } from "./EditExampleProvider"

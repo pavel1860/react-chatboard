@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { IRagSpaces } from "../../services/chatboard-service";
 import { JSONTree } from 'react-json-tree'
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@heroui/react";
 import React, { useEffect } from "react";
 import { ClassParametersType } from "../../../src/state/metadata-state";
 

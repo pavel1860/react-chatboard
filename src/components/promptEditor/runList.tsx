@@ -1,7 +1,7 @@
 import React from 'react'
 import { useRunList, RUN_NAMES } from './state/runsContext'
 import Link from 'next/link'
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react'
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react'
 import { useLayout } from './state/promptLayoutContext'
 
 

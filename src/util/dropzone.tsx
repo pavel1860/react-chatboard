@@ -4,7 +4,7 @@
 
 
 import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
-import { Progress } from '@nextui-org/react'
+import { Progress } from '@heroui/react'
 import {useDropzone} from 'react-dropzone'
 
 

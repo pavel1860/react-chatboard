@@ -1,5 +1,5 @@
 import { RunTreeContext } from "../../../types/run-tree"
-import { Chip } from "@nextui-org/react"
+import { Chip } from "@heroui/react"
 import { Bot, BrainCircuit, Route, SquareTerminal, Timer } from "lucide-react"
 import { ErrorPopup, InputPopup, OutputPopup, RunJsonPopup } from "../stateJsonView"
 

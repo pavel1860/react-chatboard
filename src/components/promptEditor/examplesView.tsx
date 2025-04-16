@@ -3,7 +3,7 @@ import { useExamples } from './state/runsContext';
 import { Message, MessageType } from './messages';
 import PromptTextEditor from './editors/promptTextEditor';
 import { ExampleKey, ExampleValue } from './state/useExamples';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spacer, Popover, PopoverTrigger, PopoverContent, Input } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spacer, Popover, PopoverTrigger, PopoverContent, Input } from '@heroui/react';
 import { useLayout } from './state/promptLayoutContext';
 import { ExampleType, RunType } from './types';
 import { EditableJsonState, JsonState } from './stateJsonView';

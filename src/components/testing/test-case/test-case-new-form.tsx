@@ -1,19 +1,19 @@
 // import { ArrayField } from "@/react-chatboard/src/components/form/array-field"
 // import { Form } from "@/react-chatboard/src/components/form/form2"
 // import { InputField } from "@/react-chatboard/src/components/form/input-field"
-import { Message, MessageBubble, MessageContent, MessageFooter, MessageTime } from "@/react-chatboard/src/components/chat-view/chat-message"
-import { Form, InputField, ArrayField, TextField } from "@/react-chatboard/src/components/form"
-import { TestCaseBaseSchema, TestCaseSchema, useCreateTestCase, useDeleteTestCase, useGetTestCase, useRunTestCase, useUpdateTestCase } from "@/react-chatboard/src/services/testing-service"
-import { Button, Spinner } from "@nextui-org/react"
+import { Message, MessageBubble, MessageContent, MessageFooter, MessageTime } from "../../chat-view/chat-message"
+import { Form, InputField, ArrayField, TextField } from "../../form"
+import { TestCaseBaseSchema, TestCaseSchema, useCreateTestCase, useDeleteTestCase, useGetTestCase, useRunTestCase, useUpdateTestCase } from "../../../services/testing-service"
+import { Button, Spinner } from "@heroui/react"
 
-import { MessageSchema, MessageType, useMessageList } from "@/src/services/chat-service";
+// import { MessageSchema, MessageType, useMessageList } from "../../../services/chat-service";
 
 import { useEffect, useState } from "react"
 
-import { useHeadEnv } from "@/react-chatboard/src/model/hooks/artifact-head-hooks"
-import { Wrapper } from "@/react-chatboard/src/components/layout/main-layout";
+import { useHeadEnv } from "../../../model/hooks/artifact-head-hooks"
+import { Wrapper } from "../../../components/layout/main-layout";
 import { Play } from "lucide-react";
-import { useArtifactLayout } from "@/react-chatboard/src/hooks/layout-hook";
+import { useArtifactLayout } from "../../../hooks/layout-hook";
 import { useRouter } from "next/router";
 
 

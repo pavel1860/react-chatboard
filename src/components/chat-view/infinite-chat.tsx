@@ -2,7 +2,7 @@ import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssetItem } from "../../services/chatboard-service";
-import { Chip, Spinner } from '@nextui-org/react';
+import { Chip, Spinner } from '@heroui/react';
 import { BaseArtifactType } from '../../model/services/model-service';
 
 

@@ -1,6 +1,6 @@
 import { useDropzone } from 'react-dropzone'
 // import { DropzoneWrapper } from "./dropzone"
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react"
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react"
 import { useCallback, useEffect, useState } from 'react'
 import { CircleX, FileCheck, X } from 'lucide-react'
 import { z } from "zod";

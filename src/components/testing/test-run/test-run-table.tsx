@@ -1,5 +1,5 @@
 import { TestRunBaseSchema, TestRunSchema, useTestRunList } from "@/react-chatboard/src/services/testing-service"
-import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Selection } from "@nextui-org/react"
+import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Selection } from "@heroui/react"
 
 
 

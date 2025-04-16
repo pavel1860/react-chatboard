@@ -46,7 +46,7 @@ import { on } from "events";
 import KeyPressPlugin from "./plugins/key-press";
 import ResizeWrapperPlugin from "./plugins/resize-wrapper-plugin";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 
 
 

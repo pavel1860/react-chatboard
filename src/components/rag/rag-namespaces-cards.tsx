@@ -1,7 +1,7 @@
 import { IRagSpaces } from "../../services/chatboard-service";
 import Link from "next/link";
 
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import { ClassParametersType } from "../../../src/state/metadata-state";
 
 

@@ -133,21 +133,21 @@ export const useAllTurns = (headers: ArtifactLogHeaders) => {
 };
 
 export const useBranchTurns = (branchId: number | null): SWRResponse<TurnType[]> => {
-    const env = useHeadEnv();
+    
     return useSWR<TurnType[]>(
-        branchId ? [BASE_URL + `/turns/${branchId}`, env] : null,
-        ([url, env]) => fetcher(url, env).then(data => z.array(TurnSchema).parse(data))
+        branchId ? [BASE_URL + `/turns/${branchId}`] : null,
+        ([url]) => fetcher(url, { branchId: branchId }).then(data => z.array(TurnSchema).parse(data))
     );
 };
 
 
-export const useUpdateTurn = (turnId: number) => {
-    const currHead = useVersionHead();
+export const useUpdateTurn = (turnId: number, head?: VersionHead) => {
+    // const currHead = useVersionHead();
     return useMutationHook<TurnType, TurnType>(
         `${BASE_URL}/turns/update/${turnId}`,
         // env,
         {
-            head: currHead,
+            head: head,
             callbacks: {
                 onSuccess: (data) => {
                     // mutate();

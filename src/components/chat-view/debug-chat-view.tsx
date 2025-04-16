@@ -1,5 +1,5 @@
 import { useChatBot } from "../../hooks/chatbot-hook"
-import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react"
+import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react"
 import { Bot, Ellipsis, SquareChevronRight, User } from "lucide-react"
 import { useCallback, useState } from "react"
 import PromptTextEditor from "../promptEditor/editors/promptTextEditor"

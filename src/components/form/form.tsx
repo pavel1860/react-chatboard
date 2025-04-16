@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler, Controller, useFieldArray, Control, UseFormRegister, UseFormHandleSubmit, FieldErrors, Field, UseFieldArrayAppend, UseFieldArrayRemove } from 'react-hook-form';
 import { ZodSchema, ZodTypeAny, z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, Select, SelectItem, Skeleton, Form, Button } from '@nextui-org/react';
+import { Input, Select, SelectItem, Skeleton, Form, Button } from '@heroui/react';
 import { CirclePlus, X } from 'lucide-react';
 
 

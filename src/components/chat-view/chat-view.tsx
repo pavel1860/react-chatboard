@@ -3,7 +3,7 @@ import createModelService from "../../model/services/model-service";
 import { MessageBubble, MessageContent, MessageFooter, MessageText, MessageTime } from "./chat-message";
 import InfiniteChat from "./infinite-chat"
 import { z, ZodSchema } from "zod";
-import { Button, Chip } from "@nextui-org/react";
+import { Button, Chip } from "@heroui/react";
 import { ChatInput } from "../editor/input";
 import { EditorValue } from "../editor/util";
 import { useHeadEnv } from "../../model/hooks/artifact-head-hooks";

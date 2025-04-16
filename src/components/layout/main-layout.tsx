@@ -1,5 +1,5 @@
 import { useArtifact } from '../../stores/chat-store';
-import { Button, Navbar, NavbarBrand, Tab, Tabs } from '@nextui-org/react';
+import { Button, Navbar, NavbarBrand, Tab, Tabs } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Columns2, PanelLeft, PanelRight, X } from 'lucide-react';
 import VersionTree from '../tree/version-tree';

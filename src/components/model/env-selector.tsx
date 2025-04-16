@@ -1,6 +1,6 @@
 
 import { useModelEnv } from "../../state/model-env";
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 
 
 

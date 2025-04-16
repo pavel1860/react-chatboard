@@ -5,11 +5,13 @@ interface VersionTreeContextType {
     toggleTurn: (turnId: number) => void;
     isExpanded: (turnId: number) => boolean;
     refetchChat?: () => void;
+    branchId: number;
+    setBranchId: (branchId: number) => void;
 }
 
 const VersionTreeContext = createContext<VersionTreeContextType | undefined>(undefined);
 
-export function VersionTreeProvider({ children, refetchChat }: { children: React.ReactNode, refetchChat?: () => void }) {
+export function VersionTreeProvider({ children, refetchChat, branchId, setBranchId }: { children: React.ReactNode, refetchChat?: () => void, branchId: number, setBranchId: (branchId: number) => void }) {
     const [expandedTurns, setExpandedTurns] = useState<Set<number>>(new Set());
 
     const toggleTurn = (turnId: number) => {
@@ -27,7 +29,7 @@ export function VersionTreeProvider({ children, refetchChat }: { children: React
     const isExpanded = (turnId: number) => expandedTurns.has(turnId);
 
     return (
-        <VersionTreeContext.Provider value={{ expandedTurns, toggleTurn, isExpanded, refetchChat }}>
+        <VersionTreeContext.Provider value={{ expandedTurns, toggleTurn, isExpanded, refetchChat, branchId, setBranchId }}>
             {children}
         </VersionTreeContext.Provider>
     );

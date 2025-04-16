@@ -1,4 +1,4 @@
-import { Button, Chip } from "@nextui-org/react"
+import { Button, Chip } from "@heroui/react"
 import { useRunState } from "../state/runsContext"
 import { RunProps } from "../types"
 import { ErrorPopup } from "../stateJsonView"

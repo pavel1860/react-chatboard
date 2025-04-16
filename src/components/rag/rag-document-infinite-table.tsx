@@ -6,7 +6,7 @@ import { useAsyncList } from "@react-stately/data";
 import { useRag } from "../../state/rag-state";
 import Link from "next/link";
 import { JSONTree } from 'react-json-tree'
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@heroui/react";
 import React, { useEffect } from "react";
 import { getRagDocumentsApi } from "../../services/rag-service";
 import { ClassParametersType, getTableColumns } from "../../state/metadata-state";

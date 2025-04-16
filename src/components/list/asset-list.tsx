@@ -1,5 +1,5 @@
 import { formatDateTime } from "../../util/time"
-import { Avatar, Input, Listbox, ListboxItem, Skeleton, Selection, Badge, Link, Tabs, Tab, Button } from "@nextui-org/react"
+import { Avatar, Input, Listbox, ListboxItem, Skeleton, Selection, Badge, Link, Tabs, Tab, Button } from "@heroui/react"
 import { Search } from "lucide-react"
 import { useEffect, useState } from "react"
 

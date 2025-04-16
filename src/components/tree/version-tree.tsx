@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { useAllTurns, useBranchTurns, useUpdateTurn } from '../../model/services/artifact-log-service';
-import { useChatStore } from '../../stores/chat-store';
-import { useHeadEnv } from '../../model/hooks/artifact-head-hooks';
-import { Button, Chip, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@nextui-org/react';
+import { useBranchTurns, useUpdateTurn } from '../../model/services/artifact-log-service';
+import { Button, Chip, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@heroui/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
 import { Ellipsis, Eye, EyeOff, GitMerge, GitPullRequest, TextSearch } from 'lucide-react';
 import { useSideView } from '../../stores/layout-store';
@@ -39,7 +37,7 @@ const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
                     if (newStatus.length > 0) {
                         await updateTurn({ status: newStatus[0] })
                         refetch()
-                        refetchChat()
+                        refetchChat && refetchChat()
                     }
                 }}
             >
@@ -94,11 +92,10 @@ const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
 
 // Component to render a single turn node
 function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, refetch: () => void }) {
-    const { isExpanded, toggleTurn } = useVersionTree();
+    const { isExpanded, toggleTurn, branchId, setBranchId, refetchChat } = useVersionTree();
     const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
-    const { trigger: updateTurn } = useUpdateTurn(turn.id)
+    const { trigger: updateTurn } = useUpdateTurn(turn.id, { branchId: branchId })
     const { setSideView, setTraceId } = useSideView()
-    const { refetchChat } = useVersionTree()
     return (
         <div
             style={{
@@ -194,7 +191,8 @@ function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, r
                             const newStatus = turn.status === 'committed' ? 'reverted' : 'committed'
                             await updateTurn({ status: newStatus })
                             refetch()
-                            refetchChat()
+                            refetchChat && refetchChat()
+                            setBranchId(branchId)
                         }}>
                             {turn.status === 'committed' ? <Eye size={15} color="gray" /> : <EyeOff size={15} color="gray" />}
                         </Button>}
@@ -224,9 +222,9 @@ function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, r
 
 // Component to fetch and render turns for a given forked branch.
 function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }) {
-    const { selectedHeadId, selectedBranchId, setSelectedBranchId } = useChatStore();
-    const headers = { head_id: String(selectedHeadId) };
-    const { data: turns, isLoading, error, mutate } = useBranchTurns(branch.id, headers);
+    const { branchId, setBranchId } = useVersionTree()
+    // const headers = { head_id: String(selectedHeadId) };
+    const { data: turns, isLoading, error, mutate } = useBranchTurns(branch.id);
 
     if (isLoading)
         return (
@@ -247,7 +245,7 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
             </div>
         );
 
-    const isSelected = selectedBranchId === branch.id
+    const isSelected = branchId === branch.id
 
     return (
         <div style={{
@@ -290,7 +288,7 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
                         size="sm"
                         color={isSelected ? "primary" : "secondary"}
                         variant={isSelected ? 'solid' : 'bordered'}
-                        onClick={() => setSelectedBranchId(branch.id)}
+                        onClick={() => setBranchId(branch.id)}
                         startContent={<GitMerge size={16} color={isSelected ? 'white' : 'purple'} className='mx-2' />}
                     ><span className='text-sm '>#{branch.id}</span></Button>
                     <span className='text-sm mx-3 text-gray-500'>{branch.name}</span>
@@ -308,11 +306,11 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
 // which uses the `/all_turns` endpoint.
 function MasterBranchTree() {
     // const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
-    const { branchId, setBranchId } = useHeadEnv()
+    const { branchId, setBranchId } = useVersionTree()
     const mainBranchId = 1
-    const headers = { head_id: String(mainBranchId) };
-    console.log("MasterBranchTree", mainBranchId, headers)
-    const { data: turns, isLoading, error, mutate } = useBranchTurns(mainBranchId ?? null, headers);
+    // const headers = { head_id: String(mainBranchId) };
+    console.log("MasterBranchTree", mainBranchId)
+    const { data: turns, isLoading, error, mutate } = useBranchTurns(mainBranchId ?? null);
 
     if (!mainBranchId) return <div>No head selected</div>;
 
@@ -348,11 +346,11 @@ function MasterBranchTree() {
 }
 
 // Main component wraps the tree with the context provider
-function VersionTree({ refetchChat }: { refetchChat?: () => void }) {
+function VersionTree({ branchId, setBranchId, refetchChat }: { branchId: number, setBranchId: (branchId: number) => void, refetchChat?: () => void }) {
     return (
-        <VersionTreeProvider refetchChat={refetchChat}>
+        <VersionTreeProvider branchId={branchId} setBranchId={setBranchId} refetchChat={refetchChat}>
             <div className="p-10">
-                <MasterBranchTree />
+                <MasterBranchTree  />
             </div>
         </VersionTreeProvider>
     );

@@ -3,7 +3,7 @@ import { useUsers } from '@/src/hooks/useUsers';
 import List, { ListItemProps } from '@/react-chatboard/src/components/list/list2';
 import { User } from 'lucide-react';
 import { useChangeManagerHead, useGetManagerList } from '@/src/services/manager-service';
-import { ListboxItem } from '@nextui-org/react';
+import { ListboxItem } from '@heroui/react';
 import { useGetTestCaseList } from '@/react-chatboard/src/services/testing-service';
 import { useRouter } from 'next/navigation';
 
