@@ -9,6 +9,7 @@ interface TracerViewProps {
 
 
 export const TracerView = ({ traceId }: TracerViewProps) => {
+    
     return (
         <DagRouterProvider>
             <RunsContextProvider id={traceId}>

@@ -15,7 +15,7 @@ interface InfiniteChatProps<M extends BaseArtifactType> {
     width?: string
     height?: string
     fetchMore: () => void,
-    children: (message: M, idx: number, prevMessage?: M) => React.ReactNode
+    children: (message: M, idx: number, messages?: M[]) => React.ReactNode
     loading?: boolean
 }
 
@@ -85,7 +85,7 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                                 transition={{ duration: 0.3 }}
                             >
                             
-                            {children(message, idx, prevMessage)}
+                            {children(message, idx, messages)}
                         </motion.div>
                     )
                     })}

@@ -92,10 +92,10 @@ const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
 
 // Component to render a single turn node
 function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, refetch: () => void }) {
-    const { isExpanded, toggleTurn, branchId, setBranchId, refetchChat } = useVersionTree();
+    const { isExpanded, toggleTurn, branchId, setBranchId, refetchChat, setTraceId } = useVersionTree();
     const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
     const { trigger: updateTurn } = useUpdateTurn(turn.id, { branchId: branchId })
-    const { setSideView, setTraceId } = useSideView()
+    
     return (
         <div
             style={{
@@ -179,7 +179,7 @@ function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, r
                             </span>
                         )}
                         {turn.trace_id && <Button size="sm" isIconOnly variant="light" color="default" onClick={() => {
-                            setSideView("tracer-view")
+                            // setSideView("tracer-view")
                             setTraceId(turn.trace_id as string)
                         }}>
                             <TextSearch size={15} color="gray" />
@@ -345,10 +345,19 @@ function MasterBranchTree() {
     );
 }
 
+
+
+interface VersionTreeProps {
+    branchId: number
+    setBranchId: (branchId: number) => void
+    setTraceId: (traceId: string) => void
+    refetchChat?: () => void
+}
+
 // Main component wraps the tree with the context provider
-function VersionTree({ branchId, setBranchId, refetchChat }: { branchId: number, setBranchId: (branchId: number) => void, refetchChat?: () => void }) {
+function VersionTree({ branchId, setBranchId, setTraceId, refetchChat }: VersionTreeProps) {
     return (
-        <VersionTreeProvider branchId={branchId} setBranchId={setBranchId} refetchChat={refetchChat}>
+        <VersionTreeProvider branchId={branchId} setBranchId={setBranchId} setTraceId={setTraceId} refetchChat={refetchChat}>
             <div className="p-10">
                 <MasterBranchTree  />
             </div>

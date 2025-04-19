@@ -17,7 +17,7 @@ export interface ChatContextType<T> {
     loading: boolean;
     error: Error | null;
     sending: boolean;
-    sendMessage: (message: T, toolCalls?: ToolCall[], state?: any, fromMessageId?: string | null, sessionId?: string | null, files?: any) => Promise<void>;
+    sendMessage: (message: T | string, toolCalls?: ToolCall[], state?: any, fromMessageId?: string | null, sessionId?: string | null, files?: any) => Promise<void>;
     mutate: () => void;
     branchId: number;
     setBranchId: (branchId: number) => void;
@@ -33,6 +33,9 @@ export interface ChatContextType<T> {
 export interface ChatOptions {
     completeUrl: string
 }
+
+
+
 
 
 export const createChatProvider = <T extends AnyZodObject>(
@@ -75,7 +78,7 @@ export const createChatProvider = <T extends AnyZodObject>(
 
     
         const sendMessage = useCallback(async (
-            message: T, 
+            message: T | string, 
             toolCalls?: ToolCall[],
             state?: any,
             handler?: (toolCall: ToolCall) => void,
@@ -86,15 +89,30 @@ export const createChatProvider = <T extends AnyZodObject>(
             try {
                 setSending(true);
                 
-                const mock_message = {
-                    // @ts-ignore
-                    id: history && history.length > 0 ? history[0].id + 1 : 10000,
-                    score: -1,
-                    // @ts-ignore
-                    turn_id: history && history.length > 0 ? history[0].turn_id + 1 : 1,
-                    created_at: new Date().toISOString(),
-                    ...message,
-                } as T & BaseArtifactType;
+
+                const build_mock_message = (message: T | string) => {
+                    let msg = {
+                        // @ts-ignore
+                            id: history && history.length > 0 ? history[0].id + 1 : 10000,
+                            content: message,
+                            role: "user",
+                            choices: [],
+                            tool_calls: [],
+                            run_id: null,
+                            score: -1,
+                            // @ts-ignore
+                            turn_id: history && history.length > 0 ? history[0].turn_id + 1 : 1,
+                            // created_at: new Date().toISOString(),
+                        }
+                    if (typeof message === "string") {
+                        msg.content = message
+                    } else {
+                        msg = {...msg, ...message}
+                    }
+                    return msg as T & BaseArtifactType;
+                }
+
+                const mock_message = build_mock_message(message)                
                 
                 const optimisticData = [mock_message, ...(history || [])];
                 
@@ -137,7 +155,7 @@ export const createChatProvider = <T extends AnyZodObject>(
                 
                 await mutate(
                     sendMessageRequest(
-                        message, 
+                        mock_message, 
                         state, 
                         history || [], 
                         files

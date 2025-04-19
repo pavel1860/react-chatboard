@@ -32,6 +32,7 @@ const TAG_STYLES: any = {
   'Scene Type:': 'inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10',
   'Idea:': 'inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10',
   'Script:': 'inline-flex items-center rounded-md bg-red-200 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10',
+  'UserInput:': 'inline-flex items-center rounded-md bg-red-200 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10',
   
 } 
 

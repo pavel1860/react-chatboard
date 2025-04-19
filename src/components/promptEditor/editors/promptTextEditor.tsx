@@ -5,12 +5,19 @@ import {LexicalComposer} from '@lexical/react/LexicalComposer';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
 import {ContentEditable} from '@lexical/react/LexicalContentEditable';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
-
+import { $convertFromMarkdownString, TRANSFORMERS } from '@lexical/markdown';
+import {MarkdownShortcutPlugin} from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import {HeadingNode, QuoteNode} from '@lexical/rich-text';
+import { ListNode, ListItemNode } from '@lexical/list';
+import { CodeNode } from '@lexical/code';
+import { LinkNode } from '@lexical/link';
+import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 
 // import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { $createAgentActionNode, AgentActionNode } from './nodes/AgentActionNode';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 
 
 // Lexical React plugins are React components, which makes them
@@ -107,10 +114,18 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
   const initialConfig = {
     namespace: 'MyEditor',
     editable: notEditable ? false : true,
+    editorState: () => $convertFromMarkdownString(text, TRANSFORMERS),
     // theme: {...theme},
     theme,
     onError,
-    // nodes: [
+    nodes: [
+      HeadingNode,
+      QuoteNode,
+      ListNode,
+      ListItemNode,
+      CodeNode,
+      LinkNode,
+      HorizontalRuleNode,
     //   AgentActionNode,
     //   {
     //     replace: TextNode,
@@ -118,7 +133,7 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
     //       return $createAgentActionNode(node.__text) 
     //     }
     //   }
-    // ]
+    ]
   };
 
   
@@ -126,21 +141,12 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
   const [editorState, setEditorState] = useState();
 
 
-  // function onChange(editorState) {
-  //   // Call toJSON on the EditorState object, which produces a serialization safe string
-  //   const root = $getRoot();
-  //   const currenText = root.getAllTextNodes().map(textNode => textNode.getTextContent()).join(' ')
-  //   const editorStateJSON = editorState.toJSON();
-  //   // However, we still have a JavaScript object, so we need to convert it to an actual string with JSON.stringify
-  //   setEditorState(JSON.stringify(editorStateJSON));
-  //   onChangeText && onChangeText(currenText)
-  // }
-
   return (
     <div className='relative'>
     <LexicalComposer initialConfig={initialConfig}>
       <OnChangeInitialTextPlugin initialText={text} isCompact={isCompact || false}/>
       <OnChangeEditablePlugin notEditable={notEditable === undefined ? false : notEditable }/>
+      <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
       <PlainTextPlugin
         contentEditable={<ContentEditable className="resize-none text-[15px] caret-[#444] relative tab-[1] outline-none" />}
         placeholder={<div className='text-[#999] overflow-hidden absolute truncate top-0 left-[10px] text-[15px] select-none inline-block pointer-events-none'>Enter some text...</div>}

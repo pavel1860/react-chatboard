@@ -1,11 +1,43 @@
-import React from 'react';
-import PromptTextEditor from './editors/promptTextEditor';
+import React, { useEffect, useState } from 'react';
+import PromptTextEditor from './editors/promptTextEditor2';
 import { useDagDisplayRouter } from './state/dagRouterContext'
 import { JsonState } from './stateJsonView';
 import { ModelType } from '../../types/run-tree';
-import { Chip } from '@heroui/react';
-import { Bot, BrainCircuit, Hammer, Settings, User } from 'lucide-react';
+import { Button, Card, CardBody, CardHeader, Chip } from '@heroui/react';
+import { Bot, BrainCircuit, ChevronsDownUp, ChevronsRightLeft, Copy, CopyCheck, Expand, Hammer, Settings, User } from 'lucide-react';
 import { JSONTree } from 'react-json-tree';
+import { useCopyToClipboard } from '../../util/clipboard';
+
+
+
+interface MessageContentProps {
+    message: MessageType    
+    onChange?: (text: string) => void
+    notEditable?: boolean
+    isCompact?: boolean
+}
+
+function MessageContent({message, onChange, notEditable, isCompact}: MessageContentProps) {
+
+    // const [isExpended, setIsExpended] = useState(isCompact)
+    const isExpended = !isCompact
+
+    // const content = isExpended ? message.content : message.content.slice(0, 100) + "..."
+
+    // if (!isExpended) {
+    //     return (
+    //         <div key={`${message.id}-${isExpended}`}>
+    //             <Button onClick={() => setIsExpended(true)} isIconOnly variant="light" color='primary' startContent={<Expand />} />
+    //         </div>
+    //     )
+    // }
+    return (
+        <div key={`${message.id}-${isExpended}`}>
+            {/* <Button onClick={() => setIsExpended(false)} isIconOnly variant="light" startContent={<ChevronsRightLeft />} /> */}
+            <PromptTextEditor text={message.content} onChange={onChange} notEditable={notEditable} />
+        </div>
+    )
+}
 
 
 
@@ -139,31 +171,60 @@ export const MessageCard = ({children}: {children: React.ReactNode}) => {
     )
 }
 
+
+
+
+const ClipboardButton = ({ text, copyText }: { text: string, copyText: string }) => {
+    const { copied, handleCopy } = useCopyToClipboard(copyText);
+    text = text || ""
+    return (
+        <Button 
+            color="primary" 
+            radius="full" 
+            size='sm' 
+            onPress={handleCopy} 
+            isIconOnly 
+            startContent={copied ? <CopyCheck size={15} /> : <Copy size={15}/>} 
+            variant="light"
+        />
+    )
+}
+
+
 export const Message = ({ message, isEditable, controls, isExpended, onChange }: MessageProps) => {
     const { role, content } = message
 
+    const [expended, setExpended] = useState(isExpended || false)
+
+    useEffect(() => {
+        setExpended(isExpended || false)
+    }, [isExpended])
+
 
     // const isExample = content ? content.search("EXAMPLE") > -1 : false
-    console.log(message)
+    console.log(message,"fd")
 
     return (
-        <MessageCard>        
+        <Card shadow="sm" isPressable={expended == false} onPress={() => setExpended(true)} fullWidth>        
             {/* <span className={`p-1 px-2 border-1 rounded-lg ${role == "system" ? "bg-orange-400" : role == "user" ? "bg-blue-400" : "bg-red-400"} text-stone-50`}>
                 {role}
             </span>
             {isExample && <span className='p-1 px-2 shadow-sm border-1 rounded-lg bg-purple-600 text-slate-50' >Example</span>} */}
-            <MessageHeader>
+            <CardHeader>
                 <MessageRoleTag role={role}/>
                 {message.tool_call_id && <Chip size="sm" startContent={<Hammer size={15} />} variant="bordered" color="default">{message.tool_call_id}</Chip>}
-            </MessageHeader>
+                {expended && <Button isIconOnly variant="light" color='primary' startContent={<ChevronsDownUp size={15}  />} onPress={() => setExpended(false)} />}
+                <ClipboardButton  copyText={message.content} />
+                {/* {expended ? <span>Expended</span> : <span>Compact</span>} */}
+            </CardHeader>
+            <CardBody>
             
-            <PromptTextEditor 
-                paragraphLabel={role === "assistant" ? "editor-paragraph-output" : "editor-paragraph-input"} 
-                text={content as string} 
+            {expended && <MessageContent
+                message={message} 
                 notEditable={!isEditable} 
-                isCompact={!isExpended}
+                isCompact={!expended}
                 onChangeText={onChange}
-            />
+            />}
             {message.tool_calls?.length > 0 && <div className='w-full flex'>
                 {/* <JSONTree data={message.tool_calls} /> */}
                 {message.tool_calls.map((tool_call: any, index: number) => (
@@ -177,7 +238,8 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
                 {/* <ExampleKeyButton message={message}/>
                 <ExampleValueButton message={message}/> */}
             </div>
-        </MessageCard>
+            </CardBody>
+        </Card>
     )
 }
 
@@ -194,14 +256,14 @@ const GeneratedMessageContent = ({message, modelType}: {message: MessageType, mo
             if (block.type === "text"){
                 blocks.push(
                     <div>
-                        <PromptTextEditor paragraphLabel={role === "assistant" ? "editor-paragraph-output" : "editor-paragraph-input"} text={block.text} notEditable isCompact/>                        
+                        <MessageContent message={message} notEditable isCompact/>                        
                     </div>
                 )
             }
         }
         return blocks
     } else if (modelType === "openai") {
-        return <PromptTextEditor paragraphLabel={role === "assistant" ? "editor-paragraph-output" : "editor-paragraph-input"} text={content as string} notEditable isCompact/>
+        return <MessageContent message={message} notEditable isCompact/>
     } else {
         throw new Error("unknown model type");
     }
@@ -254,20 +316,23 @@ export const GeneratedMessage = ({ message, model, modelType, controls }: Messag
     const { currentDisplay, setCurrentDisplay, editExample } = useDagDisplayRouter()
 
     return (
-        <MessageCard>
-            <MessageHeader>
+        <Card shadow="sm" fullWidth>
+            <CardHeader>
                 <MessageRoleTag role={"assistant"}/>
                 <Chip
                     variant="light"
                     startContent={<BrainCircuit size={20} />}
-                color="danger"
-            >
+                    color="danger"
+                >
                     {model}
                 </Chip>
-            </MessageHeader>
-            <GeneratedMessageContent message={message} modelType={modelType}/>
-            <GeneratedMessageTools message={message} modelType={modelType}/>
-        </MessageCard>
+                <ClipboardButton  copyText={message.content} />
+            </CardHeader>
+            <CardBody>
+                <GeneratedMessageContent message={message} modelType={modelType}/>
+                <GeneratedMessageTools message={message} modelType={modelType}/>
+            </CardBody>
+        </Card>
     )
 
     return (

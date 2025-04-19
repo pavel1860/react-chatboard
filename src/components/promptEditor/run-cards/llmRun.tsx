@@ -62,6 +62,7 @@ export const LlmRun = ({run, name}: LlmRunProps ) => {
                 ((!isHistoryHidden) || (idx == inLen - 1)) && 
                 <div key={`input-msg-${idx}`} className='w-full p-2 py-1'>
                     <Message message={message}
+                        isExpended={idx == inLen - 1 || false}
                         controls={[
                             <ExampleKeyButton key={"ex-key-btn"} message={message} namespace={name}/>,
                             <ExampleValueButton key={"ex-val-btn"} message={message} namespace={name}/>
