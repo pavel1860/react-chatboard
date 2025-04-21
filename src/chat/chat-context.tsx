@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useState, useCallback } from "react";
+import { createContext, useContext, ReactNode, useState, useCallback, useRef } from "react";
 import { AnyZodObject, z } from "zod";
 import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
 import { useVersionHead } from "../model/hooks/artifact-head-hooks";
@@ -19,6 +19,7 @@ export interface ChatContextType<T> {
     sending: boolean;
     sendMessage: (message: T | string, toolCalls?: ToolCall[], state?: any, fromMessageId?: string | null, sessionId?: string | null, files?: any) => Promise<void>;
     mutate: () => void;
+    useToolCall: (handlerFunc: (toolCall: ToolCall) => void) => void;
     branchId: number;
     setBranchId: (branchId: number) => void;
     turnId: number | undefined;
@@ -74,6 +75,7 @@ export const createChatProvider = <T extends AnyZodObject>(
         // const baseUrl = "/api/ai/chat"
         const model = "Message"
         const [sending, setSending] = useState(false);
+        const handlerRef = useRef<((toolCall: ToolCall) => void) | undefined>(undefined)
 
 
     
@@ -120,6 +122,7 @@ export const createChatProvider = <T extends AnyZodObject>(
                     const formData = new FormData();
                     formData.append("message_json", JSON.stringify(message));
                     formData.append("state_json", JSON.stringify(state || {}));
+                    formData.append("tool_calls_json", JSON.stringify(toolCalls))
                     if (files) {
                         formData.append('file', files);
                     }
@@ -175,7 +178,10 @@ export const createChatProvider = <T extends AnyZodObject>(
     
         return {
             sendMessage,
-            sending
+            sending,
+            registerHandler: (handler: (toolCall: ToolCall) => void) => {
+                handlerRef.current = handler
+            }
         }
     }
     
@@ -195,11 +201,16 @@ export const createChatProvider = <T extends AnyZodObject>(
             mutate: mutateMessages
         } = useMessageList(branchId, turnId, partitionId)
 
-        const { sendMessage, sending } = useSendMessage(messages || [] as any, mutateMessages, {
+        const { sendMessage, sending, registerHandler } = useSendMessage(messages || [] as any, mutateMessages, {
             branchId,
             turnId,
             partitionId,
         })
+
+
+        const useToolCall = useCallback((handlerFunc: (toolCall: ToolCall) => void) => {
+            registerHandler(handlerFunc)
+        }, [registerHandler])
 
         return (
             <ChatContext.Provider value={{
@@ -208,6 +219,7 @@ export const createChatProvider = <T extends AnyZodObject>(
                 error: messagesError,
                 sending,
                 sendMessage,
+                useToolCall,
                 mutate: mutateMessages,
                 branchId,
                 setBranchId,
