@@ -17,9 +17,9 @@ interface MutationOptions<Params, Data> {
 export async function sendRequest<Params, Data>(endpoint: string, data: Params, { schema, head, method = 'POST' }: MutationOptions<Params, Data>): Promise<Data> {
 
     const headers = buildHeaders({
-        "partition_id": head.partitionId,
-        "branch_id": head.branchId,
-        "turn_id": head.turnId,        
+        "partition_id": head?.partitionId,
+        "branch_id": head?.branchId,
+        "turn_id": head?.turnId,        
     }, "json")
 
     const res = await fetch(endpoint, {

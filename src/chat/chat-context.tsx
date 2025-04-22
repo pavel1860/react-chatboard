@@ -122,7 +122,8 @@ export const createChatProvider = <T extends AnyZodObject>(
                     const formData = new FormData();
                     formData.append("message_json", JSON.stringify(message));
                     formData.append("state_json", JSON.stringify(state || {}));
-                    formData.append("tool_calls_json", JSON.stringify(toolCalls))
+                    formData.append("tool_calls_json", JSON.stringify(toolCalls || []))
+                    
                     if (files) {
                         formData.append('file', files);
                     }
@@ -146,7 +147,8 @@ export const createChatProvider = <T extends AnyZodObject>(
                         for (const message of responseMessages) {
                             if (message.tool_calls.length > 0) {
                                 for (const tool_call of message.tool_calls) {
-                                    handler && handler(tool_call)
+                                    // handler && handler(tool_call)
+                                    handlerRef.current && handlerRef.current(tool_call)
                                 }
                             }
                         }

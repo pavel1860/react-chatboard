@@ -49,7 +49,7 @@ export class RunTreeContext {
             id: `${this.id}_output`,
             role: 'output',
             content: this.outputs.content    
-        }] || this.outputs.choices?.map(
+        }] || this.outputs?.choices?.map(
             (choice :any)=>(choice.message)
         ) || []
         return outMessages

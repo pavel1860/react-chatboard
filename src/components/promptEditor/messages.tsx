@@ -3,7 +3,7 @@ import PromptTextEditor from './editors/promptTextEditor2';
 import { useDagDisplayRouter } from './state/dagRouterContext'
 import { JsonState } from './stateJsonView';
 import { ModelType } from '../../types/run-tree';
-import { Button, Card, CardBody, CardHeader, Chip } from '@heroui/react';
+import { Button, Card, CardBody, CardHeader, Chip, Popover, PopoverContent, PopoverTrigger } from '@heroui/react';
 import { Bot, BrainCircuit, ChevronsDownUp, ChevronsRightLeft, Copy, CopyCheck, Expand, Hammer, Settings, User } from 'lucide-react';
 import { JSONTree } from 'react-json-tree';
 import { useCopyToClipboard } from '../../util/clipboard';
@@ -229,7 +229,14 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
                 {/* <JSONTree data={message.tool_calls} /> */}
                 {message.tool_calls.map((tool_call: any, index: number) => (
                     <div key={index}>
-                        <Chip size="sm" startContent={<Hammer size={15} />} variant="bordered" color="default">{tool_call.id}</Chip>
+                        <Popover showArrow offset={20} placement="bottom">
+                            <PopoverTrigger>
+                                <Chip size="sm" startContent={<Hammer size={15} />} variant="bordered" color="default">{tool_call.id}</Chip>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                <JsonState data={tool_call} />
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 ))}
             </div>}

@@ -77,6 +77,7 @@ const editorConfig = {
 
 export interface ChatInputProps {
     placeholder: string | undefined;
+    width?: string;
     file?: any;
     removeFile?: () => void;
     onChange?: (e: EditorValue) => void;
@@ -85,7 +86,7 @@ export interface ChatInputProps {
     bgColor?: string;
 }
 
-export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor, file, removeFile}: ChatInputProps) {
+export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor, file, removeFile, width="100%"}: ChatInputProps) {
 
     const [rows, setRows] = useState(2 + (file ? 2 : 0));
     // const [rows, setRows] = useState(2);
@@ -106,10 +107,13 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
             <div 
                 // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}                
                 // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm text-left font-normal leading-5 text-gray-900`}
-                className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm text-left font-normal leading-5 text-gray-900`}
+                className={`relative mx-auto overflow-hidden my-5 max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm text-left font-normal leading-5 text-gray-900`}
                 key={`editor-${dependentVersion}`}
                 
-                style={{height: `${rows * 25}px`}}
+                style={{
+                    height: `${rows * 25}px`,
+                    width: width
+                }}
                 data-testid="chat-input"
             >                
             {file && <div className="bg-slate-200 inline-flex p-2 rounded-md flex-grow-0 border-1 border-slate-400">
