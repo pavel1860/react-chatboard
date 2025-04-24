@@ -84,9 +84,22 @@ export interface ChatInputProps {
     onKeyPress?: (e: EditorValue) => void;
     dontClear?: boolean;
     bgColor?: string;
+    borderColor?: string;
+    endContent?: React.ReactNode;
 }
 
-export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor, file, removeFile, width="100%"}: ChatInputProps) {
+export function ChatInput({
+        placeholder, 
+        onChange, 
+        onKeyPress, 
+        dontClear, 
+        bgColor, 
+        borderColor = "#E0E0E0",
+        file, 
+        removeFile, 
+        width="100%",
+        endContent
+    }: ChatInputProps) {
 
     const [rows, setRows] = useState(2 + (file ? 2 : 0));
     // const [rows, setRows] = useState(2);
@@ -112,21 +125,24 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                 
                 style={{
                     height: `${rows * 25}px`,
-                    width: width
+                    width: width,
+                    borderColor: borderColor
                 }}
                 data-testid="chat-input"
-            >                
-            {file && <div className="bg-slate-200 inline-flex p-2 rounded-md flex-grow-0 border-1 border-slate-400">
-                    <File />{file.name.slice(0,10)} file
-                    <Button onClick={removeFile} isIconOnly variant="light" size="sm"><X /></Button>
-                    </div> }
+            >    
+            {endContent && <div className="absolute bottom-[-5px] right-0 flex justify-end items-center">{endContent}</div>}            
+            {
+                file && <div className="bg-slate-200 inline-flex p-2 rounded-md flex-grow-0 border-1 border-slate-400">
+                            <File />{file.name.slice(0,10)} file
+                            <Button onClick={removeFile} isIconOnly variant="light" size="sm"><X /></Button>
+                        </div> 
+            }
                 {/* <ToolbarPlugin /> */}
                 <div 
                     // className="relative rounded-b-lg border border-opacity-5 bg-white"
                     // className="relative rounded-md bg-gray-100 shadow-sm"
                     style={{backgroundColor: bgColor || "#FFFFFF"}}
-                >
-                
+                >                    
                     <RichTextPlugin
                         contentEditable={
                             <ContentEditable className="lexical min-h-[280px] resize-none px-2.5 py-2 text-base caret-gray-900 outline-none" />
@@ -147,6 +163,7 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                             }
                         })                        
                     }} />
+                    
                     <AutoFocusPlugin />
                     <ListPlugin />
                     <LinkPlugin />
@@ -154,8 +171,11 @@ export function ChatInput({placeholder, onChange, onKeyPress, dontClear, bgColor
                     <ResizeWrapperPlugin setRows={(r) => {
                         console.log('setRows', r)
                         setRows(r)
-                    }}/>
+                    }}/> 
+                                       
+                    
                 </div>
+                {/* <div className="flex justify-end">bla bla bla</div> */}
                 
             </div>
             

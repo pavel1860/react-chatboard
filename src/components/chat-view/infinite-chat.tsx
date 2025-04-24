@@ -17,13 +17,36 @@ interface InfiniteChatProps<M extends BaseArtifactType> {
     fetchMore: () => void,
     children: (message: M, idx: number, messages?: M[]) => React.ReactNode
     loading?: boolean
+    emptyMessage?: string | React.ReactNode
+    endMessage?: string | React.ReactNode
 }
 
 
 
+const buildEndMessage = <M extends BaseArtifactType>(messages: M[], emptyMessage?: string | React.ReactNode, endMessage?: string | React.ReactNode) => {
+    if (messages.length > 0) {
+        if (typeof endMessage === "string") {
+            return <p className="text-center m-5">{endMessage}</p>
+        }
+        return endMessage
+    } else {
+        return emptyMessage
+    }
+}
 
 
-export default function InfiniteChat<M extends BaseArtifactType>({messages, children, width, height, fetchMore, gap, loading}: InfiniteChatProps<M>) {
+
+export default function InfiniteChat<M extends BaseArtifactType>({
+        messages, 
+        children, 
+        width, 
+        height, 
+        fetchMore, 
+        gap, 
+        loading, 
+        emptyMessage = "No messages", 
+        endMessage = "No more messages"
+    }: InfiniteChatProps<M>) {
     
     const MAX_DATA = 1000;
 
@@ -48,7 +71,8 @@ export default function InfiniteChat<M extends BaseArtifactType>({messages, chil
                 loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
                 // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
                 // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
-                endMessage={<p className="text-center m-5">{messages.length > 0 ? "No more messages" : "No messages"}</p>}
+                // endMessage={<p className="text-center m-5">{messages.length > 0 ? endMessage : emptyMessage}</p>}
+                endMessage={buildEndMessage(messages, emptyMessage, endMessage)}
                 style={{ 
                     display: "flex", 
                     flexDirection: "column-reverse", 
