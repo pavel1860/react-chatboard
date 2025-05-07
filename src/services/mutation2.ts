@@ -1,26 +1,22 @@
 import { z, ZodSchema } from "zod";
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { useModelEnv } from "../state/model-env";
-import { VersionHead } from "./fetcher3";
+import { ModelContextType } from "../model/services/model-context";
 import { buildHeaders } from "./utils";
 
 
 
 
-interface MutationOptions<Params, Data> {
+interface MutationOptions<Params, Data, CTX extends ModelContextType> {
     schema?: ZodSchema<Data>;
     // data: Params;
     method?: string;
-    head: VersionHead
+    ctx: CTX
 }
 
-export async function sendRequest<Params, Data>(endpoint: string, data: Params, { schema, head, method = 'POST' }: MutationOptions<Params, Data>): Promise<Data> {
+export async function sendRequest<Params, Data, CTX extends ModelContextType>(endpoint: string, data: Params, { schema, ctx, method = 'POST' }: MutationOptions<Params, Data, CTX>): Promise<Data> {
 
-    const headers = buildHeaders({
-        "partition_id": head?.partitionId,
-        "branch_id": head?.branchId,
-        "turn_id": head?.turnId,        
-    }, "json")
+    const headers = buildHeaders(ctx, "json")
 
     const res = await fetch(endpoint, {
         method,
@@ -43,10 +39,10 @@ export async function sendRequest<Params, Data>(endpoint: string, data: Params, 
 
 
 
-interface UseMutationOptions<Params, Data> {
+interface UseMutationOptions<Params, Data, CTX extends ModelContextType> {
     schema?: ZodSchema<Data>;
     // model: string;
-    head: VersionHead;
+    ctx: CTX;
     // id?: string;
     method?: string;
     callbacks?: {
@@ -55,9 +51,7 @@ interface UseMutationOptions<Params, Data> {
     };
 }
 
-export function useMutationHook<Params, Data>(endpoint: string, { schema, callbacks, head, method = 'POST' }: UseMutationOptions<Params, Data>): SWRMutationResponse<Data, Error> {
-    // const endpoint = id ? `${model}/update/${id}` : `${model}/create`;
-    
+export function useMutationHook<Params, Data, CTX extends ModelContextType>(endpoint: string, { schema, callbacks, ctx, method = 'POST' }: UseMutationOptions<Params, Data, CTX>): SWRMutationResponse<Data, Error> {
 
     const { trigger, data, error, isMutating, reset } = useSWRMutation<Data>(
         // `/api/model/${endpoint}`,
@@ -66,7 +60,7 @@ export function useMutationHook<Params, Data>(endpoint: string, { schema, callba
             if (!endpoint) {
                 throw new Error("Endpoint is not defined");
             }
-            const response = await sendRequest<Params, Data>(endpoint, arg, { schema, head, method });
+            const response = await sendRequest<Params, Data, CTX>(endpoint, arg, { schema, ctx, method });
             return response;
         },
         {

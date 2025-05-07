@@ -1,5 +1,6 @@
 import { AnyZodObject, z, ZodSchema } from "zod";
 import { useModelEnv } from "../state/model-env";
+import { buildModelContextHeaders, ModelContextType } from "../model/services/model-context";
 
 
 export interface ApiError {
@@ -8,26 +9,20 @@ export interface ApiError {
     details?: unknown;
 }
 
-export interface VersionHead {
-    headId?: number | null;
-    branchId?: number | null;
-    turnId?: number | null;
-    partitionId?: number | null;
-}
 
 
-export interface FetcherOptions<T extends AnyZodObject> {
+
+export interface FetcherOptions<T extends AnyZodObject, CTX extends ModelContextType> {
     schema?: T;
     queryParams?: Record<string, any>;
-    head?: VersionHead;
+    ctx?: CTX
 }
 
 
 
 
 
-export async function fetcher<T extends AnyZodObject>(endpoint: string, { schema, queryParams, head }: FetcherOptions<T>): Promise<T> {
-
+export async function fetcher<T extends AnyZodObject, CTX extends ModelContextType>(endpoint: string, { schema, queryParams, ctx }: FetcherOptions<T, CTX>): Promise<T> {
 
     let url = `${endpoint}`;
 
@@ -40,56 +35,21 @@ export async function fetcher<T extends AnyZodObject>(endpoint: string, { schema
         url += `?${params.toString()}`;
     }
 
-    const headers: any = {}
-    if (head) {
-        // headers["env"] = env
-        if (head.headId) {
-            headers["head_id"] = head.headId
-        }
-        if (head.branchId) {
-            headers["branch_id"] = head.branchId
-        }
-        if (head.turnId) {
-            headers["turn_id"] = head.turnId
-        }
-        if (head.partitionId) {
-            headers["partition_id"] = head.partitionId
-        } else{
-            console.error("no partition")
-        }
-    } else {
-        console.error(`no head found for ${endpoint}`)
-        throw new Error("No head is passed to the fetcher");
-        
-    }
-    
+    const headers: any = buildModelContextHeaders(ctx)
 
     const res = await fetch(url, { headers });
-
-    if (!res.ok) {
-        // const errorText = await res.text();
-        // throw new Error(`Failed to fetch ${endpoint}: ${res.status} ${errorText}`);
-        const errorData = await res.json().catch(() => null);
-        throw {
-            status: res.status,
-            message: errorData?.message || res.statusText,
-            details: errorData
-        };
-    }
-
+    
     const data = await res.json();
-    // return schema.parse(data); // Validate data using Zod schema
+    if (!res.ok) throw { status: res.status, message: data?.message || res.statusText, details: data };
+
     if (data == null || data == undefined) {
         throw new Error(`Failed to fetch ${endpoint}: ${res.status} returned null response`);
     }
     if (schema) {
         const result = schema.safeParse(data);
-        if (result.success) {
-            return result.data;
-        } else {
-            console.error(result.error.errors);
-            throw new Error(`Failed to parse data: ${result.error.errors}`);
-        }
+        if (result.success) return result.data;        
+        console.error(result.error.errors);
+        throw new Error(`Failed to parse data: ${result.error.errors}`);        
     }
     return data;
 }

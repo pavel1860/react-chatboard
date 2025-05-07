@@ -85,7 +85,7 @@ export interface ChatInputProps {
     dontClear?: boolean;
     bgColor?: string;
     borderColor?: string;
-    endContent?: React.ReactNode;
+    endContent?: (e: EditorValue) => React.ReactNode;
 }
 
 export function ChatInput({
@@ -130,7 +130,7 @@ export function ChatInput({
                 }}
                 data-testid="chat-input"
             >    
-            {endContent && <div className="absolute bottom-[-5px] right-0 flex justify-end items-center">{endContent}</div>}            
+            {/* {endContent && <div className="absolute bottom-[-5px] right-0 flex justify-end items-center">{endContent(editorState)}</div>}             */}
             {
                 file && <div className="bg-slate-200 inline-flex p-2 rounded-md flex-grow-0 border-1 border-slate-400">
                             <File />{file.name.slice(0,10)} file

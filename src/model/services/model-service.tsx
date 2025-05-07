@@ -2,12 +2,10 @@ import useSWR, { SWRResponse, useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { AnyZodObject, z, ZodSchema } from "zod";
 // import { useModelEnv } from "../state/model-env";
-import { useHeadEnv } from "../hooks/artifact-head-hooks";
 import { useMutationHook } from "../../services/mutation";
-import { fetcher, VersionHead } from "../../services/fetcher3";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { BaseHeadSchema } from "../../services/head-model-service";
-import { useQueryBuilder } from "../../services/query-builder";
+import { fetcher } from "../../services/fetcher3";
+import { DefaultFilter, useQueryBuilder, UseQueryBuilderHook } from "../../services/query-builder";
+import { ModelContextType, ModelContextSchema } from "./model-context";
 
 
 
@@ -21,23 +19,23 @@ export type ModelServiceOptions = {
 
 
 
-export interface ModelService<T extends AnyZodObject> {
+export interface ModelService<T extends AnyZodObject, CTX extends ModelContextType> {
     useModel: <M extends z.infer<T>>(id: string | number | undefined, filters?: DefaultFilter<M>) => SWRResponse<M | null>
-    useModelList: <M extends z.infer<T>>(limit?: number, offset?: number, filters?: DefaultFilter<T>[], env?: VersionHead, isActive?: boolean) => SWRResponse<M[]> & UseQueryBuilderHook<M>
-    useLastModel: <M extends z.infer<T>>(partitions: any, filters?: DefaultFilter<M>) => SWRResponse<M | null>
-    useCreateModel: <M extends z.infer<T>>(env?: VersionHead) => SWRMutationResponse<M, Error>
-    useUpdateModel: <M extends z.infer<T>>(id?: string, env?: VersionHead) => SWRMutationResponse<M, Error>
-    useDeleteModel: <M extends z.infer<T>>(id?: string, env?: VersionHead) => SWRMutationResponse<M, Error>
+    useModelList: <M extends z.infer<T>>(limit?: number, offset?: number, filters?: DefaultFilter<T>[], ctx?: CTX, isActive?: boolean) => SWRResponse<M[]> & UseQueryBuilderHook<M>
+    useLastModel: <M extends z.infer<T>>(filters?: DefaultFilter<M>, ctx?: CTX) => SWRResponse<M | null>
+    useCreateModel: <M extends z.infer<T>>(ctx?: CTX) => SWRMutationResponse<M, Error>
+    useUpdateModel: <M extends z.infer<T>>(id: string | number | undefined | null, ctx?: CTX) => SWRMutationResponse<M, Error>
+    useDeleteModel: <M extends z.infer<T>>(id: string | number | undefined | null, ctx?: CTX) => SWRMutationResponse<M, Error>
 }
 
 
 
-export default function createModelService<T extends AnyZodObject>(model: string, schema: T, options: ModelServiceOptions = {}): ModelService<T> {
+export default function createModelService<T extends AnyZodObject, CTX extends ModelContextType>(model: string, schema: T, options: ModelServiceOptions = {}): ModelService<T, CTX> {
     const { baseUrl = "/api/ai/model" } = options;
     
     // type ModelArtifactType = T & BaseArtifactType
 
-    function useModel<M extends z.infer<T>>(id: string | number | undefined, head: VersionHead = {} ): SWRResponse<M | null> {        
+    function useModel<M extends z.infer<T>>(id: string | number | undefined, ctx: CTX): SWRResponse<M | null> {        
 
         // Prepare query parameters with filters
         const queryParams: Record<string, any> = {};
@@ -46,17 +44,16 @@ export default function createModelService<T extends AnyZodObject>(model: string
 
 
         //@ts-ignore
-        return useSWR<M | null>(
-            id ? [`${baseUrl}/${model}/id/${id}`, env] : null,
-            ([url, env]) => fetcher({
+        return useSWR<T>(
+            id ? [`${baseUrl}/${model}/id/${id}`, ctx] : null,
+            ([url, ctx]) => fetcher<T, CTX>(url, {
                 schema,
-                endpoint: url,
-                head
+                ctx: ctx
             })
         );
     }
 
-    function useModelList<M extends z.infer<T>>(limit: number = 10, offset: number = 0, defaultFilters: DefaultFilter<T>[] = [], head: VersionHead = {}, isActive: boolean = true): SWRResponse<M[]> & UseQueryBuilderHook<M> {
+    function useModelList<M extends z.infer<T>>(limit: number = 10, offset: number = 0, defaultFilters: DefaultFilter<T>[] = [], ctx: CTX, isActive: boolean = true): SWRResponse<M[]> & UseQueryBuilderHook<M> {
 
         const { filters, where, build, reset, queryString } = useQueryBuilder(schema, defaultFilters);
 
@@ -72,13 +69,13 @@ export default function createModelService<T extends AnyZodObject>(model: string
 
         //@ts-ignore
         const getModelList = useSWR<M[]>(
-            isActive ? [`${baseUrl}/${model}/list`, limit, offset, queryString, head, head.branchId, head.turnId] : null,
-            ([url, limit, offset, queryString, env]) => fetcher({
-                schema: z.array(schema),
-                endpoint: url,
-                queryParams,
-                head
-            })
+            isActive ? [`${baseUrl}/${model}/list`, limit, offset, queryString, ctx] : null,
+            ([url, limit, offset, queryString, ctx]) => fetcher(
+                url, {
+                    schema: z.array(schema),
+                    queryParams,
+                    ctx: ctx
+                })
         );
 
         return {
@@ -91,7 +88,7 @@ export default function createModelService<T extends AnyZodObject>(model: string
         }
     }
 
-    function useLastModel<M extends z.infer<T>>(partitions: any, head: VersionHead = {}) {
+    function useLastModel<M extends z.infer<T>>(partitions: any, ctx: CTX = {}) {
         // const env = useHeadEnv();
 
         // Prepare query parameters with partitions and filters
@@ -104,35 +101,34 @@ export default function createModelService<T extends AnyZodObject>(model: string
 
         //@ts-ignore
         return useSWR<M | null>(
-            [`${baseUrl}/${model}/last`, partitions, head],
-            ([url, partitions, head]) => fetcher({
+            [`${baseUrl}/${model}/last`, partitions, ctx],
+            ([url, partitions, ctx]) => fetcher<T, CTX>(url, {
                 schema,
-                endpoint: url,
                 queryParams,
-                head
+                ctx
             })
         );
     }
 
-    function useCreateModel<M extends z.infer<T>>(head: VersionHead = {}) {
+    function useCreateModel<M extends z.infer<T>>(ctx: CTX) {
         // const env = useHeadEnv();
 
         //@ts-ignore
-        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}/create`, env });
+        return useMutationHook<M, M>({ schema, endpoint: `${baseUrl}/${model}/create`, ctx });
     }
 
-    function useUpdateModel<M extends z.infer<T> >(id?: string | number, head: VersionHead = {}) {
+    function useUpdateModel<M extends z.infer<T> >(id: string | number | undefined | null, ctx: CTX) {
         // const env = useHeadEnv();
 
         //@ts-ignore
-        return useMutationHook<M, M>({ schema, endpoint: id && `${baseUrl}/${model}/update/${id}`, head });
+        return useMutationHook<M, M>({ schema, endpoint: id && `${baseUrl}/${model}/update/${id}`, ctx });
     }
 
-    function useDeleteModel<M extends z.infer<T>>(id?: string | number, head: VersionHead = {}) {
+    function useDeleteModel<M extends z.infer<T>>(id: string | number | undefined | null, ctx: CTX) {
         // const env = useHeadEnv();
 
         //@ts-ignore
-        return useMutationHook<M, M>({ schema, endpoint: id && `${baseUrl}/${model}/delete/${id}`, head });
+        return useMutationHook<M, M>({ schema, endpoint: id && `${baseUrl}/${model}/delete/${id}`, ctx });
     }
 
     return {
