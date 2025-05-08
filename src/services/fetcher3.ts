@@ -12,30 +12,30 @@ export interface ApiError {
 
 
 
-export interface FetcherOptions<T extends AnyZodObject, CTX extends ModelContextType> {
-    schema?: T;
-    queryParams?: Record<string, any>;
-    ctx?: CTX
+export interface FetcherOptions<Ctx, Params, Model> {
+    schema?: ZodSchema<Model>;
+    params?: Params extends Record<string, unknown> ? Record<string, unknown> : never;
+    ctx: Ctx
 }
 
 
 
 
 
-export async function fetcher<T extends AnyZodObject, CTX extends ModelContextType>(endpoint: string, { schema, queryParams, ctx }: FetcherOptions<T, CTX>): Promise<T> {
+export async function fetcher<Ctx, Params, Model>(endpoint: string, { schema, params, ctx }: FetcherOptions<Ctx, Params, Model>): Promise<Model> {
 
     let url = `${endpoint}`;
 
-    if (queryParams) {
-        const params = new URLSearchParams(
-            Object.entries(queryParams)
+    if (params) {
+        const urlParams = new URLSearchParams(
+            Object.entries(params)
                 .filter(([_, value]) => value != null)
                 .map(([key, value]) => [key, String(value)])
         );
-        url += `?${params.toString()}`;
+        url += `?${urlParams.toString()}`;
     }
 
-    const headers: any = buildModelContextHeaders(ctx)
+    const headers: any = buildModelContextHeaders<Ctx>(ctx)
 
     const res = await fetch(url, { headers });
     

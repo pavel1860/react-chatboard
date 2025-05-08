@@ -1,9 +1,9 @@
 import { createContext, useContext, ReactNode, useState, useCallback, useRef } from "react";
-import { AnyZodObject, z } from "zod";
-import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
-import { useVersionHead } from "../model/hooks/artifact-head-hooks";
+import { AnyZodObject, z, ZodSchema } from "zod";
+// import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
+import createModelService from "../model/services/model-service2";
 import { buildHeaders } from "../services/utils";
-import { VersionHead } from "../services/fetcher3";
+
 
 
 export interface ToolCall {
@@ -39,9 +39,10 @@ export interface ChatOptions {
 
 
 
-export const createChatProvider = <T extends AnyZodObject>(
+export const createChatProvider = <Ctx, Message>(
     messageName: string, 
-    messageSchema: T, 
+    messageSchema: ZodSchema<Ctx & Message>,
+    defualtCtx: Ctx       
     // handler?: (
     //     toolCall: any, 
     // ) => void
@@ -49,30 +50,27 @@ export const createChatProvider = <T extends AnyZodObject>(
 
     
     const {
-        ArtifactSchema: MessageArtifactSchema,
-        useArtifactList: useMessageList,
-        useArtifact: useMessage,
-        useCreateArtifact: useCreateMessage,
-        useUpdateArtifact: useUpdateMessage,
-    } = createArtifactService(messageName, messageSchema)
+        useModelList: useMessageList,
+        useModel: useMessage,
+        useCreateModel: useCreateMessage,
+        useUpdateModel: useUpdateMessage,
+    } = createModelService<Ctx, Message>(messageName, messageSchema)
 
-    const ChatContext = createContext<ChatContextType<any>>({} as ChatContextType<any>);
+    const ChatContext = createContext<ChatContextType<Message>>({} as ChatContextType<Message>);
 
-    interface ChatProviderProps<T> {
+    interface ChatProviderProps<Message> {
         children: ReactNode;
     }
 
     function useSendMessage(
-        history: T[], 
+        history: Message[], 
         mutate: (data: any, options?: any) => Promise<any>,
-        head: VersionHead = {},
+        ctx: Ctx,
         options: ChatOptions = {
             completeUrl: "/api/ai/complete"
         }
     ) {
-        // const head = useVersionHead()
-        // const { mutate } = useSWRConfig();
-        // const baseUrl = "/api/ai/chat"
+
         const model = "Message"
         const [sending, setSending] = useState(false);
         const handlerRef = useRef<((toolCall: ToolCall) => void) | undefined>(undefined)
@@ -80,7 +78,7 @@ export const createChatProvider = <T extends AnyZodObject>(
 
     
         const sendMessage = useCallback(async (
-            message: T | string, 
+            message: Message | string, 
             toolCalls?: ToolCall[],
             state?: any,
             handler?: (toolCall: ToolCall) => void,
@@ -92,7 +90,7 @@ export const createChatProvider = <T extends AnyZodObject>(
                 setSending(true);
                 
 
-                const build_mock_message = (message: T | string) => {
+                const build_mock_message = (message: Message | string) => {
                     let msg = {
                         // @ts-ignore
                             id: history && history.length > 0 ? history[0].id + 1 : 10000,
@@ -111,14 +109,14 @@ export const createChatProvider = <T extends AnyZodObject>(
                     } else {
                         msg = {...msg, ...message}
                     }
-                    return msg as T & BaseArtifactType;
+                    return msg as (Message & Ctx);
                 }
 
                 const mock_message = build_mock_message(message)                
                 
                 const optimisticData = [mock_message, ...(history || [])];
                 
-                const sendMessageRequest = async (message: T, state: any, messageHistory: any[], files?: any) => {
+                const sendMessageRequest = async (message: Message, state: any, messageHistory: any[], files?: any) => {
                     const formData = new FormData();
                     formData.append("message_json", JSON.stringify(message));
                     formData.append("state_json", JSON.stringify(state || {}));
@@ -175,7 +173,7 @@ export const createChatProvider = <T extends AnyZodObject>(
             } finally {
                 setSending(false);
             }
-        }, [head, history, mutate]);
+        }, [ctx, history, mutate]);
     
     
         return {
@@ -192,23 +190,16 @@ export const createChatProvider = <T extends AnyZodObject>(
         children,  
     }: ChatProviderProps<T>) {
 
-        const [branchId, setBranchId] = useState<number>(1)
-        const [turnId, setTurnId] = useState<number | undefined>(undefined)
-        const [partitionId, setPartitionId] = useState<number | undefined>(undefined)
+        const [ctx, setCtx] = useState<Ctx>(defualtCtx as Ctx)
 
         const {
             data: messages,
             isLoading: loading,
             error: messagesError,
             mutate: mutateMessages
-        } = useMessageList(branchId, turnId, partitionId)
+        } = useMessageList(ctx)
 
-        const { sendMessage, sending, registerHandler } = useSendMessage(messages || [] as any, mutateMessages, {
-            branchId,
-            turnId,
-            partitionId,
-        })
-
+        const { sendMessage, sending, registerHandler } = useSendMessage(messages || [] as any, mutateMessages, ctx)
 
         const useToolCall = useCallback((handlerFunc: (toolCall: ToolCall) => void) => {
             registerHandler(handlerFunc)
@@ -223,12 +214,8 @@ export const createChatProvider = <T extends AnyZodObject>(
                 sendMessage,
                 useToolCall,
                 mutate: mutateMessages,
-                branchId,
-                setBranchId,
-                turnId,
-                setTurnId,
-                partitionId,
-                setPartitionId,
+                ctx,
+                setCtx,
             }}>
                 {children}
             </ChatContext.Provider>
@@ -236,7 +223,7 @@ export const createChatProvider = <T extends AnyZodObject>(
     }
 
     function useChat<T>() {
-        return useContext(ChatContext) as ChatContextType<T>;
+        return useContext(ChatContext) as ChatContextType<Message>;
     }
 
 
@@ -244,7 +231,6 @@ export const createChatProvider = <T extends AnyZodObject>(
     return {
         ChatProvider,
         useChat,
-        MessageArtifactSchema,
         useMessageList,
         useMessage,
         useCreateMessage,
