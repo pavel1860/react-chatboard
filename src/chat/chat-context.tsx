@@ -3,6 +3,7 @@ import { AnyZodObject, z, ZodSchema } from "zod";
 // import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
 import createModelService from "../model/services/model-service2";
 import { buildHeaders } from "../services/utils";
+import { buildModelContextHeaders } from "../model/services/model-context";
 
 
 
@@ -12,20 +13,23 @@ export interface ToolCall {
 }
 
 
-export interface ChatContextType<T> {
+export interface ChatContextType<Ctx, T> {
     messages: T[];
     loading: boolean;
     error: Error | null;
     sending: boolean;
-    sendMessage: (message: T | string, toolCalls?: ToolCall[], state?: any, fromMessageId?: string | null, sessionId?: string | null, files?: any) => Promise<void>;
+    sendMessage: (
+        message: T | string, 
+        toolCalls?: ToolCall[], 
+        state?: any, 
+        fromMessageId?: string | null, 
+        sessionId?: string | null, 
+        files?: any
+    ) => Promise<void>;
     mutate: () => void;
     useToolCall: (handlerFunc: (toolCall: ToolCall) => void) => void;
-    branchId: number;
-    setBranchId: (branchId: number) => void;
-    turnId: number | undefined;
-    setTurnId: (turnId: number) => void;
-    partitionId: number | undefined;
-    setPartitionId: (partitionId: number) => void;
+    ctx: Ctx;
+    setCtx: (ctx: Ctx) => void;
 }
 
 
@@ -39,9 +43,9 @@ export interface ChatOptions {
 
 
 
-export const createChatProvider = <Ctx, Message>(
+export const createChatProvider = <Ctx, Payload, Message>(
     messageName: string, 
-    messageSchema: ZodSchema<Ctx & Message>,
+    messageSchema: ZodSchema<Message>,
     defualtCtx: Ctx       
     // handler?: (
     //     toolCall: any, 
@@ -54,9 +58,9 @@ export const createChatProvider = <Ctx, Message>(
         useModel: useMessage,
         useCreateModel: useCreateMessage,
         useUpdateModel: useUpdateMessage,
-    } = createModelService<Ctx, Message>(messageName, messageSchema)
+    } = createModelService<Ctx, Payload, Message>(messageName, messageSchema)
 
-    const ChatContext = createContext<ChatContextType<Message>>({} as ChatContextType<Message>);
+    const ChatContext = createContext<ChatContextType<Ctx, Message>>({} as ChatContextType<Ctx, Message>);
 
     interface ChatProviderProps<Message> {
         children: ReactNode;
@@ -71,7 +75,6 @@ export const createChatProvider = <Ctx, Message>(
         }
     ) {
 
-        const model = "Message"
         const [sending, setSending] = useState(false);
         const handlerRef = useRef<((toolCall: ToolCall) => void) | undefined>(undefined)
 
@@ -81,7 +84,7 @@ export const createChatProvider = <Ctx, Message>(
             message: Message | string, 
             toolCalls?: ToolCall[],
             state?: any,
-            handler?: (toolCall: ToolCall) => void,
+            // handler?: (toolCall: ToolCall) => void,
             fromMessageId?: string | null, 
             sessionId?: string | null,
             files?: any
@@ -109,7 +112,7 @@ export const createChatProvider = <Ctx, Message>(
                     } else {
                         msg = {...msg, ...message}
                     }
-                    return msg as (Message & Ctx);
+                    return msg as (Message);
                 }
 
                 const mock_message = build_mock_message(message)                
@@ -126,13 +129,7 @@ export const createChatProvider = <Ctx, Message>(
                         formData.append('file', files);
                     }
                     
-                    const headers = buildHeaders({
-                        "partition_id": head.partitionId,
-                        "branch_id": head.branchId,
-                        "turn_id": head.turnId,
-                        "from_message_id": fromMessageId,
-                        "session_id": sessionId
-                    })
+                    const headers = buildModelContextHeaders<Ctx>(ctx, 'form')
                     
                     const res = await fetch(options.completeUrl, {
                         method: "POST",
@@ -141,7 +138,7 @@ export const createChatProvider = <Ctx, Message>(
                     });
                     if (res.ok) {
                         const responseMessages = await res.json();
-                        console.log("### responseMessages", responseMessages)
+                        // console.log("### responseMessages", responseMessages)
                         for (const message of responseMessages) {
                             if (message.tool_calls.length > 0) {
                                 for (const tool_call of message.tool_calls) {
@@ -197,7 +194,7 @@ export const createChatProvider = <Ctx, Message>(
             isLoading: loading,
             error: messagesError,
             mutate: mutateMessages
-        } = useMessageList(ctx)
+        } = useMessageList<Ctx, Payload, Message>(ctx)
 
         const { sendMessage, sending, registerHandler } = useSendMessage(messages || [] as any, mutateMessages, ctx)
 
@@ -222,8 +219,8 @@ export const createChatProvider = <Ctx, Message>(
         );
     }
 
-    function useChat<T>() {
-        return useContext(ChatContext) as ChatContextType<Message>;
+    function useChat<Ctx, Message>() {
+        return useContext(ChatContext) as ChatContextType<Ctx, Message>;
     }
 
 

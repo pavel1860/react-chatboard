@@ -15,33 +15,40 @@ import { ModelContextType } from "./model-context";
 
 
 
-export interface ModelService<Ctx, Model> {
-    ModelSchema: ZodSchema<Ctx & Model>
+export interface ModelService<Ctx, Payload, Model> {
     useModel: <Ctx, Model>(ctx?: Ctx) => SWRResponse<Ctx & Model | null>
-    useModelList: <Ctx, Model>(ctx?: Ctx, limit?: number, offset?: number, filters?: DefaultFilter<Model>[]) => SWRResponse<(Ctx & Model)[]> & UseQueryBuilderHook<Ctx & Model>
-    useLastModel: <Ctx, Model>(ctx?: Ctx, filters?: DefaultFilter<Model>) => SWRResponse<Ctx & Model | null>
-    useCreateModel: <Ctx, Model>(ctx?: Ctx) => SWRMutationResponse<Ctx & Model, Error>
-    useUpdateModel: <Ctx, Model>(ctx?: Ctx, id?: string) => SWRMutationResponse<Ctx & Model, Error>
-    useDeleteModel: <Ctx, Model>(ctx?: Ctx, id?: string) => SWRMutationResponse<Ctx & Model, Error>
+    useModelList: <Ctx, Payload, Model>(ctx?: Ctx, limit?: number, offset?: number, filters?: DefaultFilter<Model>[]) => SWRResponse<(Model)[]> & UseQueryBuilderHook<Model>
+    useLastModel: <Ctx, Payload, Model>(ctx?: Ctx, filters?: DefaultFilter<Model>) => SWRResponse<Ctx & Model | null>
+    useCreateModel: <Ctx, Payload, Model>(ctx?: Ctx) => SWRMutationResponse<Model, Error>
+    useUpdateModel: <Ctx, Payload, Model>(ctx?: Ctx, id?: string) => SWRMutationResponse<Model, Error>
+    useDeleteModel: <Ctx, Payload, Model>(ctx?: Ctx, id?: string) => SWRMutationResponse<Model, Error>
 }
 
 
 
-export default function createModelService<Ctx, Model>(model: string, schema: ZodSchema<Ctx & Model>, options: ModelServiceOptions = {}): ModelService<Ctx, Model> {
+export default function createModelService<Ctx, Payload, Model>(
+        model: string, 
+        schema: ZodSchema<Model>,
+        options: ModelServiceOptions = {}
+    ): ModelService<Ctx, Payload, Model> {
     const { baseUrl = "/api/ai/model" } = options;
-    
+    const modelUrl = `${baseUrl}/${model}`
+    const modelListUrl = `${baseUrl}/${model}/list`
+    const modelLastUrl = `${baseUrl}/${model}/last`
+    const modelCreateUrl = `${baseUrl}/${model}/create`
+    const modelUpdateUrl = `${baseUrl}/${model}/update`
+    const modelDeleteUrl = `${baseUrl}/${model}/delete`
 
     function useModel<Ctx, Model>(ctx?: Ctx) {
-        const url = `${baseUrl}/${model}`
-        return useSWR<Ctx, Model>(
-            ctx ? [url, ctx] : null,
-            ([url, ctx]: [string, Ctx]) => fetcher<Ctx, Model, Ctx & Model>(url, { schema, ctx })
+        return useSWR<Model>(
+            ctx ? [modelUrl, ctx] : null,
+            ([url, ctx]: [string, Ctx]) => fetcher<Ctx, never ,Model>(url, { schema, ctx })
         )
     }
 
 
 
-    function useModelList<Ctx, Model>(ctx?: Ctx, limit?: number, offset?: number, defaultFilters?: DefaultFilter<Model>[]) {
+    function useModelList<Ctx, Payload, Model>(ctx?: Ctx, limit?: number, offset?: number, defaultFilters?: DefaultFilter<Model>[]) {
         
         const { filters, where, build, reset, queryString } = useQueryBuilder(schema, defaultFilters);
 
@@ -53,10 +60,10 @@ export default function createModelService<Ctx, Model>(model: string, schema: Zo
             queryParams.filter = queryString;
         }
         //@ts-ignore
-        const getModelList = useSWR<(Ctx & Model)[]>(
-            ctx ? [`${baseUrl}/${model}/list`, ctx, queryString] : null,
+        const getModelList = useSWR<Model[]>(
+            ctx ? [modelListUrl, ctx, queryString] : null,
             ([url, ctx, queryString]: [string, Ctx, string]) => 
-                fetcher<Ctx, any, (Ctx & Model)[]>(url, { schema: z.array(schema), queryParams, ctx })
+                fetcher<Ctx, any, Model[]>(url, { schema: z.array(schema), queryParams, ctx })
         );
 
         return {
@@ -69,37 +76,6 @@ export default function createModelService<Ctx, Model>(model: string, schema: Zo
         }
     }
 
-    
-
-    // function useModelList<Ctx, Model>(ctx?: Ctx, limit?: number, offset?: number, defaultFilters?: DefaultFilter<Model>[]) {
-        
-    //     const { filters, where, build, reset, queryString } = useQueryBuilder(schema, defaultFilters);
-
-    //     // Prepare query parameters with pagination and filters
-    //     let queryParams: Record<string, any> = { limit, offset };
-    //     type CtxModel = Ctx & Model
-    //     if (filters.length > 0) {
-    //         // Send the filters as a stringified JSON array
-    //         queryParams.filter = queryString;
-    //     }
-    //     //@ts-ignore
-    //     const {data, isLoading, error, mutate} = useSWR<CtxModel[]>(
-    //         ctx ? [`${baseUrl}/${model}/list`, ctx, queryString] : null,
-    //         ([url, ctx, queryString]: [string, Ctx, string]) => 
-    //             fetcher<Ctx, any, CtxModel[]>(url, { schema: z.array(schema), queryParams, ctx })
-    //     );
-
-    //     console.log(data)
-
-    //     return {
-    //         // ...getModelList,
-    //         filters,
-    //         where,
-    //         build,
-    //         reset,
-    //         queryString,
-    //     }
-    // }
 
 
     function useLastModel<Ctx, Model>(ctx: Ctx, partitions: any, filters?: DefaultFilter<Model>) {        
@@ -111,28 +87,28 @@ export default function createModelService<Ctx, Model>(model: string, schema: Zo
         }
 
         return useSWR<Model | null>(
-            [`${baseUrl}/${model}/last`, queryParams, ctx],
-            ([url, queryParams, ctx]: [string, Record<string, any>, Ctx]) => fetcher<Ctx, undefined, Model>(url, { schema, queryParams, ctx })
+            [modelLastUrl, queryParams, ctx],
+            ([url, queryParams, ctx]: [string, Record<string, any>, Ctx]) => fetcher<Ctx, never, Model>(url, { schema, queryParams, ctx })
         )
     }
 
-    function useCreateModel<Ctx, Model>(ctx: Ctx) {
+    function useCreateModel<Ctx, Payload, Model>(ctx: Ctx) {
         
 
-        return useMutationHook<Ctx, Model, Ctx & Model>(`${baseUrl}/${model}`, { ctx, schema, method: 'POST' });
+        return useMutationHook<Ctx, Payload, Model>(modelCreateUrl, { ctx, schema, method: 'POST' });
     }
 
-    function useUpdateModel<Ctx, Model>(ctx: Ctx, modelId: string | undefined) {
-        return useMutationHook<Ctx, Model, Ctx & Model>(`${baseUrl}/${model}/${modelId}`, { ctx, schema, method: 'PUT' });
+    function useUpdateModel<Ctx, Payload, Model>(ctx: Ctx) {
+        return useMutationHook<Ctx, Payload, Model>(modelUpdateUrl, { ctx, schema, method: 'PUT' });
     }
 
-    function useDeleteModel<Ctx, Model>(ctx: Ctx, modelId: string | undefined) {
-        return useMutationHook<Ctx, Model, Ctx & Model>(`${baseUrl}/${model}/${modelId}`, { ctx, schema, method: 'DELETE' });
+    function useDeleteModel<Ctx, Payload, Model>(ctx: Ctx) {
+        return useMutationHook<Ctx, Payload, Model>(modelDeleteUrl, { ctx, schema, method: 'DELETE' });
     }
 
     return {
-        useModelList,
         useModel,
+        useModelList,        
         useLastModel,
         useCreateModel,
         useUpdateModel,
