@@ -65,7 +65,7 @@ export function buildModelContextHeaders<Ctx>(ctx?: Ctx, contentType?: 'json' | 
 
     if (contentType === 'json') {
         ctxEntries['Content-Type'] = 'application/json';
-    } else {
+    } else if (contentType === 'form') {
         ctxEntries['Content-Type'] = 'application/x-www-form-urlencoded';
     }
 

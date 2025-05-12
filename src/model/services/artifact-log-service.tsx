@@ -21,8 +21,9 @@ const BranchSchema = z.object({
     updated_at: z.string(),
     // branch_index: z.number(),
     // turn_counter: z.number(),
-    forked_from_turn_index: z.number().nullable(),
-    forked_from_branch_id: z.number().nullable()
+    forked_from_index: z.number().nullable(),
+    forked_from_branch_id: z.number().nullable(),
+    forked_from_turn_id: z.number().nullable(),
 });
 
 const TurnSchema = z.object({

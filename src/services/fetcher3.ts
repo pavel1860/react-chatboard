@@ -1,6 +1,6 @@
 import { AnyZodObject, z, ZodSchema } from "zod";
 import { useModelEnv } from "../state/model-env";
-import { buildModelContextHeaders, ModelContextType } from "../model/services/model-context";
+import { buildModelContextHeaders, convertKeysToCamelCase, ModelContextType } from "../model/services/model-context";
 
 
 export interface ApiError {
@@ -46,7 +46,7 @@ export async function fetcher<Ctx, Params, Model>(endpoint: string, { schema, pa
         throw new Error(`Failed to fetch ${endpoint}: ${res.status} returned null response`);
     }
     if (schema) {
-        const result = schema.safeParse(data);
+        const result = schema.safeParse(convertKeysToCamelCase(data));
         if (result.success) return result.data;        
         console.error(result.error.errors);
         throw new Error(`Failed to parse data: ${result.error.errors}`);        

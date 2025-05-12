@@ -15,22 +15,22 @@ import { ModelContextType } from "./model-context";
 
 
 
-export interface ModelService<Ctx, Payload, Model> {
-    useModel: <Ctx, Model>(ctx?: Ctx) => SWRResponse<Ctx & Model | null>
-    useModelList: <Ctx, Payload, Model>(ctx?: Ctx, limit?: number, offset?: number, filters?: DefaultFilter<Model>[]) => SWRResponse<(Model)[]> & UseQueryBuilderHook<Model>
-    useLastModel: <Ctx, Payload, Model>(ctx?: Ctx, filters?: DefaultFilter<Model>) => SWRResponse<Ctx & Model | null>
-    useCreateModel: <Ctx, Payload, Model>(ctx?: Ctx) => SWRMutationResponse<Model, Error>
-    useUpdateModel: <Ctx, Payload, Model>(ctx?: Ctx, id?: string) => SWRMutationResponse<Model, Error>
-    useDeleteModel: <Ctx, Payload, Model>(ctx?: Ctx, id?: string) => SWRMutationResponse<Model, Error>
+export interface ModelService<ID, Ctx, Payload, Model> {
+    useModel: (id: ID, ctx?: Ctx) => SWRResponse<Ctx & Model | null>
+    useModelList: <Ctx, Model>(ctx?: Ctx, limit?: number, offset?: number, filters?: DefaultFilter<Model>[]) => SWRResponse<(Model)[]> & UseQueryBuilderHook<Model>
+    useLastModel: <Ctx, Model>(ctx?: Ctx, filters?: DefaultFilter<Model>) => SWRResponse<Ctx & Model | null>
+    useCreateModel: (ctx?: Ctx) => SWRMutationResponse<Model, Error>
+    useUpdateModel: (id: ID, ctx?: Ctx) => SWRMutationResponse<Model, Error>
+    useDeleteModel: (id: ID, ctx?: Ctx) => SWRMutationResponse<Model, Error>
 }
 
 
 
-export default function createModelService<Ctx, Payload, Model>(
+export default function createModelService<ID, Ctx, Payload, Model>(
         model: string, 
         schema: ZodSchema<Model>,
         options: ModelServiceOptions = {}
-    ): ModelService<Ctx, Payload, Model> {
+    ): ModelService<ID, Ctx, Payload, Model> {
     const { baseUrl = "/api/ai/model" } = options;
     const modelUrl = `${baseUrl}/${model}`
     const modelListUrl = `${baseUrl}/${model}/list`
@@ -39,10 +39,10 @@ export default function createModelService<Ctx, Payload, Model>(
     const modelUpdateUrl = `${baseUrl}/${model}/update`
     const modelDeleteUrl = `${baseUrl}/${model}/delete`
 
-    function useModel<Ctx, Model>(ctx?: Ctx) {
+    function useModel<Ctx, Model>(id: ID, ctx?: Ctx) {
         return useSWR<Model>(
-            ctx ? [modelUrl, ctx] : null,
-            ([url, ctx]: [string, Ctx]) => fetcher<Ctx, never ,Model>(url, { schema, ctx })
+            ctx && id ? [modelUrl, id, ctx] : null,
+            ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(url, { schema, ctx })
         )
     }
 
@@ -59,6 +59,7 @@ export default function createModelService<Ctx, Payload, Model>(
             // Send the filters as a stringified JSON array
             queryParams.filter = queryString;
         }
+
         //@ts-ignore
         const getModelList = useSWR<Model[]>(
             ctx ? [modelListUrl, ctx, queryString] : null,
@@ -98,11 +99,11 @@ export default function createModelService<Ctx, Payload, Model>(
         return useMutationHook<Ctx, Payload, Model>(modelCreateUrl, { ctx, schema, method: 'POST' });
     }
 
-    function useUpdateModel<Ctx, Payload, Model>(ctx: Ctx) {
+    function useUpdateModel<ID, Ctx, Payload, Model>(id: ID, ctx: Ctx) {
         return useMutationHook<Ctx, Payload, Model>(modelUpdateUrl, { ctx, schema, method: 'PUT' });
     }
 
-    function useDeleteModel<Ctx, Payload, Model>(ctx: Ctx) {
+    function useDeleteModel<ID, Ctx, Payload, Model>(id: ID, ctx: Ctx) {
         return useMutationHook<Ctx, Payload, Model>(modelDeleteUrl, { ctx, schema, method: 'DELETE' });
     }
 

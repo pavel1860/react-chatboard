@@ -3,7 +3,7 @@ import { AnyZodObject, z, ZodSchema } from "zod";
 // import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
 import createModelService from "../model/services/model-service2";
 import { buildHeaders } from "../services/utils";
-import { buildModelContextHeaders } from "../model/services/model-context";
+import { buildModelContextHeaders, convertKeysToSnakeCase } from "../model/services/model-context";
 
 
 
@@ -19,7 +19,7 @@ export interface ChatContextType<Ctx, T> {
     error: Error | null;
     sending: boolean;
     sendMessage: (
-        message: T | string, 
+        content: string, 
         toolCalls?: ToolCall[], 
         state?: any, 
         fromMessageId?: string | null, 
@@ -43,7 +43,7 @@ export interface ChatOptions {
 
 
 
-export const createChatProvider = <Ctx, Payload, Message>(
+export const createChatProvider = <ID, Ctx, Payload, Message>(
     messageName: string, 
     messageSchema: ZodSchema<Message>,
     defualtCtx: Ctx       
@@ -58,12 +58,13 @@ export const createChatProvider = <Ctx, Payload, Message>(
         useModel: useMessage,
         useCreateModel: useCreateMessage,
         useUpdateModel: useUpdateMessage,
-    } = createModelService<Ctx, Payload, Message>(messageName, messageSchema)
+    } = createModelService<ID, Ctx, Payload, Message>(messageName, messageSchema)
 
     const ChatContext = createContext<ChatContextType<Ctx, Message>>({} as ChatContextType<Ctx, Message>);
 
     interface ChatProviderProps<Message> {
         children: ReactNode;
+        defaultCtx: Ctx;
     }
 
     function useSendMessage(
@@ -81,10 +82,9 @@ export const createChatProvider = <Ctx, Payload, Message>(
 
     
         const sendMessage = useCallback(async (
-            message: Message | string, 
+            content: string, 
             toolCalls?: ToolCall[],
             state?: any,
-            // handler?: (toolCall: ToolCall) => void,
             fromMessageId?: string | null, 
             sessionId?: string | null,
             files?: any
@@ -92,44 +92,30 @@ export const createChatProvider = <Ctx, Payload, Message>(
             try {
                 setSending(true);
                 
-
-                const build_mock_message = (message: Message | string) => {
-                    let msg = {
-                        // @ts-ignore
-                            id: history && history.length > 0 ? history[0].id + 1 : 10000,
-                            content: message,
-                            role: "user",
-                            choices: [],
-                            tool_calls: [],
-                            run_id: null,
-                            score: -1,
-                            // @ts-ignore
-                            turn_id: history && history.length > 0 ? history[0].turn_id + 1 : 1,
-                            // created_at: new Date().toISOString(),
-                        }
-                    if (typeof message === "string") {
-                        msg.content = message
-                    } else {
-                        msg = {...msg, ...message}
-                    }
-                    return msg as (Message);
+                const message = {
+                    content: content,
+                    choices: [],
+                    state: state,
+                    role: "user",
+                    toolCalls: toolCalls,
+                    runId: null,
                 }
 
-                const mock_message = build_mock_message(message)                
+                const messageMock = {
+                    ...message,
+                    id: history && history.length > 0 ? history[0].id + 1 : 10000,
+                    turnId: history && history.length > 0 ? history[0].turnId + 1 : 1,
+                    createdAt: new Date().toISOString(),
+                }
+                const optimisticData = [messageMock, ...(history || [])];
                 
-                const optimisticData = [mock_message, ...(history || [])];
-                
-                const sendMessageRequest = async (message: Message, state: any, messageHistory: any[], files?: any) => {
+                const sendMessageRequest = async (message: Payload, messageHistory: any[], files?: any) => {
                     const formData = new FormData();
-                    formData.append("message_json", JSON.stringify(message));
-                    formData.append("state_json", JSON.stringify(state || {}));
-                    formData.append("tool_calls_json", JSON.stringify(toolCalls || []))
-                    
+                    formData.append("message", JSON.stringify(convertKeysToSnakeCase(message)));                    
                     if (files) {
                         formData.append('file', files);
-                    }
-                    
-                    const headers = buildModelContextHeaders<Ctx>(ctx, 'form')
+                    }                    
+                    const headers = buildModelContextHeaders<Ctx>(ctx)
                     
                     const res = await fetch(options.completeUrl, {
                         method: "POST",
@@ -155,8 +141,7 @@ export const createChatProvider = <Ctx, Payload, Message>(
                 
                 await mutate(
                     sendMessageRequest(
-                        mock_message, 
-                        state, 
+                        message, 
                         history || [], 
                         files
                     ),
@@ -184,17 +169,18 @@ export const createChatProvider = <Ctx, Payload, Message>(
     
 
     function ChatProvider<T>({ 
-        children,  
+        children, 
+        defaultCtx 
     }: ChatProviderProps<T>) {
 
-        const [ctx, setCtx] = useState<Ctx>(defualtCtx as Ctx)
+        const [ctx, setCtx] = useState<Ctx>(defaultCtx as Ctx)
 
         const {
             data: messages,
             isLoading: loading,
             error: messagesError,
             mutate: mutateMessages
-        } = useMessageList<Ctx, Payload, Message>(ctx)
+        } = useMessageList<Ctx, Message>(ctx)
 
         const { sendMessage, sending, registerHandler } = useSendMessage(messages || [] as any, mutateMessages, ctx)
 
@@ -234,3 +220,4 @@ export const createChatProvider = <Ctx, Payload, Message>(
         useUpdateMessage,        
     }
 }
+
