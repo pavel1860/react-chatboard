@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useState, useCallback, useRef } from "react";
+import { createContext, useContext, ReactNode, useState, useCallback, useRef, useEffect } from "react";
 import { AnyZodObject, z, ZodSchema } from "zod";
 // import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
 import createModelService from "../model/services/model-service2";
@@ -206,6 +206,18 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
 
         const [ctx, setCtx] = useState<Ctx>(defaultCtx as Ctx)
 
+
+        useEffect(() => {
+            const tempPartitionId = localStorage.getItem('tempPartitionId')
+            const tempBranchId = localStorage.getItem('tempBranchId')
+            if (tempPartitionId && tempBranchId) {
+                setCtx({
+                    partitionId: parseInt(tempPartitionId),
+                    branchId: parseInt(tempBranchId),
+                    turnId: undefined,
+                } as Ctx)
+            }
+        }, [])
         const {
             data: messages,
             isLoading: loading,
@@ -227,6 +239,8 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
                         branchId: event.data.branch_id,
                         turnId: undefined,
                     })
+                    localStorage.setItem('tempPartitionId', event.data.partition_id);
+                    localStorage.setItem('tempBranchId', event.data.branch_id);
                 }
         })
 

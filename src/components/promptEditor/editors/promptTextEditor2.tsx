@@ -89,7 +89,8 @@ export default function MarkdownEditor({ text = '', onChange, notEditable }: Pro
         <LexicalComposer initialConfig={initialConfig}>
             <RichTextPlugin
                 placeholder={<span className="text-gray-400">Write Markdown…</span>}
-                contentEditable={<ContentEditable className="min-h-48 outline-none" />}
+                // contentEditable={<ContentEditable className="min-h-48 outline-none" />}
+                contentEditable={<ContentEditable className="outline-none" />}
             />
             <HistoryPlugin />
             <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
