@@ -71,13 +71,14 @@ const editorConfig = {
 
 type Props = {
     text?: string;
+    placeholder?: string;
     onChange?: (md: string) => void
     notEditable?: boolean
 };
 
 
 
-export default function MarkdownEditor({ text = '', onChange, notEditable }: Props) {
+export default function MarkdownEditor({ text = '', onChange, notEditable, placeholder }: Props) {
     const initialConfig = {
         ...editorConfig,
         editable: notEditable ? false : true,
@@ -88,7 +89,7 @@ export default function MarkdownEditor({ text = '', onChange, notEditable }: Pro
     return (
         <LexicalComposer initialConfig={initialConfig}>
             <RichTextPlugin
-                placeholder={<span className="text-gray-400">Write Markdown…</span>}
+                placeholder={placeholder && <span className="text-gray-400">{placeholder}</span>}
                 // contentEditable={<ContentEditable className="min-h-48 outline-none" />}
                 contentEditable={<ContentEditable className="outline-none" />}
             />

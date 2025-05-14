@@ -3,7 +3,7 @@ import { AnyZodObject, z, ZodSchema } from "zod";
 // import createArtifactService, { BaseArtifactType } from "../model/services/artifact-service";
 import createModelService from "../model/services/model-service2";
 import { buildHeaders } from "../services/utils";
-import { buildModelContextHeaders, convertKeysToSnakeCase } from "../model/services/model-context";
+import { buildModelContextHeaders, convertKeysToCamelCase, convertKeysToSnakeCase } from "../model/services/model-context";
 
 
 
@@ -146,8 +146,9 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
                     });
                     if (res.ok) {
                         const response = await res.json();
+                        
+                        const responseMessages = response.messages.map((m: any) => messageSchema.parse(convertKeysToCamelCase(m)))
 
-                        const responseMessages = response.messages
                         for (const event of response.events){
                             onEvent && onEvent(event)
                         }
