@@ -8,8 +8,10 @@ import { buildModelContextHeaders, convertKeysToSnakeCase } from "../model/servi
 
 
 export interface ToolCall {
+    id: string;
     name: string;
-    payload: any;
+    tool: any;
+    extra: any;
 }
 
 
@@ -46,7 +48,7 @@ export interface ChatOptions {
 export const createChatProvider = <ID, Ctx, Payload, Message>(
     messageName: string, 
     messageSchema: ZodSchema<Message>,
-    defualtCtx: Ctx       
+    // defualtCtx?: Ctx       
     // handler?: (
     //     toolCall: any, 
     // ) => void
@@ -64,13 +66,15 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
 
     interface ChatProviderProps<Message> {
         children: ReactNode;
-        defaultCtx: Ctx;
+        defaultCtx?: Ctx;
     }
 
     function useSendMessage(
         history: Message[], 
         mutate: (data: any, options?: any) => Promise<any>,
         ctx: Ctx,
+        onMessages?: (messages: Message[]) => void,
+        onEvent?: (event: any) => void,
         options: ChatOptions = {
             completeUrl: "/api/ai/complete"
         }
@@ -94,12 +98,14 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
                 
                 const message = {
                     content: content,
-                    choices: [],
+                    choices: undefined,
                     state: state,
                     role: "user",
                     toolCalls: toolCalls,
                     runId: null,
                 }
+
+                
 
                 const messageMock = {
                     ...message,
@@ -107,7 +113,23 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
                     turnId: history && history.length > 0 ? history[0].turnId + 1 : 1,
                     createdAt: new Date().toISOString(),
                 }
+
+
+                const responseMessage = {
+                    isMock: true,
+                    content: '',
+                    choices: undefined,
+                    state: state,
+                    role: "assistant",
+                    toolCalls: toolCalls,
+                    runId: null,
+                    id: history && history.length > 0 ? history[0].id + 2 : 10001,
+                    turnId: history && history.length > 0 ? history[0].turnId + 1 : 1,
+                    createdAt: new Date().toISOString(),
+                }
                 const optimisticData = [messageMock, ...(history || [])];
+            
+                // const optimisticData = [responseMessage, messageMock, ...(history || [])];
                 
                 const sendMessageRequest = async (message: Payload, messageHistory: any[], files?: any) => {
                     const formData = new FormData();
@@ -123,16 +145,23 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
                         headers: headers,
                     });
                     if (res.ok) {
-                        const responseMessages = await res.json();
-                        // console.log("### responseMessages", responseMessages)
-                        for (const message of responseMessages) {
-                            if (message.tool_calls.length > 0) {
-                                for (const tool_call of message.tool_calls) {
-                                    // handler && handler(tool_call)
-                                    handlerRef.current && handlerRef.current(tool_call)
-                                }
-                            }
+                        const response = await res.json();
+
+                        const responseMessages = response.messages
+                        for (const event of response.events){
+                            onEvent && onEvent(event)
                         }
+                        // console.log("### responseMessages", responseMessages)
+                        onMessages && onMessages(responseMessages)
+                        // for (const message of responseMessages) {
+                        //     if (message.tool_calls.length > 0) {
+                        //         for (const tool_call of message.tool_calls) {
+                        //             // handler && handler(tool_call)
+                        //             handlerRef.current && handlerRef.current(tool_call)
+                        //         }
+                        //     }
+                        // }
+                        // return [responseMessages, ...messageHistory];
                         return [...responseMessages, ...messageHistory];
                     } else {
                         throw new Error("Failed to send message.", { cause: res.statusText });
@@ -148,6 +177,8 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
                     {
                         optimisticData,
                         rollbackOnError: true,
+                        populateCache: true,
+                        revalidate: false
                     }
                 );
             } catch (error) {
@@ -182,7 +213,22 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
             mutate: mutateMessages
         } = useMessageList<Ctx, Message>(ctx)
 
-        const { sendMessage, sending, registerHandler } = useSendMessage(messages || [] as any, mutateMessages, ctx)
+        const { sendMessage, sending, registerHandler } = useSendMessage(
+            messages || [] as any, 
+            mutateMessages, 
+            ctx, 
+            undefined,
+            (event: any) => {
+                if (event.type === "anonymous_user_created"){
+
+                } else if (event.type === "partition_created"){
+                    setCtx({
+                        partitionId: event.data.partition_id,
+                        branchId: event.data.branch_id,
+                        turnId: undefined,
+                    })
+                }
+        })
 
         const useToolCall = useCallback((handlerFunc: (toolCall: ToolCall) => void) => {
             registerHandler(handlerFunc)
