@@ -206,7 +206,7 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
     }: ChatProviderProps<T>) {
 
         const [ctx, setCtx] = useState<Ctx>(defaultCtx as Ctx)
-
+        const [initialized, setInitialized] = useState(false)
 
         useEffect(() => {
             const tempPartitionId = localStorage.getItem('tempPartitionId')
@@ -218,6 +218,7 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
                     turnId: undefined,
                 } as Ctx)
             }
+            setInitialized(true)
         }, [])
         const {
             data: messages,
@@ -252,7 +253,7 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
         return (
             <ChatContext.Provider value={{
                 messages: messages || [],
-                loading,
+                loading: loading || !initialized,
                 error: messagesError,
                 sending,
                 sendMessage,
