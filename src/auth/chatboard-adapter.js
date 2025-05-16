@@ -24,7 +24,7 @@ export function mapExpiresAt(account) {
 
 
 
-async function fetchAuth(endpoint, payload) {
+async function fetchAuthPost(endpoint, payload) {
     try {
         const response = await fetch(`${process.env.BACKEND_URL}/api/auth/${endpoint}`, {
             method: 'POST',
@@ -48,6 +48,38 @@ async function fetchAuth(endpoint, payload) {
 }
 
 
+async function fetchAuthGet(endpoint, args) {
+    try {
+        let url = `${process.env.BACKEND_URL}/api/auth/${endpoint}`;
+        
+        if (args) {
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(args)) {
+                if (value != null) {
+                    params.append(key, value);
+                }
+            }
+            url += `?${params.toString()}`;
+        }
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${process.env.BACKEND_SECRET}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${endpoint} status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching auth:', error);
+        throw error;
+    }
+}
 
 
 
@@ -82,7 +114,7 @@ export default function ChatboardAdapter(client) {
         //         image,
         //     ]);
         //     return result.rows[0];
-        return await fetchAuth("create_user", user)
+        return await fetchAuthPost("user/create", user)
         },
         async getUser(id) {
             // const sql = `select * from users where id = $1`;
@@ -93,7 +125,7 @@ export default function ChatboardAdapter(client) {
             // catch {
             //     return null;
             // }
-            return await fetchAuth("get_user", { id })
+            return await fetchAuthGet("user/" + id)
         },
         async getUserByEmail(email) {
             const sql = `select * from users where email = $1`;

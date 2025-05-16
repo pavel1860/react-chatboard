@@ -1,4 +1,4 @@
-import { AnyZodObject, z, ZodSchema } from "zod";
+import { AnyZodObject, z, ZodSchema, ZodTypeAny } from "zod";
 import { useModelEnv } from "../state/model-env";
 import { buildModelContextHeaders, convertKeysToCamelCase, ModelContextType } from "../model/services/model-context";
 
@@ -13,7 +13,7 @@ export interface ApiError {
 
 
 export interface FetcherOptions<Ctx, Params, Model> {
-    schema?: ZodSchema<Model>;
+    schema: ZodTypeAny,
     params?: Params extends Record<string, unknown> ? Record<string, unknown> : never;
     ctx: Ctx
 }

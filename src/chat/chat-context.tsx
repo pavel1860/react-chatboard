@@ -18,6 +18,7 @@ export interface ToolCall {
 export interface ChatContextType<Ctx, T> {
     messages: T[];
     loading: boolean;
+    initialized: boolean;
     error: Error | null;
     sending: boolean;
     sendMessage: (
@@ -45,7 +46,7 @@ export interface ChatOptions {
 
 
 
-export const createChatProvider = <ID, Ctx, Payload, Message>(
+export const createChatProvider = <Message, Payload, Ctx, ID>(
     messageName: string, 
     messageSchema: ZodSchema<Message>,
     // defualtCtx?: Ctx       
@@ -60,7 +61,7 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
         useModel: useMessage,
         useCreateModel: useCreateMessage,
         useUpdateModel: useUpdateMessage,
-    } = createModelService<ID, Ctx, Payload, Message>(messageName, messageSchema)
+    } = createModelService<Message, Payload, Ctx, ID>(messageName, messageSchema)
 
     const ChatContext = createContext<ChatContextType<Ctx, Message>>({} as ChatContextType<Ctx, Message>);
 
@@ -225,7 +226,7 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
             isLoading: loading,
             error: messagesError,
             mutate: mutateMessages
-        } = useMessageList<Ctx, Message>(ctx)
+        } = useMessageList(10, 0, undefined, ctx, !ctx)
 
         const { sendMessage, sending, registerHandler } = useSendMessage(
             messages || [] as any, 
@@ -253,7 +254,8 @@ export const createChatProvider = <ID, Ctx, Payload, Message>(
         return (
             <ChatContext.Provider value={{
                 messages: messages || [],
-                loading: loading || !initialized,
+                initialized: initialized,
+                loading: loading,
                 error: messagesError,
                 sending,
                 sendMessage,
