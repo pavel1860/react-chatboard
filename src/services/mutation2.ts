@@ -1,7 +1,7 @@
 import { z, ZodSchema } from "zod";
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { useModelEnv } from "../state/model-env";
-import { buildModelContextHeaders, ModelContextType } from "../model/services/model-context";
+import { buildModelContextHeaders, convertKeysToCamelCase, ModelContextType } from "../model/services/model-context";
 import { buildHeaders } from "./utils";
 
 
@@ -32,7 +32,7 @@ export async function sendRequest<Ctx, Params, Data>(endpoint: string, data: Par
 
     const responseData = await res.json();
     if (schema) {
-        return schema.parse(responseData); // Validate response data
+        return schema.parse(convertKeysToCamelCase(responseData)); // Validate response data
     }
     return responseData;
 }

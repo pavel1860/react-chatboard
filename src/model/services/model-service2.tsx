@@ -2,7 +2,7 @@
 
 
 
-import useSWR, { BareFetcher, SWRConfiguration, SWRResponse, useSWRConfig } from "swr"
+import useSWR, { BareFetcher, mutate, SWRConfiguration, SWRResponse, useSWRConfig } from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { z, ZodSchema, ZodTypeAny } from "zod";
 import { useMutationHook } from "../../services/mutation2";
@@ -93,14 +93,24 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
 
         return useSWR<Model | null>(
             [modelLastUrl, queryParams, ctx],
-            ([url, queryParams, ctx]: [string, Record<string, any>, Ctx]) => fetcher<Ctx, never, Model>(url, { schema, params: queryParams, ctx })
+            ([url, queryParams, ctx]: [string, Record<string, any>, Ctx]) => 
+                fetcher<Ctx, never, Model>(url, { 
+                    schema, 
+                    params: 
+                    queryParams,                     
+                    ctx 
+                })
         )
     }
 
     function useCreateModel<Ctx, Payload, Model>(ctx: Ctx) {
         
 
-        return useMutationHook<Ctx, Payload, Model>(modelCreateUrl, { ctx, schema, method: 'POST' });
+        return useMutationHook<Ctx, Payload, Model>(modelCreateUrl, { 
+            ctx, 
+            schema, 
+            method: 'POST',            
+        });
     }
 
     function useUpdateModel<ID, Ctx, Payload, Model>(id: ID, ctx: Ctx) {
