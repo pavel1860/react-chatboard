@@ -2,7 +2,7 @@
 
 
 
-import useSWR, { BareFetcher, mutate, SWRConfiguration, SWRResponse, useSWRConfig } from "swr"
+import useSWR, { BareFetcher, mutate, SWRConfiguration, SWRResponse, useSWRConfig} from "swr"
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { z, ZodSchema, ZodTypeAny } from "zod";
 import { useMutationHook } from "../../services/mutation2";
@@ -16,13 +16,9 @@ import { ModelContextType } from "./model-context";
 
 
 export interface ModelService<Model,Payload, Ctx=undefined, ID=number> {
-    // useModel: (id?: ID, ctx?: Ctx) => SWRResponse<Ctx & Model | null>
-    useModel: (id?: ID, ctx?: Ctx) => SWRResponse<Model, any, SWRConfiguration<Model, any, BareFetcher<Model>> | undefined>
-    // useModelList: <Model, Ctx>(limit: number, offset: number, defaultFilters?: DefaultFilter<Model>[], ctx?: Ctx, isDisabled?: boolean) => SWRResponse<(Model)[]> & UseQueryBuilderHook<Model>
-    // useModelList: <Model, Ctx>(limit: number, offset: number, defaultFilters?: DefaultFilter<Model>[], ctx?: Ctx, isDisabled?: boolean) => SWRResponse<Model[], any, SWRConfiguration<Model[], any, BareFetcher<Model[]>> | undefined>
-    useModelList: (limit: number, offset: number, defaultFilters?: DefaultFilter<Model>[], ctx?: Ctx, isDisabled?: boolean) => SWRResponse<Model[], any, SWRConfiguration<Model[], any, BareFetcher<Model[]>> | undefined>
-    // useLastModel: (ctx?: Ctx, filters?: DefaultFilter<Model>) => SWRResponse<Model, any, SWRConfiguration<Model, any, BareFetcher<Model>> | undefined>
-    useLastModel: (ctx?: Ctx, filters?: DefaultFilter<Model>) => SWRResponse<Model | null, any, SWRConfiguration<Model | null, any, BareFetcher<Model | null>> | undefined>
+    useModel: (id?: ID, ctx?: Ctx, options?: SWRConfiguration | undefined) => SWRResponse<Model, any, SWRConfiguration<Model, any, BareFetcher<Model>> | undefined>
+    useModelList: (limit: number, offset: number, defaultFilters?: DefaultFilter<Model>[], ctx?: Ctx, isDisabled?: boolean, options?: SWRConfiguration | undefined) => SWRResponse<Model[], any, SWRConfiguration<Model[], any, BareFetcher<Model[]>> | undefined>
+    useLastModel: (ctx?: Ctx, filters?: DefaultFilter<Model>, options?: SWRConfiguration) => SWRResponse<Model | null, any, SWRConfiguration<Model | null, any, BareFetcher<Model | null>> | undefined>
     useCreateModel: (ctx?: Ctx) => SWRMutationResponse<Model, Error>
     useUpdateModel: (id: ID, ctx?: Ctx) => SWRMutationResponse<Model, Error>
     useDeleteModel: (id: ID, ctx?: Ctx) => SWRMutationResponse<Model, Error>
@@ -43,16 +39,24 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
     const modelUpdateUrl = `${baseUrl}/${model}/update`
     const modelDeleteUrl = `${baseUrl}/${model}/delete`
 
-    function useModel(id?: ID, ctx?: Ctx) {
+    function useModel(id?: ID, ctx?: Ctx, options?: SWRConfiguration | undefined) {
         return useSWR<Model>(
             ctx && id ? [modelUrl, id, ctx] : null,
-            ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(url, { schema, ctx })
+            ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(url, { schema, ctx }),
+            options
         )
     }
 
 
 
-    function useModelList(limit: number, offset: number, defaultFilters?: DefaultFilter<Model>[], ctx?: Ctx, isDisabled: boolean = false) {
+    function useModelList(
+        limit: number, 
+        offset: number, 
+        defaultFilters?: DefaultFilter<Model>[], 
+        ctx?: Ctx, 
+        isDisabled: boolean = false, 
+        options?: SWRConfiguration
+    ) {
         
         const { filters, where, build, reset, queryString } = useQueryBuilder(schema, defaultFilters);
 
@@ -68,7 +72,8 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
         const getModelList = useSWR<Model[]>(
             !isDisabled ? [modelListUrl, ctx, queryString] : null,
             ([url, ctx, queryString]: [string, Ctx, string]) => 
-                fetcher<Ctx, any, Model[]>(url, { schema: z.array(schema), params: queryParams, ctx })
+                fetcher<Ctx, any, Model[]>(url, { schema: z.array(schema), params: queryParams, ctx }),
+            options
         );
 
         return {
@@ -83,7 +88,7 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
 
 
 
-    function useLastModel<Ctx, Model>(ctx: Ctx, partitions: any, filters?: DefaultFilter<Model>) {        
+    function useLastModel<Ctx, Model>(ctx: Ctx, partitions: any, filters?: DefaultFilter<Model>, options?: SWRConfiguration) {        
 
         const queryParams: Record<string, any> = { ...partitions };
 
@@ -99,7 +104,8 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
                     params: 
                     queryParams,                     
                     ctx 
-                })
+                }),
+            options
         )
     }
 
