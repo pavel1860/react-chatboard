@@ -19,7 +19,16 @@ export async function sendRequest<Ctx, Params, Data>(endpoint: string, data: Par
 
     const headers = buildModelContextHeaders(ctx, "json")
 
-    const res = await fetch(endpoint, {
+    const urlParams = new URLSearchParams()
+    if (ctx) {
+        Object.entries(ctx)
+            .filter(([_, value]) => value != null)
+            .forEach(([key, value]) => {
+                urlParams.set("ctx." + key, String(value));
+            });
+    }
+    const url = `${endpoint}?${urlParams.toString()}`
+    const res = await fetch(url, {
         method,
         body: JSON.stringify(data),
         headers

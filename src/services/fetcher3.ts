@@ -26,15 +26,22 @@ export async function fetcher<Ctx, Params, Model>(endpoint: string, { schema, pa
 
     let url = `${endpoint}`;
 
-    if (params) {
-        const urlParams = new URLSearchParams(
-            Object.entries(params)
-                .filter(([_, value]) => value != null)
-                .map(([key, value]) => [key, String(value)])
-        );
-        url += `?${urlParams.toString()}`;
+    const urlParams = new URLSearchParams()
+    if (ctx) {
+        Object.entries(ctx)
+            .filter(([_, value]) => value != null)
+            .forEach(([key, value]) => {
+                urlParams.set("ctx." + key, String(value));
+            });
     }
-
+    if (params) {
+        Object.entries(params)
+            .filter(([_, value]) => value != null)
+            .forEach(([key, value]) => {
+                urlParams.set("filter." + key, String(value));
+            });
+    }
+    url += `?${urlParams.toString()}`
     const headers: any = buildModelContextHeaders<Ctx>(ctx)
 
     const res = await fetch(url, { headers });
