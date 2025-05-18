@@ -138,7 +138,7 @@ export const createChatProvider = <Message, Payload, Ctx, ID>(
                     if (files) {
                         formData.append('file', files);
                     }                    
-                    const headers = buildModelContextHeaders<Ctx>(ctx)
+                    const headers = buildModelContextHeaders({})
                     
                     const res = await fetch(options.completeUrl, {
                         method: "POST",

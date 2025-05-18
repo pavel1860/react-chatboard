@@ -42,7 +42,7 @@ export async function fetcher<Ctx, Params, Model>(endpoint: string, { schema, pa
             });
     }
     url += `?${urlParams.toString()}`
-    const headers: any = buildModelContextHeaders<Ctx>(ctx)
+    const headers: any = buildModelContextHeaders({})
 
     const res = await fetch(url, { headers });
     

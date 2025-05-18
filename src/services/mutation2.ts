@@ -17,7 +17,7 @@ interface MutationOptions<Ctx, Data> {
 
 export async function sendRequest<Ctx, Params, Data>(endpoint: string, data: Params, { schema, ctx, method = 'POST' }: MutationOptions<Ctx, Data>): Promise<Data> {
 
-    const headers = buildModelContextHeaders(ctx, "json")
+    const headers = buildModelContextHeaders({}, "json")
 
     const urlParams = new URLSearchParams()
     if (ctx) {
