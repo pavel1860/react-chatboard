@@ -42,7 +42,7 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
     function useModel(id?: ID, ctx?: Ctx, options?: SWRConfiguration | undefined) {
         return useSWR<Model>(
             ctx && id ? [modelUrl, id, ctx] : null,
-            ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(url, { schema, ctx }),
+            ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(`${url}/${id}`, { schema, ctx }),
             options
         )
     }
