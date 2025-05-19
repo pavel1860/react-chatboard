@@ -1,184 +1,119 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
+import classNames from "classnames";
 
-import { File, X } from "lucide-react";
-// lexical
-import {
-
-    EditorState,
-    $getRoot,
-} from "lexical";
-
-import {
-    QuoteNode,
-    HeadingNode,
-    $isHeadingNode,
-    $createQuoteNode,
-    $createHeadingNode,
-} from "@lexical/rich-text";
-import {
-    $isCodeNode,
-    $createCodeNode,
-    getCodeLanguages,
-    getDefaultCodeLanguage,
-} from "@lexical/code";
-import { ListItemNode, ListNode } from "@lexical/list";
-import {
-    AutoLinkNode,
-    LinkNode,
-    $isLinkNode,
-    TOGGLE_LINK_COMMAND,
-} from "@lexical/link";
-import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
-
-import { CodeHighlightNode, CodeNode } from "@lexical/code";
-import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
-import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { $wrapNodes, $isAtNodeEnd } from "@lexical/selection";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { $getNearestNodeOfType, mergeRegister } from "@lexical/utils";
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
-import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { EditorValue, Placeholder } from "./util";
-import { ToolbarPlugin } from "./plugins/toolbar";
-import { on } from "events";
-import KeyPressPlugin from "./plugins/key-press";
-import ResizeWrapperPlugin from "./plugins/resize-wrapper-plugin";
-import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
-import { Button } from "@heroui/react";
-
-
-
-
-
-
-
-const editorConfig = {
-    namespace: "MyEditor",
-    onError(error: any) {
-        throw error;
-    },
-    nodes: [
-        HeadingNode,
-        ListNode,
-        ListItemNode,
-        QuoteNode,
-        CodeNode,
-        CodeHighlightNode,
-        AutoLinkNode,
-        LinkNode,
-    ],
-};
-
-
-
-
+import { Textarea } from "@heroui/react";
+import { Icon } from "@iconify-icon/react";
 
 export interface ChatInputProps {
-    placeholder: string | undefined;
-    width?: string;
-    file?: any;
-    removeFile?: () => void;
-    onChange?: (e: EditorValue) => void;
-    onKeyPress?: (e: EditorValue) => void;
-    dontClear?: boolean;
-    bgColor?: string;
-    borderColor?: string;
-    endContent?: (e: EditorValue) => React.ReactNode;
+  placeholder: string | undefined;
+  width?: string;
+  rows?: number;
+  removeFile?: () => void;
+  onSubmit: (text: string) => void;
+  dontClear?: boolean;
+  bgColor?: string;
+  borderColor?: string;
 }
 
 export function ChatInput({
-        placeholder, 
-        onChange, 
-        onKeyPress, 
-        dontClear, 
-        bgColor, 
-        borderColor = "#E0E0E0",
-        file, 
-        removeFile, 
-        width="100%",
-        endContent
-    }: ChatInputProps) {
+  placeholder,
+  onSubmit,
+  dontClear,
+  bgColor,
+  borderColor = "#E0E0E0",
+  rows = 3,
+  width = "100%",
+}: ChatInputProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [text, setText] = useState("");
 
-    const [rows, setRows] = useState(2 + (file ? 2 : 0));
-    // const [rows, setRows] = useState(2);
-    const [dependentVersion, setDependentVersion] = useState(0);
+  const handleEnter = () => {
+    if (!text.trim()) return;
 
-    useEffect(() => {
-        setDependentVersion(dependentVersion + 1)
-    }, [onChange, onKeyPress, dontClear])
+    setIsSubmitting(true);
+    onSubmit(text);
+    if (!dontClear) {
+      setText("");
+    }
 
-    useEffect(() => {
-        if (file) {
-            setRows(rows + 2)
+    // Simulate async delay for UX (adjust as needed)
+    setTimeout(() => {
+      setIsSubmitting(false);
+    }, 600);
+  };
+
+  return (
+    <div
+      className={classNames(
+        "relative flex flex-row items-center justify-center overflow-hidden my-5 border border-opacity-100 rounded-xl shadow-sm",
+        {
+          "h-[50px]": rows === 1,
         }
-    }, [file])
-
-    return (
-        <LexicalComposer initialConfig={editorConfig}>
-            <div 
-                // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl rounded-xl border border-gray-300 bg-white text-left font-normal leading-5 text-gray-900`}                
-                // className={`relative mx-auto overflow-hidden my-5 w-full max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm text-left font-normal leading-5 text-gray-900`}
-                className={`relative mx-auto overflow-hidden my-5 max-w-xxl border-1 border-opacity-1 rounded-xl shadow-sm text-left font-normal leading-5 text-gray-900`}
-                key={`editor-${dependentVersion}`}
-                
-                style={{
-                    height: `${rows * 25}px`,
-                    width: width,
-                    borderColor: borderColor
-                }}
-                data-testid="chat-input"
-            >    
-            {/* {endContent && <div className="absolute bottom-[-5px] right-0 flex justify-end items-center">{endContent(editorState)}</div>}             */}
-            {
-                file && <div className="bg-slate-200 inline-flex p-2 rounded-md flex-grow-0 border-1 border-slate-400">
-                            <File />{file.name.slice(0,10)} file
-                            <Button onClick={removeFile} isIconOnly variant="light" size="sm"><X /></Button>
-                        </div> 
-            }
-                {/* <ToolbarPlugin /> */}
-                <div 
-                    // className="relative rounded-b-lg border border-opacity-5 bg-white"
-                    // className="relative rounded-md bg-gray-100 shadow-sm"
-                    style={{backgroundColor: bgColor || "#FFFFFF"}}
-                >                    
-                    <RichTextPlugin
-                        contentEditable={
-                            <ContentEditable className="lexical min-h-[280px] resize-none px-2.5 py-2 text-base caret-gray-900 outline-none" />
-                        }
-                        placeholder={<Placeholder text={placeholder} offset={file ? 10 : 0}/>}
-                        ErrorBoundary={LexicalErrorBoundary}
-                    />
-                    <OnChangePlugin onChange={(editorState: EditorState)=> {
-                        editorState.read(() => {
-                            const root = $getRoot();
-                            // console.log(root.getAllTextNodes().length)
-                            // if (root.getAllTextNodes().length > rows) {
-                            //     setRows(Math.max(root.getAllTextNodes().length, 1))
-                            // }
-                            const currentText = root.getAllTextNodes().map(textNode => textNode.getTextContent()).join('\n')
-                            if (onChange) {
-                                onChange({text: currentText})
-                            }
-                        })                        
-                    }} />
-                    
-                    <AutoFocusPlugin />
-                    <ListPlugin />
-                    <LinkPlugin />
-                    <KeyPressPlugin onKeyPress={onKeyPress} dontClear={dontClear}/>
-                    <ResizeWrapperPlugin setRows={(r) => {
-                        console.log('setRows', r)
-                        setRows(r)
-                    }}/> 
-                                       
-                    
-                </div>
-                {/* <div className="flex justify-end">bla bla bla</div> */}
-                
-            </div>
-            
-        </LexicalComposer>
-    );
+      )}
+      style={{
+        borderColor,
+        width,
+        backgroundColor: bgColor,
+      }}
+    >
+      <Textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className={classNames(
+          "mx-auto text-left font-normal leading-5 text-gray-900",
+          {
+            "mt-10": rows === 1,
+          }
+        )}
+        disabled={isSubmitting}
+        placeholder={placeholder}
+        style={{
+          backgroundColor: bgColor,
+        }}
+        rows={rows}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleEnter();
+          }
+        }}
+      />
+      <button
+        disabled={isSubmitting}
+        onClick={handleEnter}
+        className={classNames(
+          "rounded-[14px] flex items-center bg-primary justify-center mr-2 h-[40px] w-[40px]",
+          {
+            "absolute bottom-2 right-0": rows > 1,
+          }
+        )}
+      >
+        {isSubmitting ? (
+          <svg
+            aria-hidden="true"
+            className="inline w-5 h-5 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+        ) : (
+          <Icon
+            icon="solar:plain-linear"
+            width={20}
+            height={20}
+            className="text-white"
+          />
+        )}
+      </button>
+    </div>
+  );
 }
