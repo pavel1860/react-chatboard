@@ -168,7 +168,7 @@ export default function DebugChatThread({ phoneNumber, setRunId, disabled }: Deb
                 <div className="flex w-11/12 items-center">
                     {!disabled && <ChatInput
                         placeholder="Type your message..."
-                        onKeyPress={sendMessage}
+                        onSubmit={(text) => sendMessage({"text": text})}
                     />}
                 </div>
             </div>

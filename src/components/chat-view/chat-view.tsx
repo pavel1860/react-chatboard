@@ -229,9 +229,10 @@ export default function ChatView() {
             </InfiniteChat>
             <ChatInput
                         placeholder="Type your message..."
+                        rows={3}
                         // onKeyPress={sendMessage}
-                        onKeyPress={(editorState: any) => {
-                            sendMessage({content: editorState.text, role: "user"})
+                        onSubmit={(text: string) => {
+                            sendMessage({content: text, role: "user"})
                             // console.log("### sending", sessionIdRef.current)
                             // sendMessage(editorState, undefined, sessionIdRef.current)
                         }}
