@@ -12,17 +12,22 @@ import { ModelServiceOptions } from "./model-service";
 import { DefaultFilter, useQueryBuilder, UseQueryBuilderHook } from "../../services/query-builder";
 import { ModelContextType } from "./model-context";
 
-
+export type ModelConfiguration = SWRConfiguration & {
+    headers?: Record<string, string>
+}
 
 
 export interface ModelService<Model,Payload, Ctx=undefined, ID=number> {
-    useModel: (id?: ID, ctx?: Ctx, options?: SWRConfiguration | undefined) => SWRResponse<Model, any, SWRConfiguration<Model, any, BareFetcher<Model>> | undefined>
-    useModelList: (limit: number, offset: number, defaultFilters?: DefaultFilter<Model>[], ctx?: Ctx, isDisabled?: boolean, options?: SWRConfiguration | undefined) => SWRResponse<Model[], any, SWRConfiguration<Model[], any, BareFetcher<Model[]>> | undefined>
-    useLastModel: (ctx?: Ctx, filters?: DefaultFilter<Model>, options?: SWRConfiguration) => SWRResponse<Model | null, any, SWRConfiguration<Model | null, any, BareFetcher<Model | null>> | undefined>
+    useModel: (id?: ID, ctx?: Ctx, options?: ModelConfiguration | undefined) => SWRResponse<Model, any, SWRConfiguration<Model, any, BareFetcher<Model>> | undefined>
+    useModelList: (limit: number, offset: number, defaultFilters?: DefaultFilter<Model>[], ctx?: Ctx, isDisabled?: boolean, options?: ModelConfiguration | undefined) => SWRResponse<Model[], any, SWRConfiguration<Model[], any, BareFetcher<Model[]>> | undefined>
+    useLastModel: (ctx?: Ctx, filters?: DefaultFilter<Model>, options?: ModelConfiguration) => SWRResponse<Model | null, any, SWRConfiguration<Model | null, any, BareFetcher<Model | null>> | undefined>
     useCreateModel: (ctx?: Ctx) => SWRMutationResponse<Model, Error>
     useUpdateModel: (id: ID, ctx?: Ctx) => SWRMutationResponse<Model, Error>
     useDeleteModel: (id: ID, ctx?: Ctx) => SWRMutationResponse<Model, Error>
 }
+
+
+
 
 
 
@@ -39,11 +44,12 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
     const modelUpdateUrl = `${baseUrl}/${model}/update`
     const modelDeleteUrl = `${baseUrl}/${model}/delete`
 
-    function useModel(id?: ID, ctx?: Ctx, options?: SWRConfiguration | undefined) {
+    function useModel(id?: ID, ctx?: Ctx, options?: ModelConfiguration | undefined) {
+        const { headers, ...restOptions } = options || {};
         return useSWR<Model>(
             ctx && id ? [modelUrl, id, ctx] : null,
-            ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(`${url}/${id}`, { schema, ctx }),
-            options
+            ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(`${url}/${id}`, { schema, ctx, headers }),
+            restOptions
         )
     }
 
@@ -55,11 +61,13 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
         defaultFilters?: DefaultFilter<Model>[], 
         ctx?: Ctx, 
         isDisabled: boolean = false, 
-        options?: SWRConfiguration
+        options?: ModelConfiguration,
     ) {
         
         const { filters, where, build, reset, queryString } = useQueryBuilder(schema, defaultFilters);
 
+
+        const { headers, ...restOptions } = options || {};
         // Prepare query parameters with pagination and filters
         let queryParams: Record<string, any> = { limit, offset };
 
@@ -72,8 +80,8 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
         const getModelList = useSWR<Model[]>(
             !isDisabled ? [modelListUrl, ctx, queryString] : null,
             ([url, ctx, queryString]: [string, Ctx, string]) => 
-                fetcher<Ctx, any, Model[]>(url, { schema: z.array(schema), params: queryParams, ctx }),
-            options
+                fetcher<Ctx, any, Model[]>(url, { schema: z.array(schema), params: queryParams, ctx, headers }),
+            restOptions
         );
 
         return {
@@ -88,13 +96,15 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
 
 
 
-    function useLastModel<Ctx, Model>(ctx: Ctx, partitions: any, filters?: DefaultFilter<Model>, options?: SWRConfiguration) {        
+    function useLastModel<Ctx, Model>(ctx: Ctx, partitions: any, filters?: DefaultFilter<Model>, options?: ModelConfiguration) {        
 
         const queryParams: Record<string, any> = { ...partitions };
 
         if (filters) {
             queryParams.filter = JSON.stringify(filters);
         }
+
+        const { headers, ...restOptions } = options || {};
 
         return useSWR<Model | null>(
             [modelLastUrl, queryParams, ctx],
@@ -103,9 +113,10 @@ export default function createModelService<Model, Payload, Ctx=undefined, ID=num
                     schema, 
                     params: 
                     queryParams,                     
-                    ctx 
+                    ctx,
+                    headers
                 }),
-            options
+                restOptions
         )
     }
 

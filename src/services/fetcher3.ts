@@ -15,6 +15,7 @@ export interface ApiError {
 export interface FetcherOptions<Ctx, Params, Model> {
     schema: ZodTypeAny,
     params?: Params extends Record<string, unknown> ? Record<string, unknown> : never;
+    headers?: Record<string, string>
     ctx: Ctx
 }
 
@@ -22,7 +23,7 @@ export interface FetcherOptions<Ctx, Params, Model> {
 
 
 
-export async function fetcher<Ctx, Params, Model>(endpoint: string, { schema, params, ctx }: FetcherOptions<Ctx, Params, Model>): Promise<Model> {
+export async function fetcher<Ctx, Params, Model>(endpoint: string, { schema, params, ctx, headers }: FetcherOptions<Ctx, Params, Model>): Promise<Model> {
 
     let url = `${endpoint}`;
 
@@ -42,9 +43,9 @@ export async function fetcher<Ctx, Params, Model>(endpoint: string, { schema, pa
             });
     }
     url += `?${urlParams.toString()}`
-    const headers: any = buildModelContextHeaders({})
+    const finalHeaders: any = { ...buildModelContextHeaders({}), ...headers }
 
-    const res = await fetch(url, { headers });
+    const res = await fetch(url, { headers: finalHeaders });
     
     const data = await res.json();
     if (!res.ok) throw { status: res.status, message: data?.message || res.statusText, details: data };
