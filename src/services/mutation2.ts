@@ -1,7 +1,7 @@
 import { z, ZodSchema } from "zod";
 import useSWRMutation, { SWRMutationResponse } from "swr/mutation"
 import { useModelEnv } from "../state/model-env";
-import { buildModelContextHeaders, convertKeysToCamelCase, ModelContextType } from "../model/services/model-context";
+import { buildModelContextHeaders, convertKeysToCamelCase, convertKeysToSnakeCase, ModelContextType } from "../model/services/model-context";
 import { buildHeaders } from "./utils";
 
 
@@ -27,10 +27,11 @@ export async function sendRequest<Ctx, Params, Data>(endpoint: string, data: Par
                 urlParams.set("ctx." + key, String(value));
             });
     }
+    const body = convertKeysToSnakeCase(data)
     const url = `${endpoint}?${urlParams.toString()}`
     const res = await fetch(url, {
         method,
-        body: JSON.stringify(data),
+        body: JSON.stringify(body),
         headers
     });
 

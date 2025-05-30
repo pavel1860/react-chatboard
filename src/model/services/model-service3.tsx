@@ -23,7 +23,7 @@ export type ModelConfiguration<Model,Ctx=undefined> = SWRConfiguration & {
 
 
 export interface ModelService<Model, Payload, Ctx=undefined, ID=number> {
-    useModel: (id?: ID, ctx?: Ctx, options?: ModelConfiguration<Model, Ctx> | undefined) => SWRResponse<Model, any, SWRConfiguration<Model, any, BareFetcher<Model>> | undefined>
+    useModel: (id?: ID, options?: ModelConfiguration<Model, Ctx> | undefined) => SWRResponse<Model, any, SWRConfiguration<Model, any, BareFetcher<Model>> | undefined>
     useModelList: (limit: number, offset: number, isDisabled?: boolean, options?: ModelConfiguration<Model, Ctx> | undefined) => SWRResponse<Model[], any, SWRConfiguration<Model[], any, BareFetcher<Model[]>> | undefined>
     useLastModel: (options?: ModelConfiguration<Model, Ctx>) => SWRResponse<Model | null, any, SWRConfiguration<Model | null, any, BareFetcher<Model | null>> | undefined>
     useCreateModel: (ctx?: Ctx) => SWRMutationResponse<Model, Error>
@@ -61,11 +61,11 @@ export default function createModelContext<Ctx=undefined>() {
         const modelUpdateUrl = `${baseUrl}/${model}/update`
         const modelDeleteUrl = `${baseUrl}/${model}/delete`
 
-        function useModel(id?: ID, ctx?: Ctx, options?: ModelConfiguration<Model, Ctx> | undefined) {
-            const { headers, ...restOptions } = options || {};
+        function useModel(id?: ID, options?: ModelConfiguration<Model, Ctx> | undefined) {
+            const { headers, ctx, ...restOptions } = options || {};
             return useSWR<Model>(
-                ctx && id ? [modelUrl, id, ctx] : null,
-                ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(`${url}/${id}`, { schema, ctx, headers }),
+                id ? [modelUrl, id, ctx] : null,
+                ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never ,Model>(`${url}/${id}`, { schema, ctx, headers, ...restOptions }),
                 restOptions
             )
         }
@@ -138,9 +138,10 @@ export default function createModelContext<Ctx=undefined>() {
             )
         }
 
-        function useCreateModel<Ctx, Payload, Model>(ctx: Ctx) {
+        function useCreateModel<Ctx, Payload, Model>(options?: ModelConfiguration<Model, Ctx>) {
             
-
+            const ctx = useHookCtx(options?.ctx)
+            
             return useMutationHook<Ctx, Payload, Model>(modelCreateUrl, { 
                 ctx, 
                 schema, 
@@ -148,11 +149,13 @@ export default function createModelContext<Ctx=undefined>() {
             });
         }
 
-        function useUpdateModel<ID, Ctx, Payload, Model>(id: ID, ctx: Ctx) {
+        function useUpdateModel<ID, Ctx, Payload, Model>(id: ID, options?: ModelConfiguration<Model, Ctx>) {
+            const ctx = useHookCtx(options?.ctx)
             return useMutationHook<Ctx, Payload, Model>(modelUpdateUrl, { ctx, schema, method: 'PUT' });
         }
 
-        function useDeleteModel<ID, Ctx, Payload, Model>(id: ID, ctx: Ctx) {
+        function useDeleteModel<ID, Ctx, Payload, Model>(id: ID, options?: ModelConfiguration<Model, Ctx>) {
+            const ctx = useHookCtx(options?.ctx)
             return useMutationHook<Ctx, Payload, Model>(modelDeleteUrl, { ctx, schema, method: 'DELETE' });
         }
 

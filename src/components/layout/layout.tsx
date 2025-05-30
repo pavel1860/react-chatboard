@@ -72,7 +72,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, selectedKey, isVisible
 // LayoutHeader: top bar
 export interface LayoutHeaderProps { children?: ReactNode; }
 export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ children }) => (
-    <header className="flex-shrink-0 p-4 border-b border-gray-200 bg-white">{children}</header>
+    <header className="flex-shrink-0 p-4 border-b border-gray-200 bg-white flex flex-row gap-2 items-center">{children}</header>
 );
 
 // LayoutContent: growable scrollable area, with paneKey to identify
