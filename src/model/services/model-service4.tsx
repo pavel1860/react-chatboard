@@ -50,28 +50,22 @@ export default function createModelContext<Ctx = undefined>() {
         return ctxValue || ctx || {} as Ctx
     }
 
-    function createModelService<Model, Payload, ID = number>(
-        model: string,
-        schema: ZodTypeAny,
-        options: ModelServiceOptions = {}
-    ): ModelService<Model, Payload, Ctx, ID> {
-        const { baseUrl = "/api/ai/model" } = options;
-        const modelUrl = `${baseUrl}/${model}`
-        const modelListUrl = `${baseUrl}/${model}/list`
-        const modelLastUrl = `${baseUrl}/${model}/last`
-        const modelCreateUrl = `${baseUrl}/${model}/create`
-        const modelUpdateUrl = `${baseUrl}/${model}/update`
-        const modelDeleteUrl = `${baseUrl}/${model}/delete`
+    // function createUseModelMutation<Model, Payload, ID = number>
 
+
+    function createUseModel<Model, ID = number>(url: string, schema: ZodTypeAny){
         function useModel(id?: ID, options?: ModelConfiguration<Model, Ctx> | undefined) {
             const { headers, ctx, ...restOptions } = options || {};
             return useSWR<Model>(
-                id ? [modelUrl, id, ctx] : null,
+                id ? [url, id, ctx] : null,
                 ([url, id, ctx]: [string, ID, Ctx]) => fetcher<Ctx, never, Model>(`${url}/${id}`, { schema, ctx, headers, ...restOptions }),
                 restOptions
             )
         }
+        return useModel
+    }
 
+    function createUseModelList<Model>(url: string, schema: ZodTypeAny){
         function useModelList(
             limit: number,
             offset: number,
@@ -93,7 +87,7 @@ export default function createModelContext<Ctx = undefined>() {
 
             //@ts-ignore
             const getModelList = useSWR<Model[]>(
-                !isDisabled ? [modelListUrl, ctx, queryString] : null,
+                !isDisabled ? [url, ctx, queryString] : null,
                 ([url, ctx, queryString]: [string, Ctx, string]) =>
                     fetcher<Ctx, any, Model[]>(url, { schema: z.array(schema), params: queryParams, ctx, headers }),
                 restOptions
@@ -109,8 +103,14 @@ export default function createModelContext<Ctx = undefined>() {
             }
         }
 
+        return useModelList
+    }
 
-        function useModelListInfinite(
+
+
+    function createUseModelInfinite<Model>(url: string, schema: ZodTypeAny){
+
+        function useInfinite(
             pageSize: number,
             defaultFilters: DefaultFilter<Model>[],
             isDisabled: boolean = false,
@@ -133,7 +133,7 @@ export default function createModelContext<Ctx = undefined>() {
                 if (filters.length > 0) {
                     queryParams.filter = queryString;
                 }
-                return [modelListUrl, ctx, JSON.stringify(queryParams)];
+                return [url, ctx, JSON.stringify(queryParams)];
             };
 
             // The fetcher function for each page
@@ -161,74 +161,17 @@ export default function createModelContext<Ctx = undefined>() {
                 items: swrInfinite.data ? ([] as Model[]).concat(...swrInfinite.data) : [],
             };
         }
-
-
-
-        function useLastModel<Ctx, Model>(options?: ModelConfiguration<Ctx>) {
-
-            const ctx = useHookCtx(options?.ctx)
-
-
-            const { filters, where, build, reset, queryString } = useQueryBuilder(schema, options?.defaultFilters || []);
-
-            let queryParams: Record<string, any> = {};
-
-            if (filters.length > 0) {
-                queryParams.filter = queryString;
-            }
-
-            const { headers, ...restOptions } = options || {};
-
-            return useSWR<Model | null>(
-                [modelLastUrl, queryParams, ctx],
-                ([url, queryParams, ctx]: [string, Record<string, any>, Ctx]) =>
-                    fetcher<Ctx, never, Model>(url, {
-                        schema,
-                        params:
-                            queryParams,
-                        ctx,
-                        headers
-                    }),
-                restOptions
-            )
-        }
-
-        function useCreateModel<Ctx, Payload, Model>(options?: ModelConfiguration<Model, Ctx>) {
-
-            const ctx = useHookCtx(options?.ctx)
-
-            return useMutationHook<Ctx, Payload, Model>(modelCreateUrl, {
-                ctx,
-                schema,
-                method: 'POST',
-            });
-        }
-
-        function useUpdateModel<ID, Ctx, Payload, Model>(id: ID, options?: ModelConfiguration<Model, Ctx>) {
-            const ctx = useHookCtx(options?.ctx)
-            return useMutationHook<Ctx, Payload, Model>(modelUpdateUrl, { ctx, schema, method: 'PUT' });
-        }
-
-        function useDeleteModel<ID, Ctx, Payload, Model>(id: ID, options?: ModelConfiguration<Model, Ctx>) {
-            const ctx = useHookCtx(options?.ctx)
-            return useMutationHook<Ctx, Payload, Model>(modelDeleteUrl, { ctx, schema, method: 'DELETE' });
-        }
-
-        return {
-            useModel,
-            useModelList,
-            useModelListInfinite,
-            useLastModel,
-            useCreateModel,
-            useUpdateModel,
-            useDeleteModel,
-        }
+        return useInfinite
     }
 
+
+    
 
     return {
         CtxContext,
         useCtx,
-        createModelService,
+        createUseModel,
+        createUseModelList,
+        createUseModelInfinite,
     }
 }
