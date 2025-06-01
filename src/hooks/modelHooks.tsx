@@ -594,28 +594,33 @@ export function createUseFetchModelListInfiniteHook<
 
 
 
-/**
- * Default fetcher for create/update/delete mutations.
- * - Sends POST/PUT/DELETE with JSON body containing payload and nested ctx.
- * - Groups all ctx fields under "ctx" in body.
- */
-export async function defaultCreateFetcher<Ctx extends { branchId: number }, T>(
+export async function defaultMutationFetcher<
+    Ctx extends { branchId: number },
+    T
+>(
     url: string,
-    config: { ctx: Ctx; headers?: Record<string, string>; payload: any }
+    config: {
+        method: "POST" | "PUT" | "DELETE";
+        ctx: Ctx;
+        headers?: Record<string, string>;
+        payload: Record<string, any>;
+    }
 ): Promise<T> {
+    // Build request body: all payload fields, plus nested ctx
     const body = JSON.stringify({ ...config.payload, ctx: config.ctx });
     const combinedHeaders: Record<string, string> = {
         "Content-Type": "application/json",
         ...(config.headers || {}),
     };
     const response = await fetch(url, {
-        method: "POST",
+        method: config.method,
         headers: combinedHeaders,
         body,
     });
     if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
     }
+    // Some DELETEs return empty body → handle text then parse if nonempty
     const json = await response.json();
     return json as T;
 }
@@ -626,19 +631,19 @@ export async function defaultCreateFetcher<Ctx extends { branchId: number }, T>(
 
 /**
  * Creates a hook to perform a CREATE mutation (POST) to the given URL.
- * - Validates server response with Zod.
- * - Sends nested "ctx" plus payload in request body.
+ * - Uses defaultMutationFetcher with method="POST".
+ * - Validates response via Zod.
  */
 export function createUseCreateModelHook<
     Model,
-    Payload,
+    Payload extends Record<string, any>,
     Ctx extends { branchId: number }
 >(config: {
     url: string;
     schema: ZodTypeAny;
     fetcher?: <T>(
         url: string,
-        config: { ctx: Ctx; headers?: Record<string, string>; payload: any }
+        cfg: { method: "POST"; ctx: Ctx; headers?: Record<string, string>; payload: any }
     ) => Promise<T>;
 }) {
     const { url: baseUrl, schema, fetcher: customFetcher } = config;
@@ -650,10 +655,10 @@ export function createUseCreateModelHook<
         const { ctx: explicitCtx, headers } = params || {};
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
 
-        // Determine which fetcher to use
         const fetchFn = customFetcher
             ? customFetcher
-            : (defaultCreateFetcher as typeof defaultCreateFetcher);
+            : ((url: string, cfg: any) =>
+                defaultMutationFetcher<Ctx, any>(url, { method: "POST", ...cfg })) as typeof defaultMutationFetcher;
 
         const mutation = useSWRMutation<Payload, Model, any>(
             baseUrl,
@@ -664,6 +669,107 @@ export function createUseCreateModelHook<
                     payload: arg,
                 });
                 return schema.parse(raw);
+            }
+        );
+
+        return {
+            trigger: mutation.trigger,
+            data: mutation.data,
+            error: mutation.error,
+            isMutating: mutation.isMutating,
+        };
+    };
+}
+
+/**
+ * Creates a hook to perform an UPDATE mutation (PUT) to the given URL.
+ * - Uses defaultMutationFetcher with method="PUT".
+ * - Validates response via Zod.
+ */
+export function createUseUpdateModelHook<
+    Model,
+    Payload extends { id: number | string },
+    Ctx extends { branchId: number }
+>(config: {
+    url: string;
+    schema: ZodTypeAny;
+    fetcher?: <T>(
+        url: string,
+        cfg: { method: "PUT"; ctx: Ctx; headers?: Record<string, string>; payload: any }
+    ) => Promise<T>;
+}) {
+    const { url: baseUrl, schema, fetcher: customFetcher } = config;
+
+    return function useUpdateModel(params?: {
+        ctx?: Ctx;
+        headers?: Record<string, string>;
+    }) {
+        const { ctx: explicitCtx, headers } = params || {};
+        const ctxToUse = useHookCtx<Ctx>(explicitCtx);
+
+        const fetchFn = customFetcher
+            ? customFetcher
+            : ((url: string, cfg: any) =>
+                defaultMutationFetcher<Ctx, any>(url, { method: "PUT", ...cfg })) as typeof defaultMutationFetcher;
+
+        const mutation = useSWRMutation<Payload, Model, any>(
+            baseUrl,
+            async (url, { arg }) => {
+                const raw = await fetchFn<Model>(url, {
+                    ctx: ctxToUse,
+                    headers,
+                    payload: arg,
+                });
+                return schema.parse(raw);
+            }
+        );
+
+        return {
+            trigger: mutation.trigger,
+            data: mutation.data,
+            error: mutation.error,
+            isMutating: mutation.isMutating,
+        };
+    };
+}
+
+/**
+ * Creates a hook to perform a DELETE mutation to the given URL.
+ * - Uses defaultMutationFetcher with method="DELETE".
+ * - Returns `null` or parsed JSON.
+ */
+export function createUseDeleteModelHook<
+    Ctx extends { branchId: number }
+>(config: {
+    url: string;
+    fetcher?: <T>(
+        url: string,
+        cfg: { method: "DELETE"; ctx: Ctx; headers?: Record<string, string>; payload: { id: number | string } }
+    ) => Promise<any>;
+}) {
+    const { url: baseUrl, fetcher: customFetcher } = config;
+
+    return function useDeleteModel(params?: {
+        ctx?: Ctx;
+        headers?: Record<string, string>;
+    }) {
+        const { ctx: explicitCtx, headers } = params || {};
+        const ctxToUse = useHookCtx<Ctx>(explicitCtx);
+
+        const fetchFn = customFetcher
+            ? customFetcher
+            : ((url: string, cfg: any) =>
+                defaultMutationFetcher<Ctx, any>(url, { method: "DELETE", ...cfg })) as typeof defaultMutationFetcher;
+
+        const mutation = useSWRMutation<{ id: number | string }, any, any>(
+            baseUrl,
+            async (url, { arg }) => {
+                const raw = await fetchFn<any>(url, {
+                    ctx: ctxToUse,
+                    headers,
+                    payload: arg,
+                });
+                return raw;
             }
         );
 

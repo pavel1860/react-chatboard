@@ -8,9 +8,11 @@ import { z } from "zod";
 import {
     CtxContext,
     createUseCreateModelHook,
+    createUseDeleteModelHook,
     createUseFetchModelHook,
     createUseFetchModelListHook,
     createUseFetchModelListInfiniteHook,
+    createUseUpdateModelHook,
 } from "../src/hooks/modelHooks";
 
 // --------------------
@@ -506,34 +508,18 @@ describe("createUseFetchModelListInfiniteHook", () => {
 
 
 
-// --------------------
-// Tests for createUseCreateModelHook
-// --------------------
-
 describe("createUseCreateModelHook", () => {
-    interface NewModel {
-        id: number;
-        name: string;
-    }
     interface CreatePayload {
         name: string;
     }
-    const newSchema = z.object({
-        id: z.number(),
-        name: z.string(),
-    });
 
-    const useCreateModel = createUseCreateModelHook<
-        NewModel,
-        CreatePayload,
-        TestCtx
-    >({
+    const useCreateModel = createUseCreateModelHook<TestModel, CreatePayload, TestCtx>({
         url: "/api/ai/model/test/create",
-        schema: newSchema,
+        schema: testSchema,
     });
 
-    it("sends correct request body including nested ctx and payload", async () => {
-        const created: NewModel = { id: 10, name: "Zara" };
+    it("sends POST with body containing payload and nested ctx", async () => {
+        const created: TestModel = { id: 10, name: "Zara" };
         // @ts-ignore
         global.fetch.mockResolvedValueOnce({
             ok: true,
@@ -543,7 +529,7 @@ describe("createUseCreateModelHook", () => {
         const ctxValue = { branchId: 7, partitionId: "A1" };
         const { result } = renderHook(
             () => useCreateModel({ ctx: ctxValue, headers: { "X-Test": "true" } }),
-            { wrapper: wrapper({ branchId: 7, partitionId: "A1" }) }
+            { wrapper: wrapper(ctxValue) }
         );
 
         let response: any;
@@ -551,6 +537,7 @@ describe("createUseCreateModelHook", () => {
             response = await result.current.trigger({ name: "Zara" });
         });
 
+        // Assert fetch called once
         expect(global.fetch).toHaveBeenCalledTimes(1);
         const [calledUrl, options] = (global.fetch as jest.Mock).mock.calls[0];
         expect(calledUrl).toBe("/api/ai/model/test/create");
@@ -577,7 +564,7 @@ describe("createUseCreateModelHook", () => {
         const ctxValue = { branchId: 8 };
         const { result } = renderHook(
             () => useCreateModel({ ctx: ctxValue }),
-            { wrapper: wrapper({ branchId: 8 }) }
+            { wrapper: wrapper(ctxValue) }
         );
 
         let error: any;
@@ -594,7 +581,150 @@ describe("createUseCreateModelHook", () => {
     });
 });
 
+// --------------------
+// Tests for createUseUpdateModelHook
+// --------------------
 
+describe("createUseUpdateModelHook", () => {
+    interface UpdatePayload {
+        id: number;
+        name: string;
+    }
+    const useUpdateModel = createUseUpdateModelHook<TestModel, UpdatePayload, TestCtx>({
+        url: "/api/ai/model/test/update",
+        schema: testSchema,
+    });
 
+    it("sends PUT with body containing payload and nested ctx", async () => {
+        const updated: TestModel = { id: 20, name: "Yara" };
+        // @ts-ignore
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => updated,
+        });
 
+        const ctxValue = { branchId: 9, partitionId: "B2" };
+        const { result } = renderHook(
+            () => useUpdateModel({ ctx: ctxValue, headers: { "X-Test": "true" } }),
+            { wrapper: wrapper(ctxValue) }
+        );
 
+        let response: any;
+        await act(async () => {
+            response = await result.current.trigger({ id: 20, name: "Yara" });
+        });
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        const [calledUrl, options] = (global.fetch as jest.Mock).mock.calls[0];
+        expect(calledUrl).toBe("/api/ai/model/test/update");
+        expect(options.method).toBe("PUT");
+        expect(options.headers["Content-Type"]).toBe("application/json");
+        expect(options.headers["X-Test"]).toBe("true");
+
+        const sentBody = JSON.parse(options.body);
+        expect(sentBody).toEqual({
+            id: 20,
+            name: "Yara",
+            ctx: ctxValue,
+        });
+        expect(response).toEqual(updated);
+    });
+
+    it("throws when response fails Zod validation", async () => {
+        // Return invalid shape: missing "name"
+        // @ts-ignore
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ id: 30 }),
+        });
+
+        const ctxValue = { branchId: 10 };
+        const { result } = renderHook(
+            () => useUpdateModel({ ctx: ctxValue }),
+            { wrapper: wrapper(ctxValue) }
+        );
+
+        let error: any;
+        await act(async () => {
+            try {
+                await result.current.trigger({ id: 30, name: "" });
+            } catch (e) {
+                error = e;
+            }
+        });
+
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toMatch(/name/);
+    });
+});
+
+// --------------------
+// Tests for createUseDeleteModelHook
+// --------------------
+
+describe("createUseDeleteModelHook", () => {
+    const useDeleteModel = createUseDeleteModelHook<TestCtx>({
+        url: "/api/ai/model/test/delete",
+    });
+
+    it("sends DELETE with body containing id and nested ctx", async () => {
+        // @ts-ignore
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            text: async () => "", // empty body
+        });
+
+        const ctxValue = { branchId: 11, partitionId: "C3" };
+        const { result } = renderHook(
+            () => useDeleteModel({ ctx: ctxValue, headers: { "X-Test": "true" } }),
+            { wrapper: wrapper(ctxValue) }
+        );
+
+        let response: any;
+        await act(async () => {
+            response = await result.current.trigger({ id: 40 });
+        });
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        const [calledUrl, options] = (global.fetch as jest.Mock).mock.calls[0];
+        expect(calledUrl).toBe("/api/ai/model/test/delete");
+        expect(options.method).toBe("DELETE");
+        expect(options.headers["Content-Type"]).toBe("application/json");
+        expect(options.headers["X-Test"]).toBe("true");
+
+        const sentBody = JSON.parse(options.body);
+        expect(sentBody).toEqual({
+            id: 40,
+            ctx: ctxValue,
+        });
+        expect(response).toBeNull();
+    });
+
+    it("throws when HTTP response is not ok", async () => {
+        // Simulate 404
+        // @ts-ignore
+        global.fetch.mockResolvedValueOnce({
+            ok: false,
+            status: 404,
+            text: async () => "Not found",
+        });
+
+        const ctxValue = { branchId: 12 };
+        const { result } = renderHook(
+            () => useDeleteModel({ ctx: ctxValue }),
+            { wrapper: wrapper(ctxValue) }
+        );
+
+        let error: any;
+        await act(async () => {
+            try {
+                await result.current.trigger({ id: 50 });
+            } catch (e) {
+                error = e;
+            }
+        });
+
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toMatch(/404/);
+    });
+});
