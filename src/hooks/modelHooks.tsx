@@ -7,7 +7,7 @@ import useSWRMutation from "swr/mutation";
 import { ZodTypeAny, z } from "zod";
 import { DefaultFilter, useQueryBuilder } from "../services/query-builder";
 import useSWRInfinite from "swr/infinite";
-import { convertKeysToCamelCase } from "../model/services/model-context";
+import { convertKeysToCamelCase, convertKeysToSnakeCase } from "../model/services/model-context";
 
 // --------------------
 // Context & Helpers
@@ -42,6 +42,41 @@ export function useHookCtx<Ctx extends { branchId: number } = { branchId: number
     );
 }
 
+
+
+const buildFinalUrl = (
+    baseUrl: string, 
+    ctx: Record<string, any>, 
+    list?: { limit: number; offset: number; orderby?: string; direction?: "asc" | "desc" }, 
+    filter?: string
+) => {
+
+    const params: any = {
+        ctx: convertKeysToSnakeCase(ctx),
+    }
+    if (list) {
+        params["list"] = {
+            limit: list.limit,
+            offset: list.offset,
+            ...(list.orderby !== undefined ? { orderby: list.orderby } : {}),
+            ...(list.direction !== undefined ? { direction: list.direction } : {}),
+        }
+    }
+    if (filter) {
+        params["filter"] = filter;
+    }
+    const finalUrl = buildNestedUrl(baseUrl, params);
+    return finalUrl;
+}
+
+
+
+const parseSchema = (schema: ZodTypeAny, data: any) => {
+    const result = schema.safeParse(convertKeysToCamelCase(data));
+    if (result.success) return result.data;        
+    console.error(result.error.errors);
+    throw new Error(`Failed to parse data: ${result.error.errors}`);        
+}
 /**
  * Build a URL with nested query parameters:
  * - ctx: JSON stringified object of context
@@ -106,7 +141,7 @@ export async function defaultSingleFetcher<Ctx extends { branchId: number }, T>(
         throw new Error(`Request failed with status ${response.status}`);
     }
     const json = await response.json();
-    return json as T;
+    return convertKeysToCamelCase(json) as T;
 }
 
 /**
@@ -141,9 +176,9 @@ export async function defaultListFetcher<
         ...(config.params.direction !== undefined ? { direction: config.params.direction } : {}),
     };
     const finalUrl = buildNestedUrl(url, {
-        ctx: config.ctx,
-        list: listParams,
-        filter: config.filter,
+        ctx: convertKeysToSnakeCase(config.ctx),
+        list: convertKeysToSnakeCase(listParams),
+        filter: config.filter ? convertKeysToSnakeCase(config.filter) : undefined,
     });
     const combinedHeaders: Record<string, string> = {
         "Content-Type": "application/json",
@@ -157,7 +192,7 @@ export async function defaultListFetcher<
         throw new Error(`Request failed with status ${response.status}`);
     }
     const json = await response.json();
-    return json as T;
+    return convertKeysToCamelCase(json) as T;
 }
 
 // --------------------
@@ -349,7 +384,7 @@ export function createUseFetchModelHook<
                     ctx: ctxObj,
                     headers: hdrs,
                 });
-                return schema.parse(raw);
+                return parseSchema(schema, raw);
             },
             swrOptions
         );
@@ -450,7 +485,7 @@ export function createUseFetchModelListHook<
                     params: parsedParams,
                     filter: filters.length > 0 ? filterStr : undefined,
                 });
-                return z.array(schema).parse(rawList);
+                return parseSchema(z.array(schema), rawList);
             },
             swrOptions
         );
@@ -523,7 +558,7 @@ export function createUseFetchModelListInfiniteHook<
         const trigger = () => {
             if (!shouldFetch) setShouldFetch(true);
         };
-
+        console.log("#### ctxToUse", ctxToUse)
         // Key generator for SWR Infinite
         const getKey = (
             pageIndex: number,
@@ -541,6 +576,7 @@ export function createUseFetchModelListInfiniteHook<
             } = { limit: pageSize, offset: pageIndex * pageSize };
             if (orderby) listParams.orderby = orderby;
             if (direction) listParams.direction = direction;
+            console.log("#### ctxToUse key", ctxToUse)
 
             return [
                 listUrl,
@@ -571,8 +607,8 @@ export function createUseFetchModelListInfiniteHook<
                     params: parsedParams,
                     filter: filters.length > 0 ? filterStr : undefined,
                 });
-                rawList = convertKeysToCamelCase(rawList)
-                return z.array(schema).parse(rawList);
+                // rawList = convertKeysToCamelCase(rawList)
+                return parseSchema(z.array(schema), rawList);
             },
             swrOptions
         );
@@ -603,13 +639,14 @@ export async function defaultMutationFetcher<
     url: string,
     config: {
         method: "POST" | "PUT" | "DELETE";
-        ctx: Ctx;
+        // ctx: Ctx;
         headers?: Record<string, string>;
         payload: Record<string, any>;
     }
 ): Promise<T> {
     // Build request body: all payload fields, plus nested ctx
-    const body = JSON.stringify({ ...config.payload, ctx: config.ctx });
+    // const body = JSON.stringify({ ...config.payload, ctx: config.ctx });
+    const body = JSON.stringify({ ...config.payload});
     const combinedHeaders: Record<string, string> = {
         "Content-Type": "application/json",
         ...(config.headers || {}),
@@ -624,7 +661,7 @@ export async function defaultMutationFetcher<
     }
     // Some DELETEs return empty body → handle text then parse if nonempty
     const json = await response.json();
-    return json as T;
+    return convertKeysToCamelCase(json) as T;
 }
 
 
@@ -663,14 +700,13 @@ export function createUseCreateModelHook<
                 defaultMutationFetcher<Ctx, any>(url, { method: "POST", ...cfg })) as typeof defaultMutationFetcher;
 
         const mutation = useSWRMutation<Payload, Model, any>(
-            baseUrl,
+            buildFinalUrl(baseUrl, ctxToUse),
             async (url, { arg }) => {
                 const raw = await fetchFn<Model>(url, {
-                    ctx: ctxToUse,
                     headers,
                     payload: arg,
                 });
-                return schema.parse(raw);
+                return parseSchema(schema, raw);
             }
         );
 
@@ -715,14 +751,13 @@ export function createUseUpdateModelHook<
                 defaultMutationFetcher<Ctx, any>(url, { method: "PUT", ...cfg })) as typeof defaultMutationFetcher;
 
         const mutation = useSWRMutation<Payload, Model, any>(
-            baseUrl,
+            buildFinalUrl(baseUrl, ctxToUse),
             async (url, { arg }) => {
                 const raw = await fetchFn<Model>(url, {
-                    ctx: ctxToUse,
                     headers,
                     payload: arg,
                 });
-                return schema.parse(raw);
+                return parseSchema(schema, raw);
             }
         );
 
@@ -764,10 +799,9 @@ export function createUseDeleteModelHook<
                 defaultMutationFetcher<Ctx, any>(url, { method: "DELETE", ...cfg })) as typeof defaultMutationFetcher;
 
         const mutation = useSWRMutation<{ id: number | string }, any, any>(
-            baseUrl,
+            buildFinalUrl(baseUrl, ctxToUse),
             async (url, { arg }) => {
-                const raw = await fetchFn<any>(url, {
-                    ctx: ctxToUse,
+                const raw = await fetchFn<any>(url, {                    
                     headers,
                     payload: arg,
                 });
