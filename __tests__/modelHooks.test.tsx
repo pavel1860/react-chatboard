@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import {
     CtxContext,
+    createUseCreateModelHook,
     createUseFetchModelHook,
     createUseFetchModelListHook,
     createUseFetchModelListInfiniteHook,
@@ -495,3 +496,105 @@ describe("createUseFetchModelListInfiniteHook", () => {
         });
     });
 });
+
+
+
+
+
+
+
+
+
+
+// --------------------
+// Tests for createUseCreateModelHook
+// --------------------
+
+describe("createUseCreateModelHook", () => {
+    interface NewModel {
+        id: number;
+        name: string;
+    }
+    interface CreatePayload {
+        name: string;
+    }
+    const newSchema = z.object({
+        id: z.number(),
+        name: z.string(),
+    });
+
+    const useCreateModel = createUseCreateModelHook<
+        NewModel,
+        CreatePayload,
+        TestCtx
+    >({
+        url: "/api/ai/model/test/create",
+        schema: newSchema,
+    });
+
+    it("sends correct request body including nested ctx and payload", async () => {
+        const created: NewModel = { id: 10, name: "Zara" };
+        // @ts-ignore
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => created,
+        });
+
+        const ctxValue = { branchId: 7, partitionId: "A1" };
+        const { result } = renderHook(
+            () => useCreateModel({ ctx: ctxValue, headers: { "X-Test": "true" } }),
+            { wrapper: wrapper({ branchId: 7, partitionId: "A1" }) }
+        );
+
+        let response: any;
+        await act(async () => {
+            response = await result.current.trigger({ name: "Zara" });
+        });
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        const [calledUrl, options] = (global.fetch as jest.Mock).mock.calls[0];
+        expect(calledUrl).toBe("/api/ai/model/test/create");
+        expect(options.method).toBe("POST");
+        expect(options.headers["Content-Type"]).toBe("application/json");
+        expect(options.headers["X-Test"]).toBe("true");
+
+        const sentBody = JSON.parse(options.body);
+        expect(sentBody).toEqual({
+            name: "Zara",
+            ctx: ctxValue,
+        });
+        expect(response).toEqual(created);
+    });
+
+    it("throws when response fails Zod validation", async () => {
+        // Return invalid shape: missing "id"
+        // @ts-ignore
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ name: "NoID" }),
+        });
+
+        const ctxValue = { branchId: 8 };
+        const { result } = renderHook(
+            () => useCreateModel({ ctx: ctxValue }),
+            { wrapper: wrapper({ branchId: 8 }) }
+        );
+
+        let error: any;
+        await act(async () => {
+            try {
+                await result.current.trigger({ name: "NoID" });
+            } catch (e) {
+                error = e;
+            }
+        });
+
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toMatch(/id/);
+    });
+});
+
+
+
+
+
