@@ -7,6 +7,7 @@ import useSWRMutation from "swr/mutation";
 import { ZodTypeAny, z } from "zod";
 import { DefaultFilter, useQueryBuilder } from "../services/query-builder";
 import useSWRInfinite from "swr/infinite";
+import { convertKeysToCamelCase } from "../model/services/model-context";
 
 // --------------------
 // Context & Helpers
@@ -255,7 +256,7 @@ export interface FetchModelListHookConfig<
  */
 export interface UseFetchModelListParams<Model, Ctx> {
     limit: number;
-    offset: number;
+    offset?: number;
     orderby?: string;
     direction?: "asc" | "desc";
     filters?: DefaultFilter<Model>[];
@@ -486,11 +487,11 @@ export function createUseFetchModelListInfiniteHook<
     const { url: listUrl, schema, fetcher: customFetcher } = config;
 
     return function useFetchModelListInfinite(
-        params: UseFetchModelListParams<Model, Ctx> & { pageSize: number; defaultFilters: DefaultFilter<Model>[] }
+        params: UseFetchModelListParams<Model, Ctx> & { defaultFilters?: DefaultFilter<Model>[] }
     ) {
         const {
-            pageSize,
-            defaultFilters,
+            limit: pageSize,
+            defaultFilters = [],
             orderby,
             direction,
             isDisabled = false,
@@ -564,12 +565,13 @@ export function createUseFetchModelListInfiniteHook<
                     orderby?: string;
                     direction?: "asc" | "desc";
                 };
-                const rawList = await fetchFn<Model[]>(url, {
+                let rawList = await fetchFn<Model[]>(url, {
                     ctx: ctxObj,
                     headers: headers ?? {},
                     params: parsedParams,
                     filter: filters.length > 0 ? filterStr : undefined,
                 });
+                rawList = convertKeysToCamelCase(rawList)
                 return z.array(schema).parse(rawList);
             },
             swrOptions

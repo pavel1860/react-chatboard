@@ -56,7 +56,7 @@ export default function createModelContext<Ctx = undefined>() {
         options: ModelServiceOptions = {}
     ): ModelService<Model, Payload, Ctx, ID> {
         const { baseUrl = "/api/ai/model" } = options;
-        const modelUrl = `${baseUrl}/${model}`
+        const modelUrl = `${baseUrl}/${model}/record`
         const modelListUrl = `${baseUrl}/${model}/list`
         const modelLastUrl = `${baseUrl}/${model}/last`
         const modelCreateUrl = `${baseUrl}/${model}/create`
