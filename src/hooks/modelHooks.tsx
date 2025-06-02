@@ -558,7 +558,7 @@ export function createUseFetchModelListInfiniteHook<
         const trigger = () => {
             if (!shouldFetch) setShouldFetch(true);
         };
-        console.log("#### ctxToUse", ctxToUse)
+
         // Key generator for SWR Infinite
         const getKey = (
             pageIndex: number,
@@ -576,7 +576,6 @@ export function createUseFetchModelListInfiniteHook<
             } = { limit: pageSize, offset: pageIndex * pageSize };
             if (orderby) listParams.orderby = orderby;
             if (direction) listParams.direction = direction;
-            console.log("#### ctxToUse key", ctxToUse)
 
             return [
                 listUrl,

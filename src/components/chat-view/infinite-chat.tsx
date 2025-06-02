@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssetItem } from "../../services/chatboard-service";
@@ -47,11 +47,16 @@ export default function InfiniteChat<M extends BaseArtifactType>({
         emptyMessage = "No messages", 
         endMessage = "No more messages"
     }: InfiniteChatProps<M>) {
-    
-    const MAX_DATA = 1000;
 
-    // const hasMore = messages.length < MAX_DATA;
-    const hasMore = false;
+    const [itemCount, setItemCount] = useState(messages.length || 0)
+    const [hasMore, setHasMore] = useState(true)
+
+    useEffect(() => {
+        if (messages.length !== itemCount) {
+            setHasMore(messages.length > itemCount)
+            setItemCount(messages.length)
+        }
+    }, [messages])
 
     return (
         <div id="scrollableDiv" 
@@ -87,18 +92,7 @@ export default function InfiniteChat<M extends BaseArtifactType>({
                 }}
                 >
                 <AnimatePresence>
-                    {messages.map( (message: M, idx: number) => {
-                        // let turn = undefined;
-                        // if (idx > 0) {
-                        //     if (message.turn_id !== (messages[idx - 1] as any).turn_id) {
-                        //         // turn = <Chip color="default">Turn {message.turn_id}</Chip>
-                        //         turn = TurnChip(message.turn_id)
-                        //     }
-                        // } else {
-                        //     turn = TurnChip(message.turn_id)
-                        // }
-                        let prevMessage = idx > 0 ? messages[idx - 1] as M : undefined;
-                        
+                    {messages.map( (message: M, idx: number) => {                        
                         return (
                             <motion.div
                                 // key={message && (message as any).id ? (message as any).id : idx}

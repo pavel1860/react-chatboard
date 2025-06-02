@@ -16,7 +16,7 @@ const BASE_URL = '/api/ai/artifact_log';
 // Zod schemas for validation
 const BranchSchema = z.object({
     id: z.number(),
-    name: z.string(),
+    name: z.string().nullable(),
     created_at: z.string(),
     updated_at: z.string(),
     // branch_index: z.number(),
