@@ -68,15 +68,13 @@ export default function InfiniteChat<M extends BaseArtifactType>({
                 flexDirection: 'column-reverse',
             }} 
             className="bg-body-tertiary p-3">
+                {/* <div>has more: {hasMore.toString()}</div> */}
             {loading && <Spinner classNames={{label: "text-foreground mt-4"}} variant="wave" />}
             <InfiniteScroll
                 dataLength={ messages.length }
                 next={fetchMore}
                 hasMore={hasMore}
                 loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
-                // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
-                // loader={<p className="text-center m-5">{loading ? "⏳&nbsp;Loading..." : "⏳&nbsp;Loading..."}</p>}
-                // endMessage={<p className="text-center m-5">{messages.length > 0 ? endMessage : emptyMessage}</p>}
                 endMessage={buildEndMessage(messages, emptyMessage, endMessage)}
                 style={{ 
                     display: "flex", 
@@ -85,13 +83,15 @@ export default function InfiniteChat<M extends BaseArtifactType>({
                     gap: gap || "10px"
                 }}
                 scrollableTarget="scrollableDiv"
+                initialScrollY={-420}
                 inverse={true}
                 // initialScrollY={0}
                 onScroll={(e) => {
-                    console.log("scrolled", e)
+                    // console.log("scrolled", e)
                 }}
                 >
-                <AnimatePresence>
+                    {messages.map( (message: M, idx: number) => children(message, idx, messages))}
+                {/* <AnimatePresence>
                     {messages.map( (message: M, idx: number) => {                        
                         return (
                             <motion.div
@@ -108,7 +108,7 @@ export default function InfiniteChat<M extends BaseArtifactType>({
                     )
                     })}
                     
-                </AnimatePresence>                
+                </AnimatePresence>                 */}
             </InfiniteScroll>
             
         </div>

@@ -236,6 +236,14 @@ export interface UseFetchModelParams<Ctx> {
      * To trigger the fetch, call the returned `trigger()` function.
      */
     lazy?: boolean;
+    /**
+     * Optional callback for successful fetch.
+     */
+    onSuccess?: (data: any) => void;
+    /**
+     * Optional callback for fetch error.
+     */
+    onError?: (error: any) => void;
 }
 
 /**
@@ -304,6 +312,14 @@ export interface UseFetchModelListParams<Model, Ctx> {
      * To trigger the fetch, call the returned `trigger()` function.
      */
     lazy?: boolean;
+    /**
+     * Optional callback for successful fetch.
+     */
+    onSuccess?: (data: Model[]) => void;
+    /**
+     * Optional callback for fetch error.
+     */
+    onError?: (error: any) => void;
 }
 
 /**
@@ -347,7 +363,7 @@ export function createUseFetchModelHook<
     return function useFetchModel(
         params: UseFetchModelParams<Ctx>
     ): UseFetchModelReturn<Model> {
-        const { id, ctx: explicitCtx, headers, swrOptions, lazy = false } = params || {};
+        const { id, ctx: explicitCtx, headers, swrOptions, lazy = false, onSuccess, onError } = params || {};
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
 
         // Determine which fetcher to use
@@ -386,7 +402,15 @@ export function createUseFetchModelHook<
                 });
                 return parseSchema(schema, raw);
             },
-            swrOptions
+            {
+                ...swrOptions,
+                onSuccess: (data) => {
+                    if (onSuccess) onSuccess(data);
+                },
+                onError: (error) => {
+                    if (onError) onError(error);
+                },
+            }
         );
 
         return {
@@ -420,6 +444,8 @@ export function createUseFetchModelListHook<
             headers,
             swrOptions,
             lazy = false,
+            onSuccess,
+            onError,
         } = params;
 
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
@@ -487,7 +513,15 @@ export function createUseFetchModelListHook<
                 });
                 return parseSchema(z.array(schema), rawList);
             },
-            swrOptions
+            {
+                ...swrOptions,
+                onSuccess: (data) => {
+                    if (onSuccess) onSuccess(data);
+                },
+                onError: (error) => {
+                    if (onError) onError(error);
+                },
+            }
         );
 
         return {
@@ -534,6 +568,8 @@ export function createUseFetchModelListInfiniteHook<
             headers,
             swrOptions,
             lazy = false,
+            onSuccess,
+            onError,
         } = params;
 
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
@@ -609,7 +645,15 @@ export function createUseFetchModelListInfiniteHook<
                 // rawList = convertKeysToCamelCase(rawList)
                 return parseSchema(z.array(schema), rawList);
             },
-            swrOptions
+            {
+                ...swrOptions,
+                onSuccess: (data) => {
+                    if (onSuccess) onSuccess(data);
+                },
+                onError: (error) => {
+                    if (onError) onError(error);
+                },
+            }
         );
 
         const items = swrInfinite.data ? ([] as Model[]).concat(...swrInfinite.data) : [];
