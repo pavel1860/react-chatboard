@@ -4,6 +4,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { Input, Select, SelectItem, Skeleton, Form, Button } from '@heroui/react';
 import { InputFieldProps, InputStyleProps } from "./types";
 import { useInputStyle } from "./form-utils";
+import InputLabel from './InputLabel';
 
 
 
@@ -111,17 +112,12 @@ export function InputField({
             control={control}
             render={({ field: fieldInfo }) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-5">
-                        {icon}
-                    </div>
-                    { label && <label
-                        htmlFor={fieldName}
-                        // style={{ display: "block", marginBottom: 4 }}
-                        className="whitespace-nowrap block z-10 subpixel-antialiased text-small pointer-events-none relative text-foreground will-change-auto origin-top-left rtl:origin-top-right !duration-200 !ease-out transition-[transform,color,left,opacity] motion-reduce:transition-none ps-2 pe-2"
-                        style={{ width: labelWidth || "150px" }}
-                    >
-                        {label}
-                    </label>}
+                    <InputLabel
+                        fieldName={fieldName}
+                        label={label}
+                        icon={icon}
+                        labelWidth={labelWidth}
+                    />
                     {/* <input
                         id={fieldName}
                         type={type}

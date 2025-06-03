@@ -5,6 +5,7 @@ import { Input, Select, SelectItem, Skeleton, Form, Button } from '@heroui/react
 import { InputFieldProps, InputStyleProps } from "./types";
 import { z } from "zod";
 import { useFieldValues, useInputStyle } from "./form-utils";
+import InputLabel from './InputLabel';
 
 
 
@@ -20,6 +21,7 @@ const SelectComp = ({
     variant,
     radius,
     size,
+    labelWidth,
     // icon 
 }: InputFieldProps & { fieldName: string, fieldInfo: any }) => {
 
@@ -30,6 +32,11 @@ const SelectComp = ({
             radius: inputRadius,
             size: inputSize,
         } = useInputStyle({variant, radius, size});
+
+    const {
+        labelWidth: labelWidthStyle,
+        inputWidth: inputWidthStyle,
+    } = useInputStyle({ variant, radius, size });
 
     return (
         <Select
@@ -45,6 +52,10 @@ const SelectComp = ({
             items={selectValues}
             // label={label}
             placeholder={label}
+            classNames={{
+                "base": inputWidthStyle ? `w-[${inputWidthStyle}px]` : "",
+                "label": labelWidthStyle ? `w-[${labelWidthStyle}px]` : ""
+            }}
         >
             {
                 selectValues.map((option) => (<SelectItem key={option.value}>{option.label}</SelectItem>))
@@ -72,6 +83,7 @@ export function SelectField({
     field,
     prefix,
     icon,
+    labelWidth,
     ...props
 }: InputFieldProps) {
     const { register, control, formState: { errors }, isReadOnly } = useFormContext();
@@ -84,21 +96,17 @@ export function SelectField({
             name={fieldName as keyof z.infer<T>}
             control={control}
             render={({ field: fieldInfo }) => (
-                <div className="flex items-center gap-3 justify-between  w-full">
-                    <div className="w-5">
-                        {icon}
-                    </div>
-                    { label && <label
-                        htmlFor={fieldName}
-                        // style={{ display: "block", marginBottom: 4 }}
-                        className="whitespace-nowrap block z-10 subpixel-antialiased text-small pointer-events-none relative text-foreground will-change-auto origin-top-left rtl:origin-top-right !duration-200 !ease-out transition-[transform,color,left,opacity] motion-reduce:transition-none ps-2 pe-2 w-[150px]"
-                    >
-                        {label}
-                    </label>}
+                <div className="flex items-center gap-3">
+                    <InputLabel
+                        fieldName={fieldName}
+                        label={label}
+                        icon={icon}
+                        labelWidth={labelWidth}
+                    />
                     {isReadOnly ?
                         <span
                             className="relative inline-flex tap-highlight-transparent flex-row items-center px-3 gap-3 data-[hover=true]:bg-default-50 group-data-[focus=true]:bg-default-100 h-10 min-h-10 rounded-medium flex-1 transition-background motion-reduce:transition-none !duration-150 outline-none group-data-[focus-visible=true]:z-10 group-data-[focus-visible=true]:ring-2 group-data-[focus-visible=true]:ring-focus group-data-[focus-visible=true]:ring-offset-2 group-data-[focus-visible=true]:ring-offset-background is-filled"
-                        >{fieldInfo.value}</span> : SelectComp({ type, label, field, fieldInfo, prefix, fieldName, ...props })}
+                        >{fieldInfo.value}</span> : SelectComp({ type, label, field, fieldInfo, prefix, fieldName, labelWidth, ...props })}
 
                     {errors[fieldName] && (
                         <div style={{ color: "red", marginTop: 4 }}>
