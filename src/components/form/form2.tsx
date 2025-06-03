@@ -41,6 +41,7 @@ export function Form({
         defaultValues,
     });
 
+
     const extendedMethods = {
         ...methods,
         // Add a custom submit handler

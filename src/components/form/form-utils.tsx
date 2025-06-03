@@ -24,6 +24,59 @@ const toTitleCase = (str: string) => {
 
 
 
+// export function fieldExistsInSchema(schema: z.ZodTypeAny, fieldPath: string): boolean {
+//     const pathSegments = fieldPath.split('.');
+//     let currentSchema: z.ZodTypeAny = schema;
+
+//     for (const segment of pathSegments) {
+//         if (currentSchema instanceof z.ZodObject) {
+//             const shape = currentSchema._def.shape();
+//             if (!(segment in shape)) {
+//                 return false;
+//             }
+//             currentSchema = shape[segment];
+//         } else if (currentSchema instanceof z.ZodArray) {
+//             currentSchema = currentSchema._def.type;
+//         } else {
+//             return false;
+//         }
+//     }
+
+//     return true;
+// }
+
+export function fieldExistsInSchema(schema: z.ZodTypeAny, fieldPath: string): boolean {
+    const pathSegments = fieldPath.split('.');
+    let currentSchema: z.ZodTypeAny = schema;
+    let prevSegment: string | number | undefined = undefined;   
+    for (const segment of pathSegments) {
+        if (currentSchema instanceof z.ZodObject) {
+            const shape = currentSchema._def.shape();
+            if (!(segment in shape)) {
+                return false;
+            }
+            currentSchema = shape[segment];
+        } else if (currentSchema instanceof z.ZodArray) {
+            // If the current schema is an array, move to the element type
+            currentSchema = currentSchema._def.type;
+            // Check if the segment is a number (array index)
+            if (!isNaN(Number(segment))) {
+                continue; // Skip the index as it doesn't affect the schema structure
+            } else {
+                return false; // If it's not a number, the path is invalid
+            }
+        } else {
+            return false;
+        }
+        prevSegment = segment;
+    }
+
+    return true;
+}
+
+
+
+
 export function getZodFieldByPath(
     schema: z.ZodTypeAny,
     path: Array<string | number>

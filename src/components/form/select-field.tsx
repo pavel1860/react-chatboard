@@ -1,10 +1,10 @@
 // InputField.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm, useFormContext } from "react-hook-form";
 import { Input, Select, SelectItem, Skeleton, Form, Button } from '@heroui/react';
 import { InputFieldProps, InputStyleProps } from "./types";
 import { z } from "zod";
-import { useFieldValues, useInputStyle } from "./form-utils";
+import { fieldExistsInSchema, useFieldValues, useInputStyle } from "./form-utils";
 import InputLabel from './InputLabel';
 
 
@@ -86,9 +86,15 @@ export function SelectField({
     labelWidth,
     ...props
 }: InputFieldProps) {
-    const { register, control, formState: { errors }, isReadOnly } = useFormContext();
+    const { register, control, formState: { errors }, isReadOnly, schema } = useFormContext();
     // Build the final field name
     const fieldName = prefix ? `${prefix}.${field}` : field;
+
+    useEffect(() => {
+        if (!fieldExistsInSchema(schema, field)) {
+            throw new Error(`Field ${field} does not exist in schema`)
+        }
+    }, [field, schema])
 
     return (
         <Controller

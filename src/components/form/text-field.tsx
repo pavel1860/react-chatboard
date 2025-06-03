@@ -1,9 +1,9 @@
 // InputField.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Input, Select, SelectItem, Skeleton, Form, Button, Textarea } from '@heroui/react';
 import { InputFieldProps, InputStyleProps } from "./types";
-import { useInputStyle } from "./form-utils";
+import { fieldExistsInSchema, useInputStyle } from "./form-utils";
 import PromptTextEditor from "../promptEditor/editors/promptTextEditor";
 import InputLabel from './InputLabel';
 
@@ -26,7 +26,7 @@ export function TextField({
     inputWidth,
     ...props
 }: InputFieldProps) {
-    const { register, control, formState: { errors }, isReadOnly } = useFormContext();
+    const { register, control, formState: { errors }, isReadOnly, schema } = useFormContext();
     // Build the final field name
     const fieldName = prefix ? `${prefix}.${field}` : field;
     const {
@@ -41,6 +41,13 @@ export function TextField({
         inputWidth: inputWidthStyle,
         labelWidth: labelWidthStyle,
     } = useInputStyle({variant, radius, size, inputWidth, labelWidth});
+
+
+    useEffect(() => {
+        if (!fieldExistsInSchema(schema, field)) {
+            throw new Error(`Field ${field} does not exist in schema`)
+        }
+    }, [field, schema])
     
     return (
         <Controller
@@ -48,7 +55,7 @@ export function TextField({
             name={fieldName as keyof z.infer<T>}
             control={control}
             render={({ field: fieldInfo }) => (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full">
                     <InputLabel
                         fieldName={fieldName}
                         label={label}
@@ -68,8 +75,9 @@ export function TextField({
                             placeholder={label}
                             // classNames={classNames}
                             classNames={{
-                                "base": inputWidthStyle ? `w-[${inputWidthStyle}px]` : "w-full",
+                                // "base": inputWidthStyle ? `w-[${inputWidthStyle}px]` : "w-full",
                                 // "base": "w-[500px]",                              
+                                "base": "w-full",
                             }}
                         />}
 

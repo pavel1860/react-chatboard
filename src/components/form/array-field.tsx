@@ -65,8 +65,10 @@ import React, {
     Children,
     isValidElement,
     cloneElement,
+    useEffect,
 } from "react";
 import { useFormContext, useFieldArray, FieldValues } from "react-hook-form";
+import { fieldExistsInSchema } from "./form-utils";
 
 /**
  * For arrays, we typically know the shape of items. But for a generic example,
@@ -96,6 +98,7 @@ export interface ArrayFieldProps<TItem extends FieldValues> {
         prefix: string,
         remove: (index: number) => void
     ) => ReactNode;
+    gap?: string;
 }
 
 /**
@@ -107,20 +110,28 @@ export function ArrayField<TItem extends FieldValues>({
     field,
     children,
     addComponent,
+    gap,
 }: ArrayFieldProps<TItem>) {
-    const { control } = useFormContext();
+    const { control, schema } = useFormContext();
     const { fields, append, remove } = useFieldArray({
         control,
         name: field,
     });
 
+
+    useEffect(() => {
+        if (!fieldExistsInSchema(schema, field)) {
+            throw new Error(`Field ${field} does not exist in schema`)
+        }
+    }, [field, schema])
+
     const addItem = () => {
         // If you need default item structure, you can pass it to append({ ...defaults })
-        append({});
+        append();
     };
 
     return (
-        <div style={{ marginBottom: "1rem" }}>
+        <div style={{ marginBottom: "1rem", display: "flex", flexDirection: "column", gap: gap || "1rem", marginTop: "1rem" }} className="w-full">
             {/* <h3>{field}</h3> */}
 
             {fields.map((item, index) => {
@@ -131,10 +142,15 @@ export function ArrayField<TItem extends FieldValues>({
                 return (
                     <div
                         key={item.id}
+                        className="w-full"
                         style={{
-                            marginBottom: "1rem",
-                            border: "1px solid #e3e3e3",
-                            padding: "0.5rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            
+                            // gap: gap || "1rem",
+                            // marginBottom: "1rem",
+                            // border: "1px solid #e3e3e3",
+                            // padding: "0.5rem",
                         }}
                     >
                         {children(itemData, index, itemPrefix, remove)}
@@ -142,9 +158,6 @@ export function ArrayField<TItem extends FieldValues>({
                 );
             })}
 
-            {/* <button type="button" onClick={addItem}>
-                + Add Item
-            </button> */}
             {addComponent ? addComponent(addItem) : <Button onPress={addItem} variant="light" size="sm" color="primary">+ Add Item</Button>}
             
         </div>
