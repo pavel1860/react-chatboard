@@ -689,7 +689,8 @@ export async function defaultMutationFetcher<
 ): Promise<T> {
     // Build request body: all payload fields, plus nested ctx
     // const body = JSON.stringify({ ...config.payload, ctx: config.ctx });
-    const body = JSON.stringify({ ...config.payload});
+    const payload = convertKeysToSnakeCase(config.payload)
+    const body = JSON.stringify({ ...payload});
     const combinedHeaders: Record<string, string> = {
         "Content-Type": "application/json",
         ...(config.headers || {}),
