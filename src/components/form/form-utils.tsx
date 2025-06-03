@@ -82,15 +82,14 @@ const useFormCtx = () => {
         register,
         control,
         errors,
-        isReadOnly,
-        schema,
-        style,
+        isReadOnly, // Ensure this is correctly passed down
+        schema,     // Ensure this is correctly passed down
+        style,      // Ensure this is correctly passed down
         getFieldSchema: (fieldPath: string) => {
             const fieldSchema = getZodFieldByPath(schema, fieldPath?.split("."));
             return fieldSchema
         }
     }
-
 }
 
 
@@ -104,6 +103,8 @@ export const useInputStyle = (props: InputStyleProps) => {
         radius: props.radius || style.radius,
         size: props.size || style.size,
         color: props.color || style.color,
+        inputWidth: props.inputWidth || style.inputWidth,
+        labelWidth: props.labelWidth || style.labelWidth,
     }
 }
 
