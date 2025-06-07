@@ -12,6 +12,7 @@ export interface InputStyleProps {
     color?: "primary" | "secondary" | "tertiary" | "success" | "warning" | "error" | "info" | "default"
     inputWidth?: string;
     labelWidth?: string;
+    isReadOnly?: boolean;
 }
 
 
@@ -50,6 +51,7 @@ export interface InputFieldProps extends InputStyleProps {
     classNames?: any;
     inputWidth?: string;
     labelWidth?: string;
+    isReadOnly?: boolean;
 }
 
 

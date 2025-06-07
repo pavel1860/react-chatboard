@@ -56,6 +56,7 @@ export function Form({
             gap,
             labelWidth,
             inputWidth,
+            isReadOnly: isReadOnly,
         }
     }
 

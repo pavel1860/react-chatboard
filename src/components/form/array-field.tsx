@@ -112,12 +112,12 @@ export function ArrayField<TItem extends FieldValues>({
     addComponent,
     gap,
 }: ArrayFieldProps<TItem>) {
-    const { control, schema } = useFormContext();
+    const { control, schema, isReadOnly } = useFormContext();
     const { fields, append, remove } = useFieldArray({
         control,
         name: field,
     });
-
+    
 
     useEffect(() => {
         if (!fieldExistsInSchema(schema, field)) {
@@ -129,6 +129,8 @@ export function ArrayField<TItem extends FieldValues>({
         // If you need default item structure, you can pass it to append({ ...defaults })
         append();
     };
+
+
 
     return (
         <div style={{ marginBottom: "1rem", display: "flex", flexDirection: "column", gap: gap || "1rem", marginTop: "1rem" }} className="w-full">
@@ -158,7 +160,7 @@ export function ArrayField<TItem extends FieldValues>({
                 );
             })}
 
-            {addComponent ? addComponent(addItem) : <Button onPress={addItem} variant="light" size="sm" color="primary">+ Add Item</Button>}
+            { isReadOnly ? null : addComponent ? addComponent(addItem) : <Button isDisabled={isReadOnly} onPress={addItem} variant="light" size="sm" color="primary">+ Add Item</Button>}
             
         </div>
     );

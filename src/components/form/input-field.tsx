@@ -24,6 +24,7 @@ const InputComp = ({
         endContent,
         inputWidth,
         labelWidth,
+        isReadOnly,
         // icon 
     }: InputFieldProps & {fieldName: string, fieldInfo: any, inputWidth?: string, labelWidth?: string}) => {
 
@@ -34,12 +35,13 @@ const InputComp = ({
         size: inputSize,
         inputWidth: inputWidthStyle,
         labelWidth: labelWidthStyle,
-    } = useInputStyle({variant, radius, size, inputWidth, labelWidth});
+        isReadOnly: isReadOnlyStyle,
+    } = useInputStyle({variant, radius, size, inputWidth, labelWidth, isReadOnly});
 
     if (type === "text") {
         return (
             <Input
-                // isReadOnly={isReadOnly}
+                isReadOnly={isReadOnlyStyle}
                 id={fieldName}
                 variant={inputVariant}
                 radius={inputRadius}
@@ -59,7 +61,7 @@ const InputComp = ({
         return (
             <Input
                 id={fieldName}
-                // isReadOnly={isReadOnly}
+                isReadOnly={isReadOnlyStyle}
                 type="number"
                 variant={inputVariant}
                 radius={inputRadius}

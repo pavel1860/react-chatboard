@@ -158,6 +158,7 @@ export const useInputStyle = (props: InputStyleProps) => {
         color: props.color || style.color,
         inputWidth: props.inputWidth || style.inputWidth,
         labelWidth: props.labelWidth || style.labelWidth,
+        isReadOnly: props.isReadOnly || style.isReadOnly,
     }
 }
 

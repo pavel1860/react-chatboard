@@ -1,6 +1,6 @@
 // src/hooks/modelHooks.tsx
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import useSWR, { SWRResponse, SWRConfiguration } from "swr";
 import useSWRMutation from "swr/mutation";
 
@@ -45,9 +45,9 @@ export function useHookCtx<Ctx extends { branchId: number } = { branchId: number
 
 
 const buildFinalUrl = (
-    baseUrl: string, 
-    ctx: Record<string, any>, 
-    list?: { limit: number; offset: number; orderby?: string; direction?: "asc" | "desc" }, 
+    baseUrl: string,
+    ctx: Record<string, any>,
+    list?: { limit: number; offset: number; orderby?: string; direction?: "asc" | "desc" },
     filter?: string
 ) => {
 
@@ -73,9 +73,9 @@ const buildFinalUrl = (
 
 const parseSchema = (schema: ZodTypeAny, data: any) => {
     const result = schema.safeParse(convertKeysToCamelCase(data));
-    if (result.success) return result.data;        
+    if (result.success) return result.data;
     console.error(result.error.errors);
-    throw new Error(`Failed to parse data: ${result.error.errors}`);        
+    throw new Error(`Failed to parse data: ${result.error.errors}`);
 }
 /**
  * Build a URL with nested query parameters:
@@ -690,7 +690,7 @@ export async function defaultMutationFetcher<
     // Build request body: all payload fields, plus nested ctx
     // const body = JSON.stringify({ ...config.payload, ctx: config.ctx });
     const payload = convertKeysToSnakeCase(config.payload)
-    const body = JSON.stringify({ ...payload});
+    const body = JSON.stringify({ ...payload });
     const combinedHeaders: Record<string, string> = {
         "Content-Type": "application/json",
         ...(config.headers || {}),
@@ -845,7 +845,7 @@ export function createUseDeleteModelHook<
         const mutation = useSWRMutation<{ id: number | string }, any, any>(
             buildFinalUrl(baseUrl, ctxToUse),
             async (url, { arg }) => {
-                const raw = await fetchFn<any>(url, {                    
+                const raw = await fetchFn<any>(url, {
                     headers,
                     payload: arg,
                 });
@@ -855,6 +855,72 @@ export function createUseDeleteModelHook<
 
         return {
             trigger: mutation.trigger,
+            data: mutation.data,
+            error: mutation.error,
+            isMutating: mutation.isMutating,
+        };
+    };
+}
+
+
+
+
+
+
+
+/**
+ * Creates a hook to perform a custom mutation (any HTTP method) to the given URL.
+ * - `method`: "POST" | "PUT" | "PATCH" | "DELETE"
+ * - optional `responseSchema` to validate server response with Zod
+ * - `fetcher` falls back to `defaultMutationFetcher`
+ */
+export function createUseMutationHook<
+    Req,
+    Res,
+    Ctx extends { branchId: number }
+>(config: {
+    url: string;
+    method: "POST" | "PUT" | "PATCH" | "DELETE";
+    payloadSchema: ZodTypeAny;
+    schema: ZodTypeAny;
+    fetcher?: <T>(
+        url: string,
+        cfg: { method: string; ctx: Ctx; headers?: Record<string, string>; payload: any }
+    ) => Promise<T>;
+}) {
+    const { url: baseUrl, method, payloadSchema, schema, fetcher: customFetcher } = config;
+
+    return function useMutation(params?: {
+        ctx?: Ctx;
+        headers?: Record<string, string>;
+    }) {
+        const { ctx: explicitCtx, headers } = params || {};
+        const ctxToUse = useHookCtx<Ctx>(explicitCtx);
+
+        const fetchFn = customFetcher
+            ? customFetcher
+            : ((url: string, cfg: any) =>
+                defaultMutationFetcher<Ctx, any>(url, { method, ...cfg })) as typeof defaultMutationFetcher;
+
+        const mutation = useSWRMutation<Req, Res, any>(
+            baseUrl,
+            async (url, { arg }) => {
+                const raw = await fetchFn<Res>(url, {
+                    ctx: ctxToUse,
+                    headers,
+                    payload: arg,
+                });
+                return parseSchema(schema, raw)
+            }
+        );
+
+        const auxTrigger = useCallback((payload: Req) => {
+            const parsedPayload = parseSchema(payloadSchema, payload)
+            mutation.trigger(parsedPayload)
+        }, [mutation, payloadSchema])
+
+        return {
+            trigger: auxTrigger,
             data: mutation.data,
             error: mutation.error,
             isMutating: mutation.isMutating,
