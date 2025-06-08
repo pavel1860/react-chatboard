@@ -229,21 +229,6 @@ export interface FetchModelHookConfig<Model, Ctx extends { branchId: number }> {
 export interface UseFetchModelParams<Ctx> {
     id?: number | string;
     ctx?: Ctx;
-    headers?: Record<string, string>;
-    swrOptions?: SWRConfiguration<any, any>;
-    /**
-     * If true, the hook will not fetch on mount (lazy mode).
-     * To trigger the fetch, call the returned `trigger()` function.
-     */
-    lazy?: boolean;
-    /**
-     * Optional callback for successful fetch.
-     */
-    onSuccess?: (data: any) => void;
-    /**
-     * Optional callback for fetch error.
-     */
-    onError?: (error: any) => void;
 }
 
 /**
@@ -294,23 +279,10 @@ export interface FetchModelListHookConfig<
     ) => Promise<T>;
 }
 
-/**
- * Parameters passed into the hook returned by createUseFetchModelListHook.
- */
-export interface UseFetchModelListParams<Model, Ctx> {
-    limit: number;
-    offset?: number;
-    orderby?: string;
-    direction?: "asc" | "desc";
-    filters?: DefaultFilter<Model>[];
-    isDisabled?: boolean;
-    ctx?: Ctx;
+
+export interface Configuration<Model> extends SWRConfiguration {
+    isDisabled?: boolean;    
     headers?: Record<string, string>;
-    swrOptions?: SWRConfiguration<any, any>;
-    /**
-     * If true, the hook will not fetch on mount (lazy mode).
-     * To trigger the fetch, call the returned `trigger()` function.
-     */
     lazy?: boolean;
     /**
      * Optional callback for successful fetch.
@@ -320,6 +292,18 @@ export interface UseFetchModelListParams<Model, Ctx> {
      * Optional callback for fetch error.
      */
     onError?: (error: any) => void;
+}
+
+/**
+ * Parameters passed into the hook returned by createUseFetchModelListHook.
+ */
+export interface UseFetchModelListParams<Model, Ctx> {
+    limit: number;
+    offset?: number;
+    orderby?: string;
+    direction?: "asc" | "desc";
+    filters?: DefaultFilter<Model>[];
+    ctx?: Ctx;
 }
 
 /**
@@ -361,9 +345,11 @@ export function createUseFetchModelHook<
     const { url: baseUrl, schema, fetcher: customFetcher } = config;
 
     return function useFetchModel(
-        params: UseFetchModelParams<Ctx>
+        params: UseFetchModelParams<Ctx>,
+        hookConfig?: Configuration<Model>
     ): UseFetchModelReturn<Model> {
-        const { id, ctx: explicitCtx, headers, swrOptions, lazy = false, onSuccess, onError } = params || {};
+        const { id, ctx: explicitCtx } = params || {};
+        const { headers, lazy = false, isDisabled = false, onSuccess, onError, ...swrOptions } = hookConfig || {};
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
 
         // Determine which fetcher to use
@@ -431,7 +417,8 @@ export function createUseFetchModelListHook<
     const { url: listUrl, schema, fetcher: customFetcher } = config;
 
     return function useFetchModelList(
-        params: UseFetchModelListParams<Model, Ctx>
+        params: UseFetchModelListParams<Model, Ctx>,
+        hookConfig?: Configuration<Model>
     ): UseFetchModelListReturn<Model> {
         const {
             limit,
@@ -439,14 +426,10 @@ export function createUseFetchModelListHook<
             orderby,
             direction,
             filters: defaultFilters = [],
-            isDisabled = false,
             ctx: explicitCtx,
-            headers,
-            swrOptions,
-            lazy = false,
-            onSuccess,
-            onError,
         } = params;
+
+        const { headers, lazy = false, isDisabled = false, onSuccess, onError, ...swrOptions } = hookConfig || {};
 
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
 
@@ -556,21 +539,18 @@ export function createUseFetchModelListInfiniteHook<
     const { url: listUrl, schema, fetcher: customFetcher } = config;
 
     return function useFetchModelListInfinite(
-        params: UseFetchModelListParams<Model, Ctx> & { defaultFilters?: DefaultFilter<Model>[] }
+        params: UseFetchModelListParams<Model, Ctx> & { defaultFilters?: DefaultFilter<Model>[] },
+        hookConfig?: Configuration<Model>
     ) {
         const {
             limit: pageSize,
             defaultFilters = [],
             orderby,
             direction,
-            isDisabled = false,
             ctx: explicitCtx,
-            headers,
-            swrOptions,
-            lazy = false,
-            onSuccess,
-            onError,
         } = params;
+
+        const { headers, lazy = false, isDisabled = false, onSuccess, onError, ...swrOptions } = hookConfig || {};
 
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
 
