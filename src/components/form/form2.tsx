@@ -30,6 +30,9 @@ export function Form({
         iconPlacement,
         radius,
         size,
+        gap,
+        labelWidth,
+        inputWidth,
         children
     }: FormProps) {
     // Setup react-hook-form
@@ -37,6 +40,7 @@ export function Form({
         resolver: zodResolver(schema),
         defaultValues,
     });
+
 
     const extendedMethods = {
         ...methods,
@@ -49,6 +53,10 @@ export function Form({
             iconPlacement,
             radius,
             size,
+            gap,
+            labelWidth,
+            inputWidth,
+            isReadOnly: isReadOnly,
         }
     }
 
@@ -62,7 +70,22 @@ export function Form({
 
     return (
         <FormProvider {...extendedMethods}>
-            <form onSubmit={handleSubmit} >{children}</form>
+            <form onSubmit={handleSubmit} style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                gap: gap, 
+                // justifyContent: "flex-start", 
+                // alignItems: "flex-start"
+            }}>{children}</form>
+            <div className="mt-2">
+            {Object.keys(methods.formState.errors).map((field) => (
+                <p key={field} className="text-xs text-red-500">
+                    {field}: {methods.formState.errors[field]?.message}
+                    {/* {JSON.stringify(methods.formState.errors)} */}
+
+                </p>
+                ))}
+            </div>
         </FormProvider>
     );
 }

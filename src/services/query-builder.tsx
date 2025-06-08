@@ -3,6 +3,7 @@
 import { AnyZodObject, z, ZodSchema } from "zod";
 // import { useModelEnv } from "../state/model-env";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { camelToSnake, convertKeysToSnakeCase } from "../model/services/model-context";
 
 
 
@@ -86,7 +87,10 @@ export function useQueryBuilder<T extends Record<string, any>>(
 
     // Create the queryString as a JSON representation
     const queryString = useMemo(() => {
-        return JSON.stringify(filters);
+        // const snakeFilters = filters.map(ff => f.map(f => [camelToSnake(f[0]), f[1], f[2]]));
+        const snakeFilters = filters.map(f => [camelToSnake(f[0]), f[1], f[2]])
+        return JSON.stringify(snakeFilters);
+        // return JSON.stringify(convertKeysToSnakeCase(filters));
     }, [filters]);
 
     return { filters, where, build, reset, queryString };

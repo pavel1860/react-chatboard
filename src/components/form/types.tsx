@@ -10,6 +10,9 @@ export interface InputStyleProps {
     radius?: "none" | "sm" | "md" | "lg" | "full" | undefined
     size?: "sm" | "md" | "lg",
     color?: "primary" | "secondary" | "tertiary" | "success" | "warning" | "error" | "info" | "default"
+    inputWidth?: string;
+    labelWidth?: string;
+    isReadOnly?: boolean;
 }
 
 
@@ -19,12 +22,9 @@ export interface FormProps<T extends ZodTypeAny = ZodTypeAny> extends InputStyle
     defaultValues?: Partial<z.infer<T>>;
     onSubmit: SubmitHandler<z.infer<T>>;
     isReadOnly?: boolean;
-    // variant?: "solid" | "bordered" | "light" | "flat" | "faded" | "shadow" | undefined
-    // variant?: "flat" | "bordered" | "faded" | "underlined"
-    // controls?: "top" | "bottom"
-    // iconPlacement?: "left" | "inputStart" | "inputEnd"
-    // radius?: "none" | "sm" | "md" | "lg" | "full" | undefined
-    // size: "sm" | "md" | "lg",
+    gap?: string;
+    labelWidth?: string;
+    inputWidth?: string;
     children: React.ReactNode;
 }
 
@@ -48,7 +48,10 @@ export interface InputFieldProps extends InputStyleProps {
     startContent?: React.ReactNode;
     endContent?: React.ReactNode;
     icon?: React.ReactNode;
-    classNames?: any
+    classNames?: any;
+    inputWidth?: string;
+    labelWidth?: string;
+    isReadOnly?: boolean;
 }
 
 
