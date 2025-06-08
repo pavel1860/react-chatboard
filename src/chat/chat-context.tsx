@@ -4,15 +4,10 @@ import { AnyZodObject, z, ZodSchema } from "zod";
 import createModelService from "../model/services/model-service2";
 import { buildHeaders } from "../services/utils";
 import { buildModelContextHeaders, convertKeysToCamelCase, convertKeysToSnakeCase } from "../model/services/model-context";
+import { ToolCall } from "../services/chatService";
 
 
 
-export interface ToolCall {
-    id: string;
-    name: string;
-    tool: any;
-    extra: any;
-}
 
 
 export interface ChatContextType<Ctx, T> {
