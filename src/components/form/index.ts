@@ -1,4 +1,4 @@
-export { Form } from './form2';
+export { Form } from './form';
 export { InputField } from './input-field';
 export { ObjectField } from './ObjectField';
 export { ArrayField } from './array-field';
