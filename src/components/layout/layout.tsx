@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import clsx from 'clsx';
+import { Spinner } from '@heroui/react';
 
 // SplitLayout: wraps two panes side by side and handles hidden panes
 export interface SplitLayoutProps {
@@ -76,9 +77,16 @@ export const LayoutHeader: React.FC<LayoutHeaderProps> = ({ children }) => (
 );
 
 // LayoutContent: growable scrollable area, with paneKey to identify
-export interface LayoutContentProps { children?: ReactNode; paneKey?: string; }
-export const LayoutContent: React.FC<LayoutContentProps> = ({ children }) => (
-    <main className="flex-grow overflow-auto p-4 bg-white">{children}</main>
+export interface LayoutContentProps { 
+    children?: ReactNode; 
+    paneKey?: string;   
+    loading?: boolean;
+    loadingComponent?: ReactNode;
+}
+export const LayoutContent: React.FC<LayoutContentProps> = ({ children, loading, loadingComponent }) => (
+    <main className="flex-grow overflow-auto p-4 bg-white">
+        {loading ? loadingComponent? loadingComponent : <Spinner /> : children}
+    </main>
 );
 
 // Usage now requires paneKey on LayoutContent, e.g.: //
