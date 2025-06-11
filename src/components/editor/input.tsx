@@ -53,7 +53,7 @@ export function ChatInput({
 
   return (
     <div
-      className="m-3 w-full p-10"
+      className="w-full"
     >
       <Textarea
         value={text}
