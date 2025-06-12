@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import classNames from "classnames";
 
 import { Button, ButtonGroup, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@heroui/react";
@@ -17,6 +17,7 @@ export interface ChatInputProps {
   dontClear?: boolean;
   bgColor?: string;
   borderColor?: string;
+  loading?: boolean;
 }
 
 export function ChatInput({
@@ -30,11 +31,13 @@ export function ChatInput({
   showRole = false,
   defaultRole = "user",
   isUserDanger = false,
+  loading = false,
 }: ChatInputProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [text, setText] = useState("");
   const [role, setRole] = useState(defaultRole);
   const color = role === "user" && isUserDanger ? "danger" : "primary"
+  const ref = useRef<HTMLTextAreaElement>(null);
 
   const handleEnter = () => {
     if (!text.trim()) return;
@@ -44,10 +47,11 @@ export function ChatInput({
     if (!dontClear) {
       setText("");
     }
-
+    
     // Simulate async delay for UX (adjust as needed)
     setTimeout(() => {
       setIsSubmitting(false);
+      // ref.current?.focus();
     }, 600);
   };
 
@@ -56,21 +60,22 @@ export function ChatInput({
       className="w-full"
     >
       <Textarea
+        ref={ref}
         value={text}
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
-        classNames={{
-          "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300",
-          "input": "text-gray-900"
-        }}
+        // classNames={{
+        //   "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300",
+        //   "input": "text-gray-900"
+        // }}
         
-        // className={classNames(
-        //   "mx-auto text-left font-normal leading-5 text-gray-900",
-        //   {
-        //     "mt-10": rows === 1,
-        //   }
-        // )}
-        disabled={isSubmitting}
+        className={classNames(
+          "border-1 border-gray-200 rounded-lg mx-auto text-left font-normal leading-5 text-gray-900",
+          {
+            "mt-10": rows === 1,
+          }
+        )}
+        // disabled={isSubmitting}
         placeholder={placeholder}
         // style={{
         //   backgroundColor: bgColor,
@@ -86,10 +91,10 @@ export function ChatInput({
           <ButtonGroup className="mr-2 mb-2">
             <Button
               color={color}
-              isDisabled={isSubmitting}
+              isDisabled={isSubmitting || loading}
               isIconOnly
               onPress={handleEnter}
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || loading}
             >
 
               <Icon
