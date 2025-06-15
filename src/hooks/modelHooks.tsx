@@ -86,7 +86,7 @@ const parseSchema = (schema: ZodTypeAny, data: any) => {
  * Example output:
  *   /api/endpoint?ctx={"branchId":1,"extra":"val"}&list={"limit":5,"offset":10,"orderby":"name","direction":"asc"}&filter="name%3A%22A%22"
  */
-function buildNestedUrl(
+export function buildNestedUrl(
     baseUrl: string,
     parts: {
         ctx: Record<string, any>;
