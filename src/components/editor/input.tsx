@@ -18,6 +18,7 @@ export interface ChatInputProps {
   bgColor?: string;
   borderColor?: string;
   loading?: boolean;
+  textSize?: "sm" | "md" | "lg";
 }
 
 export function ChatInput({
@@ -32,6 +33,7 @@ export function ChatInput({
   defaultRole = "user",
   isUserDanger = false,
   loading = false,
+  textSize = "md",
 }: ChatInputProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [text, setText] = useState("");
@@ -64,17 +66,21 @@ export function ChatInput({
         value={text}
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
-        // classNames={{
-        //   "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300",
-        //   "input": "text-gray-900"
-        // }}
+        classNames={{
+          "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300",
+          "input": classNames("text-gray-900", {
+            "text-sm": textSize === "sm",
+            "text-md": textSize === "md",
+            "text-lg": textSize === "lg",
+          }),
+        }}
         
-        className={classNames(
-          "border-1 border-gray-200 rounded-lg mx-auto text-left font-normal leading-5 text-gray-900",
-          {
-            "mt-10": rows === 1,
-          }
-        )}
+        // className={classNames(
+        //   "border-1 border-gray-200 rounded-lg mx-auto text-left font-normal leading-5 text-gray-900",
+        //   {
+        //     "mt-10": rows === 1,
+        //   }
+        // )}
         // disabled={isSubmitting}
         placeholder={placeholder}
         // style={{

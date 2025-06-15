@@ -75,3 +75,7 @@ export async function fetchCurrentUser(options: {
     if (!response.ok) throw new Error(`Fetch current user failed: ${await response.text()}`);
     return response.json();
 }
+
+
+
+
