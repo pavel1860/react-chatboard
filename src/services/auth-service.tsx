@@ -67,7 +67,7 @@ export async function fetchCurrentUser(options: {
         headers['cookie'] = `temp_user_token=${options.guestToken}`;
     }
 
-    const response = await fetch(`${API_URL}/users/me`, {
+    const response = await fetch(`${API_URL}/auth/me`, {
         method: 'GET',
         headers
     });
