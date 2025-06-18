@@ -66,8 +66,9 @@ export default function InfiniteChat<M>({
                 overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column-reverse',
+                flexGrow: 1,
             }} 
-            className="bg-body-tertiary p-3">
+            className="bg-body-tertiary">
                 {/* <div>has more: {hasMore.toString()}</div> */}
             {loading && <Spinner classNames={{label: "text-foreground mt-4"}} variant="wave" />}
             <InfiniteScroll

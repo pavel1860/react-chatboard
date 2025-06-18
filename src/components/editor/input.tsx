@@ -19,6 +19,8 @@ export interface ChatInputProps {
   borderColor?: string;
   loading?: boolean;
   textSize?: "sm" | "md" | "lg";
+  minRows?: number;
+  maxRows?: number;
 }
 
 export function ChatInput({
@@ -28,6 +30,8 @@ export function ChatInput({
   bgColor,
   borderColor = "#E0E0E0",
   rows = 3,
+  minRows = 3,
+  maxRows = 10,
   width = "100%",
   showRole = false,
   defaultRole = "user",
@@ -67,14 +71,18 @@ export function ChatInput({
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
         classNames={{
-          "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300",
+          "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300 pr-0",
           "input": classNames("text-gray-900", {
             "text-sm": textSize === "sm",
             "text-md": textSize === "md",
             "text-lg": textSize === "lg",
           }),
         }}
-        
+        // className={classNames(          
+        //   {
+        //     "mt-10": rows === 1,
+        //   }
+        // )}
         // className={classNames(
         //   "border-1 border-gray-200 rounded-lg mx-auto text-left font-normal leading-5 text-gray-900",
         //   {
@@ -86,7 +94,9 @@ export function ChatInput({
         // style={{
         //   backgroundColor: bgColor,
         // }}
-        rows={rows}
+        // rows={rows}
+        minRows={minRows}
+        maxRows={maxRows}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
