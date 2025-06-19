@@ -1,4 +1,4 @@
-import { Button, Divider } from "@heroui/react"
+import { Button, cn, Divider } from "@heroui/react"
 import { useEffect, useRef, useState } from "react"
 import { Icon } from "@iconify-icon/react"
 import { ToolCall, TurnType } from "./schema"
@@ -12,6 +12,7 @@ import { ToolCall, TurnType } from "./schema"
 
 interface TurnProps <T extends TurnType, M> {
     children: (item: M, index: number, items: M[]) => React.ReactNode
+    className?: string
     turn: T
     items: M[]
     showFooterControls?: boolean
@@ -25,7 +26,20 @@ interface TurnProps <T extends TurnType, M> {
 }
 
 
-export const Turn = <T extends TurnType, M>({children: itemRender,turn, items, index, nextTurn, prevTurn, branchId, setBranchId, sendMessage, showFooterControls = false, showSideControls = false}: TurnProps<T, M>) => {
+export const Turn = <T extends TurnType, M>({
+        children: itemRender,
+        turn, 
+        items, 
+        index, 
+        nextTurn, 
+        prevTurn, 
+        branchId, 
+        setBranchId, 
+        sendMessage, 
+        showFooterControls = false, 
+        showSideControls = false,
+        className = "",
+    }: TurnProps<T, M>) => {
 
     const [selectedForkedBranchId, setSelectedForkedBranchId] = useState<number | null>(null);
     const [forkedBranches, setForkedBranches] = useState<number[]>(()=>{
@@ -106,7 +120,7 @@ export const Turn = <T extends TurnType, M>({children: itemRender,turn, items, i
 
     
     return (
-        <div key={turn.id} ref={ref} className="flex w-full">            
+        <div key={turn.id} ref={ref} className={cn("flex w-full pb-5", className)}>            
             <div className="flex-1">
                 {items.map((item, idx) => itemRender(item, idx, items))}
                 {showFooterControls && <div className="flex flex-row items-center gap-2 justify-between">

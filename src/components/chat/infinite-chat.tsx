@@ -67,6 +67,7 @@ export default function InfiniteChat<M>({
                 display: 'flex',
                 flexDirection: 'column-reverse',
                 flexGrow: 1,
+                width: "100%",
             }} 
             className="bg-body-tertiary">
                 {/* <div>has more: {hasMore.toString()}</div> */}
