@@ -544,7 +544,8 @@ export function createUseFetchModelListInfiniteHook<
     ) {
         const {
             limit: pageSize,
-            defaultFilters = [],
+            filters:defaultFilters = [],
+
             orderby,
             direction,
             ctx: explicitCtx,
