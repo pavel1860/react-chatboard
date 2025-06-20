@@ -54,8 +54,9 @@ export async function promoteGuestUser(guest_token: string, auth_user_id: string
 // 4. Fetch current user (cookie or header logic)
 export async function fetchCurrentUser(options: {
     guestToken?: string,
-    authUserId?: string
-}): Promise<User> {
+    authUserId?: string,
+    errorOn404?: boolean
+}): Promise<User | null> {
     let headers: any = { 'Content-Type': 'application/json' };
 
     // Send identifier as header or cookie
@@ -72,7 +73,16 @@ export async function fetchCurrentUser(options: {
         headers
     });
 
-    if (!response.ok) throw new Error(`Fetch current user failed: ${await response.text()}`);
+    if (!response.ok) {
+        if (response.status === 404) {
+            if (options.errorOn404) {
+                throw new Error(`Fetch current user failed: ${await response.text()}`);
+            } else {
+                return null;
+            }
+        }
+        throw new Error(`Fetch current user failed: ${await response.text()}`);
+    }
     return response.json();
 }
 
