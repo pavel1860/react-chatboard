@@ -23,6 +23,8 @@ interface TurnProps <T extends TurnType, M> {
     branchId: number
     setBranchId: (branchId: number) => void
     sendMessage: (message: string, toolCalls: ToolCall[], state: any, prevTurnId: string, isFork: boolean) => void
+    bottomContent?: React.ReactNode
+    rightContent?: React.ReactNode
 }
 
 
@@ -39,6 +41,8 @@ export const Turn = <T extends TurnType, M>({
         showFooterControls = false, 
         showSideControls = false,
         className = "",
+        bottomContent,
+        rightContent,
     }: TurnProps<T, M>) => {
 
     const [selectedForkedBranchId, setSelectedForkedBranchId] = useState<number | null>(null);
@@ -126,14 +130,16 @@ export const Turn = <T extends TurnType, M>({
                 {showFooterControls && <div className="flex flex-row items-center gap-2 justify-between">
                     {/* <div className="text-sm text-gray-400">chat idx: {index}</div> */}
                     <div className="text-sm text-gray-400">Turn {turn.id}</div>
+                    <div className="text-sm text-gray-400">Status: {turn.status}</div>
+                    <div className="text-sm text-gray-400">Branch: {turn.branchId}</div>
                     <Divider orientation="vertical" className="mx-3"/>
                     <div className="flex gap-2">
                         {/* <div className="text-sm text-gray-400">offset: {offset}</div> */}
                         {/* <div className="text-sm text-gray-400">Turn {turn.id}</div> */}
                         {/* <div className="text-sm text-gray-400">Partition: {turn.partitionId}</div> */}
-                        <div className="text-sm text-gray-400">Status: {turn.status}</div>
+                        {bottomContent}
                         {/* <div className="text-sm text-gray-400">Index: {turn.index}</div> */}
-                        <div className="text-sm text-gray-400">Branch: {turn.branchId}</div>
+                        
                         {forkedBranches.length > 0 && <div className="text-sm text-gray-400"> ({forkedBranches.join(", ")})</div>}
                     </div>                    
                     <div className="text-sm text-gray-400">
@@ -147,7 +153,11 @@ export const Turn = <T extends TurnType, M>({
                     </div>
                 </div>}
             </div>
-            {showSideControls && <div>
+            {rightContent && <div className="flex flex-col items-center justify-start">
+                {rightContent}
+            </div>}
+            
+            {/* {showSideControls && <div>
                 <Button 
                     isIconOnly
                     variant="light"                                    
@@ -158,7 +168,7 @@ export const Turn = <T extends TurnType, M>({
                     }}>
                     <Icon icon="mdi:refresh" />
                 </Button>
-            </div>}
+            </div>} */}
         </div>
     )
 }

@@ -10,7 +10,7 @@ import { Chip, Spinner } from '@heroui/react';
 
 
 interface InfiniteChatProps<M> {
-    children: (item: M, idx: number, items: M[]) => React.ReactNode
+    children: (item: M, idx: number, items: M[], nextItem: M | undefined, prevItem: M | undefined, isLast: boolean) => React.ReactNode
     items: M[]
     gap?: string
     width?: string
@@ -92,7 +92,7 @@ export default function InfiniteChat<M>({
                     // console.log("scrolled", e)
                 }}
                 >
-                    {items.map( (message: M, idx: number) => itemRender(message, idx, items))}
+                    {items.map( (message: M, idx: number) => itemRender(message, idx, items, items[idx + 1], items[idx - 1], idx === items.length - 1))}
                 {/* <AnimatePresence>
                     {messages.map( (message: M, idx: number) => {                        
                         return (
