@@ -1,13 +1,16 @@
 import { useRef, useState } from "react";
 import classNames from "classnames";
 
-import { Button, ButtonGroup, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@heroui/react";
+import { Button, ButtonGroup, cn, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@heroui/react";
 import { Icon } from "@iconify-icon/react";
 import { Bot, ChevronDown, User } from "lucide-react";
 
+type Width = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "8xl" | "9xl" | "10xl" | "full" | "auto" | "fit";
+
 export interface ChatInputProps {
   placeholder: string | undefined;
-  width?: string;
+  width?: Width;
+  maxWidth?: Width;
   rows?: number;
   showRole?: boolean;
   isUserDanger?: boolean;
@@ -20,7 +23,7 @@ export interface ChatInputProps {
   loading?: boolean;
   textSize?: "sm" | "md" | "lg";
   minRows?: number;
-  maxRows?: number;
+  maxRows?: number;  
 }
 
 export function ChatInput({
@@ -32,7 +35,8 @@ export function ChatInput({
   rows = 3,
   minRows = 3,
   maxRows = 10,
-  width = "100%",
+  width = "full",
+  maxWidth = "3xl",
   showRole = false,
   defaultRole = "user",
   isUserDanger = false,
@@ -62,21 +66,21 @@ export function ChatInput({
   };
 
   return (
-    <div
-      className="w-full"
-    >
+    // <div
+    //   className="w-full"
+    // >
       <Textarea
         ref={ref}
         value={text}
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
         classNames={{
-          "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300 pr-0",
-          "input": classNames("text-gray-900", {
-            "text-sm": textSize === "sm",
-            "text-md": textSize === "md",
-            "text-lg": textSize === "lg",
-          }),
+          "base": cn(`w-${width}`, maxWidth && `max-w-${maxWidth}`),
+          "inputWrapper": 
+            cn(
+              "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300 pr-0",              
+          ),
+          "input": cn("text-gray-900", `text-${textSize}`)          
         }}
         // className={classNames(          
         //   {
@@ -157,6 +161,6 @@ export function ChatInput({
           </ButtonGroup>
         }
       />
-    </div>
+    // </div>
   );
 }

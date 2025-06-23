@@ -128,7 +128,7 @@ export async function defaultSingleFetcher<Ctx extends { branchId: number }, T>(
     url: string,
     config: { ctx: Ctx; headers?: Record<string, string> }
 ): Promise<T> {
-    const finalUrl = buildNestedUrl(url, { ctx: config.ctx });
+    const finalUrl = buildNestedUrl(url, { ctx: convertKeysToSnakeCase(config.ctx) });
     const combinedHeaders: Record<string, string> = {
         "Content-Type": "application/json",
         ...(config.headers || {}),

@@ -129,11 +129,11 @@ export const Turn = <T extends TurnType, M>({
                 {items.map((item, idx) => itemRender(item, idx, items))}
                 {showFooterControls && <div className="flex flex-row items-center gap-2 justify-between">
                     {/* <div className="text-sm text-gray-400">chat idx: {index}</div> */}
-                    <div className="text-sm text-gray-400">Turn {turn.id}</div>
+                    {/* <div className="text-sm text-gray-400">Turn {turn.id}</div>
                     <div className="text-sm text-gray-400">Status: {turn.status}</div>
                     <div className="text-sm text-gray-400">Branch: {turn.branchId}</div>
-                    <Divider orientation="vertical" className="mx-3"/>
-                    <div className="flex gap-2">
+                    <Divider orientation="vertical" className="mx-3"/> */}
+                    <div className="flex gap-2 w-full px-10">
                         {/* <div className="text-sm text-gray-400">offset: {offset}</div> */}
                         {/* <div className="text-sm text-gray-400">Turn {turn.id}</div> */}
                         {/* <div className="text-sm text-gray-400">Partition: {turn.partitionId}</div> */}
