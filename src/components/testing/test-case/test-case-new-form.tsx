@@ -1,7 +1,7 @@
 // import { ArrayField } from "@/react-chatboard/src/components/form/array-field"
 // import { Form } from "@/react-chatboard/src/components/form/form2"
 // import { InputField } from "@/react-chatboard/src/components/form/input-field"
-import { Message, MessageBubble, MessageContent, MessageFooter, MessageTime } from "../../chat-view/chat-message"
+import { Message, MessageBubble, MessageContent, MessageFooter, MessageTime } from "../../chat/chat-message"
 import { Form, InputField, ArrayField, TextField } from "../../form"
 import { TestCaseBaseSchema, TestCaseSchema, useCreateTestCase, useDeleteTestCase, useGetTestCase, useRunTestCase, useUpdateTestCase } from "../../../services/testing-service"
 import { Button, Spinner } from "@heroui/react"

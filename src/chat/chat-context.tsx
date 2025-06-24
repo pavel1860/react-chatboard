@@ -4,15 +4,10 @@ import { AnyZodObject, z, ZodSchema } from "zod";
 import createModelService from "../model/services/model-service2";
 import { buildHeaders } from "../services/utils";
 import { buildModelContextHeaders, convertKeysToCamelCase, convertKeysToSnakeCase } from "../model/services/model-context";
+import { ToolCall } from "../services/chatService";
 
 
 
-export interface ToolCall {
-    id: string;
-    name: string;
-    tool: any;
-    extra: any;
-}
 
 
 export interface ChatContextType<Ctx, T> {
@@ -153,17 +148,8 @@ export const createChatProvider = <Message, Payload, Ctx, ID>(
                         for (const event of response.events){
                             onEvent && onEvent(event)
                         }
-                        // console.log("### responseMessages", responseMessages)
+
                         onMessages && onMessages(responseMessages)
-                        // for (const message of responseMessages) {
-                        //     if (message.tool_calls.length > 0) {
-                        //         for (const tool_call of message.tool_calls) {
-                        //             // handler && handler(tool_call)
-                        //             handlerRef.current && handlerRef.current(tool_call)
-                        //         }
-                        //     }
-                        // }
-                        // return [responseMessages, ...messageHistory];
                         return [...responseMessages, ...messageHistory];
                     } else {
                         throw new Error("Failed to send message.", { cause: res.statusText });

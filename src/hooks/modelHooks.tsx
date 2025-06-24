@@ -86,7 +86,7 @@ const parseSchema = (schema: ZodTypeAny, data: any) => {
  * Example output:
  *   /api/endpoint?ctx={"branchId":1,"extra":"val"}&list={"limit":5,"offset":10,"orderby":"name","direction":"asc"}&filter="name%3A%22A%22"
  */
-function buildNestedUrl(
+export function buildNestedUrl(
     baseUrl: string,
     parts: {
         ctx: Record<string, any>;
@@ -128,7 +128,7 @@ export async function defaultSingleFetcher<Ctx extends { branchId: number }, T>(
     url: string,
     config: { ctx: Ctx; headers?: Record<string, string> }
 ): Promise<T> {
-    const finalUrl = buildNestedUrl(url, { ctx: config.ctx });
+    const finalUrl = buildNestedUrl(url, { ctx: convertKeysToSnakeCase(config.ctx) });
     const combinedHeaders: Record<string, string> = {
         "Content-Type": "application/json",
         ...(config.headers || {}),
@@ -544,7 +544,8 @@ export function createUseFetchModelListInfiniteHook<
     ) {
         const {
             limit: pageSize,
-            defaultFilters = [],
+            filters:defaultFilters = [],
+
             orderby,
             direction,
             ctx: explicitCtx,
@@ -743,6 +744,22 @@ export function createUseCreateModelHook<
     };
 }
 
+
+export interface MutateModelHookConfig<Model, Payload extends { id: number | string }, Ctx extends { branchId: number }> {
+    url: string;
+    schema: ZodTypeAny;
+    fetcher?: <T>(
+        url: string,
+        cfg: { method: "PUT"; ctx: Ctx; headers?: Record<string, string>; payload: any }
+    ) => Promise<T>;
+}
+
+
+export interface UseMutateModelParams<Model, Payload extends { id: number | string }, Ctx extends { branchId: number }> {
+    id?: number | string;
+    ctx?: Ctx;
+}
+
 /**
  * Creates a hook to perform an UPDATE mutation (PUT) to the given URL.
  * - Uses defaultMutationFetcher with method="PUT".
@@ -752,21 +769,11 @@ export function createUseUpdateModelHook<
     Model,
     Payload extends { id: number | string },
     Ctx extends { branchId: number }
->(config: {
-    url: string;
-    schema: ZodTypeAny;
-    fetcher?: <T>(
-        url: string,
-        cfg: { method: "PUT"; ctx: Ctx; headers?: Record<string, string>; payload: any }
-    ) => Promise<T>;
-}) {
+>(config: MutateModelHookConfig<Model, Payload, Ctx>) {
     const { url: baseUrl, schema, fetcher: customFetcher } = config;
 
-    return function useUpdateModel(params?: {
-        ctx?: Ctx;
-        headers?: Record<string, string>;
-    }) {
-        const { ctx: explicitCtx, headers } = params || {};
+    return function useUpdateModel(params?: UseMutateModelParams<Model, Payload, Ctx>) {
+        const { id, ctx: explicitCtx } = params || {};
         const ctxToUse = useHookCtx<Ctx>(explicitCtx);
 
         const fetchFn = customFetcher
@@ -775,10 +782,10 @@ export function createUseUpdateModelHook<
                 defaultMutationFetcher<Ctx, any>(url, { method: "PUT", ...cfg })) as typeof defaultMutationFetcher;
 
         const mutation = useSWRMutation<Payload, Model, any>(
-            buildFinalUrl(baseUrl, ctxToUse),
+            buildFinalUrl(baseUrl + "/" + id, ctxToUse),
             async (url, { arg }) => {
                 const raw = await fetchFn<Model>(url, {
-                    headers,
+                    // headers,
                     payload: arg,
                 });
                 return parseSchema(schema, raw);
