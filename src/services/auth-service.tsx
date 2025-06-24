@@ -55,7 +55,7 @@ export async function promoteGuestUser(guest_token: string, auth_user_id: string
 export async function fetchCurrentUser(options: {
     guestToken?: string,
     authUserId?: string,
-    errorOn404?: boolean
+    errorOn401?: boolean
 }): Promise<User | null> {
     let headers: any = { 'Content-Type': 'application/json' };
 
@@ -74,8 +74,8 @@ export async function fetchCurrentUser(options: {
     });
 
     if (!response.ok) {
-        if (response.status === 404) {
-            if (options.errorOn404) {
+        if (response.status === 401) {
+            if (options.errorOn401) {
                 throw new Error(`Fetch current user failed: ${await response.text()}`);
             } else {
                 return null;
