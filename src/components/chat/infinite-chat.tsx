@@ -79,7 +79,7 @@ export default function InfiniteChat<M>({
                     // console.log("scrolled", e)
                 }}
                 >
-                    {items.map( (message: M, idx: number) => itemRender(message, idx, items, items[idx + 1], items[idx - 1], idx === items.length - 1))}                
+                    {items.map( (message: M, idx: number) => itemRender(message, idx, items, items[idx - 1], items[idx + 1], idx === items.length - 1))}                
             </InfiniteScroll>
             
         </div>
