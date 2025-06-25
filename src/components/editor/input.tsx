@@ -33,7 +33,7 @@ export function ChatInput({
   bgColor,
   borderColor = "#E0E0E0",
   rows = 3,
-  minRows = 3,
+  minRows = 1,
   maxRows = 10,
   width = "full",
   maxWidth = "3xl",
@@ -99,6 +99,7 @@ export function ChatInput({
         //   backgroundColor: bgColor,
         // }}
         // rows={rows}
+        rows={rows}
         minRows={minRows}
         maxRows={maxRows}
         onKeyDown={(e) => {

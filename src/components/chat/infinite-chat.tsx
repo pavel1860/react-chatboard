@@ -49,7 +49,7 @@ export default function InfiniteChat<M>({
     }: InfiniteChatProps<M>) {
 
     const [itemCount, setItemCount] = useState(items.length || 0)
-    const [hasMore, setHasMore] = useState(true)
+    const [hasMore, setHasMore] = useState(false)
 
     useEffect(() => {
         if (items.length !== itemCount) {
@@ -60,21 +60,26 @@ export default function InfiniteChat<M>({
 
     return (
         <div id="scrollableDiv" 
-            className="flex flex-col-reverse items-stretch w-full overflow-auto"
-            >
+            className={cn(
+                "flex flex-col-reverse items-stretch w-full flex-grow", 
+                // "overflow-auto"
+                items?.length > 0 ? "overflow-auto" : "overflow-hidden"
+            )}
+            >                
                 {/* <div>has more: {hasMore.toString()}</div> */}
             {loading && <Spinner classNames={{label: "text-foreground mt-4"}} variant="wave" />}
             <InfiniteScroll
                 dataLength={ items.length }
                 next={fetchMore}
                 hasMore={hasMore}
-                loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
+                loader={<Spinner classNames={{label: "text-gray-500 mt-4"}} label="Loading more messages..." variant="spinner" />}
                 endMessage={buildEndMessage(items, emptyMessage, endMessage)}
                 className={cn("w-full max-w-4xl mx-auto items-center flex flex-col-reverse overflow-visible gap-2", className)}
                 scrollableTarget="scrollableDiv"
                 // initialScrollY={-420}
                 inverse={true}
                 // initialScrollY={0}
+                // hasChildren={false}
                 onScroll={(e) => {
                     // console.log("scrolled", e)
                 }}
