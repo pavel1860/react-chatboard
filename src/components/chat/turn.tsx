@@ -46,20 +46,24 @@ export const Turn = <T extends TurnType, M>({
     }: TurnProps<T, M>) => {
 
     const [selectedForkedBranchId, setSelectedForkedBranchId] = useState<number | null>(null);
-    const [forkedBranches, setForkedBranches] = useState<number[]>(()=>{
-        if (turn.forkedBranches.length){
-            return [turn.branchId, ...turn.forkedBranches];
-        }
-        return [];
-    });
+    const [forkedBranches, setForkedBranches] = useState<number[]>([])
+    const [fbLookup, setFbLookup] = useState<Record<string, number>>({})
+    // const [forkedBranches, setForkedBranches] = useState<number[]>(()=>{
+    //     if (turn.forkedBranches.length){
+    //         return [turn.branchId, ...turn.forkedBranches];
+    //     }
+    //     return [];
+    // });
     // const [fbLookup, setFbLookup] = useState<Record<string, number>>({});
-    const [fbLookup, setFbLookup] = useState<Record<string, number>>(()=>{
-        const lookup: Record<string, number> = {};
-        forkedBranches.forEach((branch, index) => {
-            lookup[branch] = index;
-        });
-        return lookup;
-    });
+    // const [fbLookup, setFbLookup] = useState<Record<string, number>>(()=>{
+    //     const lookup: Record<string, number> = {};
+    //     forkedBranches.forEach((branch, index) => {
+    //         lookup[branch] = index;
+    //     });
+    //     return lookup;
+    // });
+    const [nextBranch, setNextBranch] = useState<number | null>(null)
+    const [prevBranch, setPrevBranch] = useState<number | null>(null)
     const [showNextBranch, setShowNextBranch] = useState(false);
     const [showPrevBranch, setShowPrevBranch] = useState(false);
     const ref = useRef(null);
@@ -72,49 +76,81 @@ export const Turn = <T extends TurnType, M>({
     }, [turn.id]);
 
 
+    // useEffect(() => {
+    //     if (forkedBranches.length === 0) {
+    //         return
+    //     }
+    //     let targetBranch = null;
+    //     if (branchId in fbLookup) {
+    //         targetBranch = branchId;
+    //     } else if (nextTurn && nextTurn.branchId in fbLookup) {
+    //         targetBranch = nextTurn.branchId;
+    //     } else {
+    //         targetBranch = null;
+    //     }
+
+    //     if (targetBranch !== null) {
+    //         setShowNextBranch(fbLookup[targetBranch] < forkedBranches.length - 1);
+    //         setShowPrevBranch(fbLookup[targetBranch] > 0);
+    //     } else {
+    //         if (forkedBranches.length > 0) {
+    //             setShowNextBranch(true);
+    //             setShowPrevBranch(false);
+    //         } else {
+    //             setShowNextBranch(false);
+    //             setShowPrevBranch(false);
+    //         }
+    //     }
+    //     setSelectedForkedBranchId(targetBranch);
+
+    // }, [branchId, forkedBranches]);
+    console.log("#####", "prevTurn", prevTurn?.id, "turn", turn.id, "nextTurn", nextTurn?.id)
+    console.log("#####", turn.id, "next", showNextBranch, "prev", showPrevBranch)
     useEffect(() => {
-        if (forkedBranches.length === 0) {
+        if (!prevTurn || prevTurn.forkedBranches.length === 0) {
             return
         }
-        let targetBranch = null;
-        if (branchId in fbLookup) {
-            targetBranch = branchId;
-        } else if (nextTurn && nextTurn.branchId in fbLookup) {
-            targetBranch = nextTurn.branchId;
-        } else {
-            targetBranch = null;
-        }
+        const prevForkedBranches = [prevTurn.branchId, ...prevTurn.forkedBranches]
+        setForkedBranches(prevForkedBranches)
+        const lookup: Record<string, number> = {};
+        forkedBranches.forEach((branch, index) => {
+            lookup[branch] = index;
+        });
+        setFbLookup(lookup);
 
-        if (targetBranch !== null) {
-            setShowNextBranch(fbLookup[targetBranch] < forkedBranches.length - 1);
-            setShowPrevBranch(fbLookup[targetBranch] > 0);
-        } else {
-            if (forkedBranches.length > 0) {
-                setShowNextBranch(true);
-                setShowPrevBranch(false);
-            } else {
-                setShowNextBranch(false);
-                setShowPrevBranch(false);
+        if (prevTurn.branchId !== turn.branchId){
+            const index =prevForkedBranches.findIndex(b => b == turn.branchId)
+            if (index !== -1){                
+                if (index == 0){
+                    setPrevBranch(null)
+                    setNextBranch(prevForkedBranches[1])
+                } else if (index == prevForkedBranches.length - 1){
+                    setPrevBranch(prevForkedBranches[prevForkedBranches.length - 2])
+                    setNextBranch(null)
+                } else {
+                    setPrevBranch(forkedBranches[index - 1])
+                    setNextBranch(forkedBranches[index + 1])
+                }
             }
+        } else {
+            setPrevBranch(null)
+            setNextBranch(forkedBranches.length > 0 ? forkedBranches[1] : null)
         }
-        setSelectedForkedBranchId(targetBranch);
 
-    }, [branchId, forkedBranches]);
+    }, [branchId]);
     
     
 
 
     const handlePrevBranch = () => {
-        if (selectedForkedBranchId && fbLookup[selectedForkedBranchId] > 0) {
-            setBranchId(forkedBranches[fbLookup[selectedForkedBranchId] - 1]);
+        if (prevBranch){
+            setBranchId(prevBranch)
         }
     };
 
     const handleNextBranch = () => {
-        if (!selectedForkedBranchId){
-            setBranchId(forkedBranches[0]);
-        } else if (fbLookup[selectedForkedBranchId] < forkedBranches.length - 1) {
-            setBranchId(forkedBranches[fbLookup[selectedForkedBranchId] + 1]);
+        if (nextBranch){
+            setBranchId(nextBranch)
         }
     };
 
@@ -140,16 +176,17 @@ export const Turn = <T extends TurnType, M>({
                         {bottomContent}
                         {/* <div className="text-sm text-gray-400">Index: {turn.index}</div> */}
                         
-                        {forkedBranches.length > 0 && <div className="text-sm text-gray-400"> ({forkedBranches.join(", ")})</div>}
+                        {/* {forkedBranches.length > 0 && <div className="text-sm text-gray-400"> ({forkedBranches.join(", ")})</div>} */}
                     </div>                    
-                    <div className="text-sm text-gray-400">
-                        {showPrevBranch && <Button isIconOnly variant="light" onPress={handlePrevBranch} size="sm">
-                            <Icon icon="mdi:arrow-left" />
-                        </Button>}
-                        {forkedBranches.length > 0 && <span> {selectedForkedBranchId ? fbLookup[selectedForkedBranchId] + 1 : 1}/{forkedBranches.length} </span>}
-                        {showNextBranch && <Button isIconOnly variant="light" onPress={handleNextBranch} size="sm">
-                            <Icon icon="mdi:arrow-right" />
-                        </Button>}
+                    <div className="text-sm text-gray-400 flex flex-row items-center gap-2">
+                        {prevBranch ? <Button isIconOnly variant="light" onPress={handlePrevBranch} size="sm">
+                            <Icon icon="mdi:arrow-left" className="text-gray-400" />
+                        </Button> :  <div className="w-8">&nbsp;</div>}
+                        {forkedBranches.length > 0 && <span> {prevBranch ? fbLookup[turn.branchId] + 1 : 1}/{forkedBranches.length} </span>}
+                        {/* {forkedBranches.length > 0 && <span> {prevBranch}/{nextBranch} </span>} */}
+                        {nextBranch ? <Button isIconOnly variant="light" onPress={handleNextBranch} size="sm">
+                            <Icon icon="mdi:arrow-right" className="text-gray-400" />
+                        </Button> : <div className="w-8">&nbsp;</div>}
                     </div>
                 </div>}
             </div>
