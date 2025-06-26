@@ -22,13 +22,13 @@ interface InfiniteChatProps<M> {
 
 
 
-const buildEndMessage = <M,>(messages: M[], emptyMessage?: string | React.ReactNode, endMessage?: string | React.ReactNode) => {
+const buildEndMessage = <M,>(messages: M[], emptyMessage?: string | React.ReactNode, endMessage?: string | React.ReactNode, loading?: boolean) => {
     if (messages.length > 0) {
         if (typeof endMessage === "string") {
             return <p className="text-center m-5">{endMessage}</p>
         }
         return endMessage
-    } else {
+    } else if (!loading) {
         return emptyMessage
     }
 }
@@ -73,7 +73,7 @@ export default function InfiniteChat<M>({
                 next={fetchMore}
                 hasMore={hasMore}
                 loader={<Spinner classNames={{label: "text-gray-500 mt-4"}} label="Loading more messages..." variant="spinner" />}
-                endMessage={buildEndMessage(items, emptyMessage, endMessage)}
+                endMessage={buildEndMessage(items, emptyMessage, endMessage, loading)}
                 className={cn("w-full max-w-4xl mx-auto items-center flex flex-col-reverse overflow-visible gap-2", className)}
                 scrollableTarget="scrollableDiv"
                 // initialScrollY={-420}
