@@ -45,27 +45,10 @@ export const Turn = <T extends TurnType, M>({
         rightContent,
     }: TurnProps<T, M>) => {
 
-    const [selectedForkedBranchId, setSelectedForkedBranchId] = useState<number | null>(null);
     const [forkedBranches, setForkedBranches] = useState<number[]>([])
     const [fbLookup, setFbLookup] = useState<Record<string, number>>({})
-    // const [forkedBranches, setForkedBranches] = useState<number[]>(()=>{
-    //     if (turn.forkedBranches.length){
-    //         return [turn.branchId, ...turn.forkedBranches];
-    //     }
-    //     return [];
-    // });
-    // const [fbLookup, setFbLookup] = useState<Record<string, number>>({});
-    // const [fbLookup, setFbLookup] = useState<Record<string, number>>(()=>{
-    //     const lookup: Record<string, number> = {};
-    //     forkedBranches.forEach((branch, index) => {
-    //         lookup[branch] = index;
-    //     });
-    //     return lookup;
-    // });
     const [nextBranch, setNextBranch] = useState<number | null>(null)
     const [prevBranch, setPrevBranch] = useState<number | null>(null)
-    const [showNextBranch, setShowNextBranch] = useState(false);
-    const [showPrevBranch, setShowPrevBranch] = useState(false);
     const ref = useRef(null);
     const [offset, setOffset] = useState(null);
 
@@ -75,37 +58,6 @@ export const Turn = <T extends TurnType, M>({
         }
     }, [turn.id]);
 
-
-    // useEffect(() => {
-    //     if (forkedBranches.length === 0) {
-    //         return
-    //     }
-    //     let targetBranch = null;
-    //     if (branchId in fbLookup) {
-    //         targetBranch = branchId;
-    //     } else if (nextTurn && nextTurn.branchId in fbLookup) {
-    //         targetBranch = nextTurn.branchId;
-    //     } else {
-    //         targetBranch = null;
-    //     }
-
-    //     if (targetBranch !== null) {
-    //         setShowNextBranch(fbLookup[targetBranch] < forkedBranches.length - 1);
-    //         setShowPrevBranch(fbLookup[targetBranch] > 0);
-    //     } else {
-    //         if (forkedBranches.length > 0) {
-    //             setShowNextBranch(true);
-    //             setShowPrevBranch(false);
-    //         } else {
-    //             setShowNextBranch(false);
-    //             setShowPrevBranch(false);
-    //         }
-    //     }
-    //     setSelectedForkedBranchId(targetBranch);
-
-    // }, [branchId, forkedBranches]);
-    console.log("#####", "prevTurn", prevTurn?.id, "turn", turn.id, "nextTurn", nextTurn?.id)
-    console.log("#####", turn.id, "next", showNextBranch, "prev", showPrevBranch)
     useEffect(() => {
         if (!prevTurn || prevTurn.forkedBranches.length === 0) {
             return
@@ -117,15 +69,21 @@ export const Turn = <T extends TurnType, M>({
             lookup[branch] = index;
         });
         setFbLookup(lookup);
+    }, [prevTurn, turn])
+
+    useEffect(() => {
+        if (!prevTurn || prevTurn.forkedBranches.length === 0) {
+            return
+        }
 
         if (prevTurn.branchId !== turn.branchId){
-            const index =prevForkedBranches.findIndex(b => b == turn.branchId)
+            const index = forkedBranches.findIndex(b => b == turn.branchId)
             if (index !== -1){                
                 if (index == 0){
                     setPrevBranch(null)
-                    setNextBranch(prevForkedBranches[1])
-                } else if (index == prevForkedBranches.length - 1){
-                    setPrevBranch(prevForkedBranches[prevForkedBranches.length - 2])
+                    setNextBranch(forkedBranches[1])
+                } else if (index == forkedBranches.length - 1){
+                    setPrevBranch(forkedBranches[forkedBranches.length - 2])
                     setNextBranch(null)
                 } else {
                     setPrevBranch(forkedBranches[index - 1])
@@ -137,10 +95,7 @@ export const Turn = <T extends TurnType, M>({
             setNextBranch(forkedBranches.length > 0 ? forkedBranches[1] : null)
         }
 
-    }, [branchId]);
-    
-    
-
+    }, [branchId, forkedBranches]);
 
     const handlePrevBranch = () => {
         if (prevBranch){
@@ -154,11 +109,6 @@ export const Turn = <T extends TurnType, M>({
         }
     };
 
-    if (forkedBranches.length > 0) {        
-        console.log("fbLookup", fbLookup)        
-    }
-
-    
     return (
         <div key={turn.id} ref={ref} className={cn("flex w-full pb-5", className)}>            
             <div className="flex-1">
@@ -169,6 +119,8 @@ export const Turn = <T extends TurnType, M>({
                     <div className="text-sm text-gray-400">Status: {turn.status}</div>
                     <div className="text-sm text-gray-400">Branch: {turn.branchId}</div>
                     <Divider orientation="vertical" className="mx-3"/> */}
+                    <div className="text-sm text-gray-400">next: {nextBranch}</div>
+                    <div className="text-sm text-gray-400">prev: {prevBranch}</div>
                     <div className="flex gap-2 w-full px-10">
                         {/* <div className="text-sm text-gray-400">offset: {offset}</div> */}
                         {/* <div className="text-sm text-gray-400">Turn {turn.id}</div> */}
