@@ -29,7 +29,7 @@ export interface UseQueryBuilderHook<T extends Record<string, any>> {
 export type FilterOperators<T> = T extends number
     ? '==' | '>' | '<' | '>=' | '<='
     : T extends string
-    ? '==' | 'contains'
+    ? '==' | '!=' | 'contains'
     : never;
 
 // A tuple representing a condition for a given field.

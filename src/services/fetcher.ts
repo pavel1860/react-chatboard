@@ -104,50 +104,6 @@ export function useEndpoint(phoneNumber: string | null, limit: number = 10, offs
 
 
 
-
-interface MutationOptions<Args, Data> {
-    method: 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-    onSuccess?: (date: Data)=> void
-    onError?: (error: any)=>void
-}
-
-
-export const useMutation = <Args, Data>(url: string, options: MutationOptions<Args, Data>) => {
-
-    async function sendMutationRequest<Args, Data>(url: string, { arg }: { arg: Args }): Promise<Data> {
-        return fetch(url, {
-            method: options.method || 'POST',
-            body: JSON.stringify(arg),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then(res => res.json())
-    }
-
-    const { trigger, isMutating } = useSWRMutation(url, sendMutationRequest<Args, Data> as MutationFetcher<Data, string, Args>, {
-        onSuccess: (data: Data) => {
-            options.onSuccess && options.onSuccess(data)
-        },
-        onError: (error) => {
-            console.error(error)
-            options.onError && options.onError(error)
-        }
-    })
-
-    return {
-        isMutating,
-        trigger: (arg: Args) => {
-            {/* @ts-ignore */}
-            trigger(arg)
-        },
-    }
-
-}
-
-
-
-
-
 // const argsToParams = <Args extends Record<string, string | number>>(args: Args) => {
 const argsToParams = <Args extends Record<string, string | number>>(args: Args) => {
     const params = new URLSearchParams()

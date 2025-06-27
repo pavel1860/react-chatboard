@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import classNames from "classnames";
 
-import { Button, ButtonGroup, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@heroui/react";
+import { Button, ButtonGroup, cn, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@heroui/react";
 import { Icon } from "@iconify-icon/react";
 import { Bot, ChevronDown, User } from "lucide-react";
 
+type Width = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "8xl" | "9xl" | "10xl" | "full" | "auto" | "fit";
+
 export interface ChatInputProps {
   placeholder: string | undefined;
-  width?: string;
+  width?: Width;
+  maxWidth?: Width;
   rows?: number;
   showRole?: boolean;
   isUserDanger?: boolean;
@@ -17,6 +20,10 @@ export interface ChatInputProps {
   dontClear?: boolean;
   bgColor?: string;
   borderColor?: string;
+  loading?: boolean;
+  textSize?: "sm" | "md" | "lg";
+  minRows?: number;
+  maxRows?: number;  
 }
 
 export function ChatInput({
@@ -26,15 +33,21 @@ export function ChatInput({
   bgColor,
   borderColor = "#E0E0E0",
   rows = 3,
-  width = "100%",
+  minRows = 1,
+  maxRows = 10,
+  width = "full",
+  maxWidth = "3xl",
   showRole = false,
   defaultRole = "user",
   isUserDanger = false,
+  loading = false,
+  textSize = "md",
 }: ChatInputProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [text, setText] = useState("");
   const [role, setRole] = useState(defaultRole);
   const color = role === "user" && isUserDanger ? "danger" : "primary"
+  const ref = useRef<HTMLTextAreaElement>(null);
 
   const handleEnter = () => {
     if (!text.trim()) return;
@@ -44,38 +57,51 @@ export function ChatInput({
     if (!dontClear) {
       setText("");
     }
-
+    
     // Simulate async delay for UX (adjust as needed)
     setTimeout(() => {
       setIsSubmitting(false);
+      // ref.current?.focus();
     }, 600);
   };
 
   return (
-    <div
-      className="w-full"
-    >
+    // <div
+    //   className="w-full"
+    // >
       <Textarea
+        ref={ref}
         value={text}
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
         classNames={{
-          "inputWrapper": "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300",
-          "input": "text-gray-900"
+          "base": cn(`w-${width}`, maxWidth && `max-w-${maxWidth}`),
+          "inputWrapper": 
+            cn(
+              "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300 pr-0",              
+          ),
+          "input": cn("text-gray-900", `text-${textSize}`)          
         }}
-        
-        // className={classNames(
-        //   "mx-auto text-left font-normal leading-5 text-gray-900",
+        // className={classNames(          
         //   {
         //     "mt-10": rows === 1,
         //   }
         // )}
-        disabled={isSubmitting}
+        // className={classNames(
+        //   "border-1 border-gray-200 rounded-lg mx-auto text-left font-normal leading-5 text-gray-900",
+        //   {
+        //     "mt-10": rows === 1,
+        //   }
+        // )}
+        // disabled={isSubmitting}
         placeholder={placeholder}
         // style={{
         //   backgroundColor: bgColor,
         // }}
+        // rows={rows}
         rows={rows}
+        minRows={minRows}
+        maxRows={maxRows}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -86,10 +112,10 @@ export function ChatInput({
           <ButtonGroup className="mr-2 mb-2">
             <Button
               color={color}
-              isDisabled={isSubmitting}
+              isDisabled={isSubmitting || loading}
               isIconOnly
               onPress={handleEnter}
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || loading}
             >
 
               <Icon
@@ -136,6 +162,6 @@ export function ChatInput({
           </ButtonGroup>
         }
       />
-    </div>
+    // </div>
   );
 }

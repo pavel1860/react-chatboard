@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { AnimatePresence, motion } from 'framer-motion';
-import { AssetItem } from "../../services/chatboard-service";
-import { Chip, Spinner } from '@heroui/react';
+import { cn, Spinner } from '@heroui/react';
 
 
 
@@ -10,7 +8,8 @@ import { Chip, Spinner } from '@heroui/react';
 
 
 interface InfiniteChatProps<M> {
-    children: (item: M, idx: number, items: M[]) => React.ReactNode
+    children: (item: M, idx: number, items: M[], nextItem: M | undefined, prevItem: M | undefined, isLast: boolean) => React.ReactNode
+    className?: string
     items: M[]
     gap?: string
     width?: string
@@ -23,13 +22,13 @@ interface InfiniteChatProps<M> {
 
 
 
-const buildEndMessage = <M,>(messages: M[], emptyMessage?: string | React.ReactNode, endMessage?: string | React.ReactNode) => {
+const buildEndMessage = <M,>(messages: M[], emptyMessage?: string | React.ReactNode, endMessage?: string | React.ReactNode, loading?: boolean) => {
     if (messages.length > 0) {
         if (typeof endMessage === "string") {
             return <p className="text-center m-5">{endMessage}</p>
         }
         return endMessage
-    } else {
+    } else if (!loading) {
         return emptyMessage
     }
 }
@@ -38,6 +37,7 @@ const buildEndMessage = <M,>(messages: M[], emptyMessage?: string | React.ReactN
 
 export default function InfiniteChat<M>({
         children: itemRender, 
+        className,
         items,         
         width, 
         height, 
@@ -49,7 +49,7 @@ export default function InfiniteChat<M>({
     }: InfiniteChatProps<M>) {
 
     const [itemCount, setItemCount] = useState(items.length || 0)
-    const [hasMore, setHasMore] = useState(true)
+    const [hasMore, setHasMore] = useState(false)
 
     useEffect(() => {
         if (items.length !== itemCount) {
@@ -60,55 +60,31 @@ export default function InfiniteChat<M>({
 
     return (
         <div id="scrollableDiv" 
-            style={{
-                // height: height,
-                // height: "800px",
-                overflow: 'auto',
-                display: 'flex',
-                flexDirection: 'column-reverse',
-            }} 
-            className="bg-body-tertiary p-3">
+            className={cn(
+                "flex flex-col-reverse items-stretch w-full flex-grow", 
+                // "overflow-auto"
+                items?.length > 0 ? "overflow-auto" : "overflow-hidden"
+            )}
+            >                
                 {/* <div>has more: {hasMore.toString()}</div> */}
             {loading && <Spinner classNames={{label: "text-foreground mt-4"}} variant="wave" />}
             <InfiniteScroll
                 dataLength={ items.length }
                 next={fetchMore}
                 hasMore={hasMore}
-                loader={<p className="text-center m-5">⏳&nbsp;Loading...</p>}
-                endMessage={buildEndMessage(items, emptyMessage, endMessage)}
-                style={{ 
-                    display: "flex", 
-                    flexDirection: "column-reverse", 
-                    overflow: "visible", 
-                    gap: gap || "10px"
-                }}
+                loader={<Spinner classNames={{label: "text-gray-500 mt-4"}} label="Loading more messages..." variant="spinner" />}
+                endMessage={buildEndMessage(items, emptyMessage, endMessage, loading)}
+                className={cn("w-full max-w-4xl mx-auto items-center flex flex-col-reverse overflow-visible gap-2", className)}
                 scrollableTarget="scrollableDiv"
                 // initialScrollY={-420}
                 inverse={true}
                 // initialScrollY={0}
+                // hasChildren={false}
                 onScroll={(e) => {
                     // console.log("scrolled", e)
                 }}
                 >
-                    {items.map( (message: M, idx: number) => itemRender(message, idx, items))}
-                {/* <AnimatePresence>
-                    {messages.map( (message: M, idx: number) => {                        
-                        return (
-                            <motion.div
-                                // key={message && (message as any).id ? (message as any).id : idx}
-                                key={message.id}
-                                initial={ idx < 2 ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                            
-                            {children(message, idx, messages)}
-                        </motion.div>
-                    )
-                    })}
-                    
-                </AnimatePresence>                 */}
+                    {items.map( (message: M, idx: number) => itemRender(message, idx, items, items[idx - 1], items[idx + 1], idx === items.length - 1))}                
             </InfiniteScroll>
             
         </div>
