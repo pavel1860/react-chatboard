@@ -472,6 +472,7 @@ export const RunView = ({ runId }: any) => {
     return (
         <div>
             <RunViewToolbar />
+                <Chip size="sm" color="primary" variant="flat">{runId}</Chip>
                 
             <div style={{
                 // height: "calc(100vh - 40px)",
