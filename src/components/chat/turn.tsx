@@ -109,6 +109,10 @@ export const Turn = <T extends TurnType, M>({
         }
     };
 
+    if (!items || items.length === 0) {
+        return null
+    }
+
     return (
         <div key={turn.id} ref={ref} className={cn("flex w-full pb-5", className)}>            
             <div className="flex-1">
