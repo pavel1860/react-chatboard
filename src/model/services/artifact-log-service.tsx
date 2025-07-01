@@ -133,11 +133,11 @@ export const useAllTurns = (headers: ArtifactLogHeaders) => {
     );
 };
 
-export const useBranchTurns = (branchId: number | null): SWRResponse<TurnType[]> => {
+export const useBranchTurns = (branchId: number | null, partitionId: number): SWRResponse<TurnType[]> => {
     
     return useSWR<TurnType[]>(
-        branchId ? [BASE_URL + `/turns/${branchId}`] : null,
-        ([url]) => fetcher(url, { branchId: branchId }).then(data => z.array(TurnSchema).parse(data))
+        branchId ? [BASE_URL + `/turns/${branchId}/partition/${partitionId}`] : null,
+        ([url]) => fetcher(url, { branchId: branchId, partitionId: partitionId }).then(data => z.array(TurnSchema).parse(data))
     );
 };
 

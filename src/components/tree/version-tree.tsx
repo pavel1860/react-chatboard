@@ -222,9 +222,9 @@ function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, r
 
 // Component to fetch and render turns for a given forked branch.
 function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }) {
-    const { branchId, setBranchId } = useVersionTree()
+    const { branchId, setBranchId, partitionId } = useVersionTree()
     // const headers = { head_id: String(selectedHeadId) };
-    const { data: turns, isLoading, error, mutate } = useBranchTurns(branch.id);
+    const { data: turns, isLoading, error, mutate } = useBranchTurns(branch.id, partitionId);
 
     if (isLoading)
         return (
@@ -304,13 +304,13 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
 
 // Component for the Master Branch—that is, the top-level tree
 // which uses the `/all_turns` endpoint.
-function MasterBranchTree() {
+function MasterBranchTree({ partitionId }: { partitionId: number }) {
     // const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
     const { branchId, setBranchId } = useVersionTree()
     const mainBranchId = 1
     // const headers = { head_id: String(mainBranchId) };
     console.log("MasterBranchTree", mainBranchId)
-    const { data: turns, isLoading, error, mutate } = useBranchTurns(mainBranchId ?? null);
+    const { data: turns, isLoading, error, mutate } = useBranchTurns(mainBranchId ?? null, partitionId);
 
     if (!mainBranchId) return <div>No head selected</div>;
 
@@ -348,6 +348,7 @@ function MasterBranchTree() {
 
 
 interface VersionTreeProps {
+    partitionId: number
     branchId: number
     setBranchId: (branchId: number) => void
     setTraceId: (traceId: string) => void
@@ -355,11 +356,11 @@ interface VersionTreeProps {
 }
 
 // Main component wraps the tree with the context provider
-function VersionTree({ branchId, setBranchId, setTraceId, refetchChat }: VersionTreeProps) {
+function VersionTree({ partitionId, branchId, setBranchId, setTraceId, refetchChat }: VersionTreeProps) {
     return (
-        <VersionTreeProvider branchId={branchId} setBranchId={setBranchId} setTraceId={setTraceId} refetchChat={refetchChat}>
+        <VersionTreeProvider branchId={branchId} setBranchId={setBranchId} setTraceId={setTraceId} refetchChat={refetchChat} partitionId={partitionId}>
             <div className="p-10">
-                <MasterBranchTree  />
+                <MasterBranchTree partitionId={partitionId} />
             </div>
         </VersionTreeProvider>
     );

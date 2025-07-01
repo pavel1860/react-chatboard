@@ -2,6 +2,7 @@ import { Button, cn, Divider } from "@heroui/react"
 import { useEffect, useRef, useState } from "react"
 import { Icon } from "@iconify-icon/react"
 import { ToolCall, TurnType } from "./schema"
+import { JSONTree } from "react-json-tree"
 
 
 
@@ -25,6 +26,7 @@ interface TurnProps <T extends TurnType, M> {
     sendMessage: (message: string, toolCalls: ToolCall[], state: any, prevTurnId: string, isFork: boolean) => void
     bottomContent?: React.ReactNode
     rightContent?: React.ReactNode
+    onBranchChange?: (branchId: number) => void
 }
 
 
@@ -43,12 +45,14 @@ export const Turn = <T extends TurnType, M>({
         className = "",
         bottomContent,
         rightContent,
+        onBranchChange,
     }: TurnProps<T, M>) => {
 
     const [forkedBranches, setForkedBranches] = useState<number[]>([])
     const [fbLookup, setFbLookup] = useState<Record<string, number>>({})
     const [nextBranch, setNextBranch] = useState<number | null>(null)
     const [prevBranch, setPrevBranch] = useState<number | null>(null)
+    const [showRawData, setShowRawData] = useState(false);
     const ref = useRef(null);
     const [offset, setOffset] = useState(null);
 
@@ -100,12 +104,14 @@ export const Turn = <T extends TurnType, M>({
     const handlePrevBranch = () => {
         if (prevBranch){
             setBranchId(prevBranch)
+            onBranchChange?.(prevBranch)
         }
     };
 
     const handleNextBranch = () => {
         if (nextBranch){
             setBranchId(nextBranch)
+            onBranchChange?.(nextBranch)
         }
     };
 
@@ -125,6 +131,7 @@ export const Turn = <T extends TurnType, M>({
                     <Divider orientation="vertical" className="mx-3"/> */}
                     <div className="text-sm text-gray-400">next: {nextBranch}</div>
                     <div className="text-sm text-gray-400">prev: {prevBranch}</div>
+                    <Button variant={showRawData ? "solid" : "light"} className="text-sm text-gray-400" onPress={() => setShowRawData(!showRawData)} size="sm">{showRawData ? "Hide Raw" : "Raw"}</Button>
                     <div className="flex gap-2 w-full px-10">
                         {/* <div className="text-sm text-gray-400">offset: {offset}</div> */}
                         {/* <div className="text-sm text-gray-400">Turn {turn.id}</div> */}
@@ -145,10 +152,13 @@ export const Turn = <T extends TurnType, M>({
                         </Button> : <div className="w-8">&nbsp;</div>}
                     </div>
                 </div>}
+                {showRawData && <JSONTree data={turn} />}
             </div>
             {rightContent && <div className="flex flex-col items-center justify-start">
                 {rightContent}
             </div>}
+
+            
             
             {/* {showSideControls && <div>
                 <Button 
