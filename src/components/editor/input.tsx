@@ -109,7 +109,8 @@ export function ChatInput({
           }
         }}
         endContent={
-          <ButtonGroup className="mr-2 mb-2">
+          <div className="h-full flex flex-col justify-end px-2">
+          <ButtonGroup className="">
             <Button
               color={color}
               isDisabled={isSubmitting || loading}
@@ -160,6 +161,7 @@ export function ChatInput({
               </DropdownMenu>
             </Dropdown>}
           </ButtonGroup>
+          </div>
         }
       />
     // </div>
