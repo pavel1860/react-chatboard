@@ -36,7 +36,7 @@ export function ChatInput({
   minRows = 1,
   maxRows = 10,
   width = "full",
-  maxWidth = "3xl",
+  maxWidth = "4xl",
   showRole = false,
   defaultRole = "user",
   isUserDanger = false,
@@ -75,7 +75,7 @@ export function ChatInput({
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
         classNames={{
-          "base": cn(`w-${width}`, maxWidth && `max-w-${maxWidth}`),
+          "base": cn(`w-${width}`, maxWidth && `max-w-${maxWidth} px-4`),
           "inputWrapper": 
             cn(
               "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300 pr-0",              
@@ -109,7 +109,8 @@ export function ChatInput({
           }
         }}
         endContent={
-          <ButtonGroup className="mr-2 mb-2">
+          <div className="h-full flex flex-col justify-end px-2">
+          <ButtonGroup className="">
             <Button
               color={color}
               isDisabled={isSubmitting || loading}
@@ -160,6 +161,7 @@ export function ChatInput({
               </DropdownMenu>
             </Dropdown>}
           </ButtonGroup>
+          </div>
         }
       />
     // </div>
