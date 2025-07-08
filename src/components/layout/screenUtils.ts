@@ -50,9 +50,10 @@ export const useWindowSize = () => {
                 width: window.innerWidth,
                 height: window.innerHeight,
             });
+            updateVh();
         };
         updateSize();
-        updateVh();
+        
         window.addEventListener('resize', updateSize);
         return () => window.removeEventListener('resize', updateSize);
     }, []);
