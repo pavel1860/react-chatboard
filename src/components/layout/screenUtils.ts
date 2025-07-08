@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 
 
@@ -44,19 +44,29 @@ export const useWindowSize = () => {
         height: 0,
     });
 
+    const [bodyDiff, setBodyDiff] = useState(0)
+
+
+    const updateSize = useCallback( () => {
+        setWindowSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
+        setBodyDiff(window.outerHeight - window.innerHeight)
+        updateVh();
+    }, [setWindowSize])
+
     useEffect(() => {
-        const updateSize = () => {
-            setWindowSize({
-                width: window.innerWidth,
-                height: window.innerHeight,
-            });
-            updateVh();
-        };
+        
         updateSize();
         
         window.addEventListener('resize', updateSize);
         return () => window.removeEventListener('resize', updateSize);
     }, []);
 
-    return windowSize;
+    return {
+        size: windowSize,
+        updateSize,
+        bodyDiff: bodyDiff
+    };
 };

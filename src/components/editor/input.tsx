@@ -4,7 +4,7 @@ import classNames from "classnames";
 import { Button, ButtonGroup, cn, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@heroui/react";
 import { Icon } from "@iconify-icon/react";
 import { Bot, ChevronDown, User } from "lucide-react";
-import { updateVh, useIsLargeScreen } from "../layout/screenUtils";
+import { updateVh, useIsLargeScreen, useWindowSize } from "../layout/screenUtils";
 
 type Width = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "8xl" | "9xl" | "10xl" | "full" | "auto" | "fit";
 
@@ -69,6 +69,8 @@ export function ChatInput({
 
   const isLargeScreen = useIsLargeScreen();
 
+  const {updateSize} = useWindowSize()
+
   
 
   return (
@@ -81,10 +83,10 @@ export function ChatInput({
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
         onFocus={()=>{
-          // updateVh()
+          updateSize()
         }}
         onBlur={()=>{
-          // updateVh()
+          updateSize()
         }}
         classNames={{
           "base": cn(`w-${width}`, maxWidth && `max-w-${maxWidth}`),
