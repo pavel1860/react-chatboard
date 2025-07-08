@@ -128,7 +128,7 @@ export function ChatInput({
             <Button
               color={color}
               isDisabled={isSubmitting || loading}
-              isIconOnly
+              isIconOnly={!showRole}
               onPress={handleEnter}
               isLoading={isSubmitting || loading}
             >
@@ -139,7 +139,7 @@ export function ChatInput({
                 height={20}
                 className="text-white"
               />
-
+              {showRole && role} 
             </Button>
 
             {showRole && <Dropdown>
@@ -148,13 +148,13 @@ export function ChatInput({
                   className="p-0"
                   color={color}
                   isDisabled={isSubmitting}
-                  // isIconOnly
+                  isIconOnly
                   onPress={handleEnter}
                   isLoading={isSubmitting}
                   // className="w-16"
                   endContent={<ChevronDown/>}
                 >
-                  {role} 
+                  
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="Dropdown menu with icons" variant="faded">
