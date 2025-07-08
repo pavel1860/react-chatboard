@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { cn, Spinner } from '@heroui/react';
+import { cn, Spinner, ScrollShadow } from '@heroui/react';
 
 
 
@@ -18,6 +18,7 @@ interface InfiniteChatProps<M> {
     loading?: boolean
     emptyMessage?: string | React.ReactNode
     endMessage?: string | React.ReactNode
+    shadowVisibility?: "top" | "bottom" | "both" | "none"
 }
 
 
@@ -45,7 +46,8 @@ export default function InfiniteChat<M>({
         gap, 
         loading, 
         emptyMessage = "No messages", 
-        endMessage = "No more messages"
+        endMessage = "No more messages",
+        shadowVisibility = "top"
     }: InfiniteChatProps<M>) {
 
     const [itemCount, setItemCount] = useState(items.length || 0)
@@ -59,6 +61,7 @@ export default function InfiniteChat<M>({
     }, [items])
 
     return (
+        <ScrollShadow visibility = {shadowVisibility}>
         <div id="scrollableDiv" 
             className={cn(
                 "flex flex-col-reverse items-stretch w-full flex-grow scrollbar-thumb-only", 
@@ -88,6 +91,7 @@ export default function InfiniteChat<M>({
             </InfiniteScroll>
             
         </div>
+        </ScrollShadow>
     )
 }
 

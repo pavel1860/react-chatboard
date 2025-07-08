@@ -4,6 +4,7 @@ import classNames from "classnames";
 import { Button, ButtonGroup, cn, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@heroui/react";
 import { Icon } from "@iconify-icon/react";
 import { Bot, ChevronDown, User } from "lucide-react";
+import { updateVh, useIsLargeScreen } from "../layout/screenUtils";
 
 type Width = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "8xl" | "9xl" | "10xl" | "full" | "auto" | "fit";
 
@@ -65,6 +66,11 @@ export function ChatInput({
     }, 600);
   };
 
+
+  const isLargeScreen = useIsLargeScreen();
+
+  
+
   return (
     // <div
     //   className="w-full"
@@ -74,8 +80,14 @@ export function ChatInput({
         value={text}
         // variant="bordered"
         onChange={(e) => setText(e.target.value)}
+        onFocus={()=>{
+          // updateVh()
+        }}
+        onBlur={()=>{
+          // updateVh()
+        }}
         classNames={{
-          "base": cn(`w-${width}`, maxWidth && `max-w-${maxWidth} px-4`),
+          "base": cn(`w-${width}`, maxWidth && `max-w-${maxWidth}`),
           "inputWrapper": 
             cn(
               "border-1 border-gray-200 bg-[#F4F4F5] px-4 py-2 focus-within:border-gray-300 pr-0",              
