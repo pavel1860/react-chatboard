@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { useBranchTurns, useUpdateTurn } from '../../model/services/artifact-log-service';
-import { Button, Chip, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@heroui/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@heroui/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
-import { Ellipsis, Eye, EyeOff, GitMerge, GitPullRequest, TextSearch } from 'lucide-react';
-import { useSideView } from '../../stores/layout-store';
+import { Ellipsis, Eye, EyeOff, GitMerge, TextSearch } from 'lucide-react';
 // Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
 
 // Helper: Get commit dot color based on status.

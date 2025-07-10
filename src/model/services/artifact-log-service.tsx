@@ -1,8 +1,7 @@
 import useSWR, { SWRResponse } from 'swr';
 import { z } from 'zod';
 import { useMutationHook } from '../../services/mutation2';
-import { useHeadEnv, useVersionHead } from "../hooks/artifact-head-hooks";
-import {fetcher as fetcher3 } from '../../services/fetcher3';
+
 
 
 export interface ArtifactLogHeaders {
