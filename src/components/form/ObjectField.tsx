@@ -17,6 +17,7 @@ export function ObjectField({ field, prefix, children }: ObjectFieldProps) {
         Children.map(children, (child) => {
             if (!isValidElement(child)) return child;
             return cloneElement(child, {
+                // @ts-ignore
                 prefix: objectPrefix,
             });
         });

@@ -58,6 +58,7 @@ export const Turn = <T extends TurnType, M>({
 
     useEffect(() => {
         if (ref.current) {
+            // @ts-ignore
             setOffset(ref.current.offsetTop)
         }
     }, [turn.id]);

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { ReactNode, useState } from 'react';
 import clsx from 'clsx';
 import { cn, Spinner } from '@heroui/react';

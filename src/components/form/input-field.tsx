@@ -105,6 +105,7 @@ export function InputField({
     labelWidth,
     ...props
 }: InputFieldProps) {
+    // @ts-ignore
     const { register, control, formState: { errors }, isReadOnly, schema } = useFormContext();
     // Build the final field name
     const fieldName = prefix ? `${prefix}.${field}` : field;

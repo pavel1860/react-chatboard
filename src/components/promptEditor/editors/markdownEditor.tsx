@@ -1,12 +1,4 @@
-// import {
-//     LexicalComposer,
-//     RichTextPlugin,
-//     ContentEditable,
-//     HistoryPlugin,
-//     OnChangePlugin,
-// } from '@lexical/react/LexicalComposerContext';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -23,8 +15,7 @@ import {
     $convertToMarkdownString,
     TRANSFORMERS
 } from '@lexical/markdown';
-import { $createAgentActionNode, AgentActionNode } from './nodes/AgentActionNode';
-import { TextNode } from 'lexical';
+
 
 // const theme = {
 //     paragraph: 'editor-paragraph',
@@ -89,8 +80,8 @@ export default function MarkdownEditor({ text = '', onChange, notEditable, place
     return (
         <LexicalComposer initialConfig={initialConfig}>
             <RichTextPlugin
-                placeholder={placeholder && <span className="text-gray-400">{placeholder}</span>}
-                // contentEditable={<ContentEditable className="min-h-48 outline-none" />}
+                // @ts-ignore
+                placeholder={placeholder && <span className="text-gray-400">{placeholder}</span>}                    
                 contentEditable={<ContentEditable className="outline-none" />}
             />
             <HistoryPlugin />

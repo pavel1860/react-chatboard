@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
-import { ZodSchema, ZodTypeAny, z } from 'zod';
+import { SubmitHandler, UseFormReturn } from "react-hook-form";
+import { ZodTypeAny, z } from 'zod';
 
 
 export interface InputStyleProps {
@@ -96,3 +96,8 @@ export interface ArrayFieldProps {
      */
     renderItemActions?: (index: number, remove: (index: number) => void) => ReactNode;
 }
+
+export interface UseFormCtx {
+    isReadOnly: boolean
+}
+

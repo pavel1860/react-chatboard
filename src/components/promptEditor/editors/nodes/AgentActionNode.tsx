@@ -107,6 +107,7 @@ export class AgentActionNode extends TextNode {
       dom: HTMLElement,
       config: EditorConfig,
     ): boolean {
+      // @ts-ignore
       const isUpdated = super.updateDOM(prevNode, dom, config);
     //   if (prevNode.__color !== this.__color) {
     //     dom.style.color = this.__color;

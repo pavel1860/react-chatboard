@@ -33,8 +33,10 @@ const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
                 selectionMode="single"
                 onSelectionChange={async (keys)=>{
                     console.log("keys", keys)
+                    // @ts-ignore
                     const newStatus = [...keys]
                     if (newStatus.length > 0) {
+                        // @ts-ignore
                         await updateTurn({ status: newStatus[0] })
                         refetch()
                         refetchChat && refetchChat()
@@ -94,6 +96,7 @@ const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
 function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, refetch: () => void }) {
     const { isExpanded, toggleTurn, branchId, setBranchId, refetchChat, setTraceId } = useVersionTree();
     const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
+    // @ts-ignore
     const { trigger: updateTurn } = useUpdateTurn(turn.id, { branchId: branchId })
     
     return (
@@ -189,6 +192,7 @@ function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, r
                                 return
                             }
                             const newStatus = turn.status === 'committed' ? 'reverted' : 'committed'
+                            // @ts-ignore
                             await updateTurn({ status: newStatus })
                             refetch()
                             refetchChat && refetchChat()

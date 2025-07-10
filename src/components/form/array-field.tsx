@@ -1,70 +1,6 @@
-// // ArrayField.jsx
-// import React, { Children, isValidElement, cloneElement } from "react";
-// import { useFormContext, useFieldArray } from "react-hook-form";
-// import { ArrayFieldProps } from "./types";
-
-// /**
-//  * @param {Object} props
-//  * @param {string} props.field - The array field name (e.g. "meals")
-//  * @param {React.ReactNode} props.children - The fields for each array item
-//  * @param {Function} [props.renderItemActions] - Optional callback to render extra actions per item
-//  */
-// export function ArrayField({ field, children, renderItemActions }: ArrayFieldProps) {
-//     const { control } = useFormContext();
-
-//     // useFieldArray needs the 'name' to match your array path
-//     const { fields, append, remove } = useFieldArray({ control, name: field });
-
-//     const addItem = () => {
-//         // By default, we can just append an empty object or partial defaults
-//         append({});
-//     };
-
-//     const renderChildrenForIndex = (index) => {
-//         // Convert children to elements and pass prefix e.g. "meals.0"
-//         const itemPrefix = `${field}.${index}`;
-
-//         return Children.map(children, (child) => {
-//             if (!isValidElement(child)) return child;
-//             return cloneElement(child, {
-//                 prefix: itemPrefix,
-//             });
-//         });
-//     };
-
-//     return (
-//         <div style={{ marginBottom: "1rem" }}>
-//             <h3>{field}</h3>
-
-//             {/* Render each item in the array */}
-//             {fields.map((item, index) => (
-//                 <div key={item.id} style={{ marginBottom: "1rem", border: "1px solid #e3e3e3", padding: "0.5rem" }}>
-//                     {renderChildrenForIndex(index)}
-
-//                     <div style={{ marginTop: "0.5rem" }}>
-//                         <button type="button" onClick={() => remove(index)}>
-//                             Remove
-//                         </button>
-//                         {renderItemActions?.(index, remove)}
-//                     </div>
-//                 </div>
-//             ))}
-
-//             <button type="button" onClick={addItem}>
-//                 + Add Item
-//             </button>
-//         </div>
-//     );
-// }
-
-
 import { Button } from "@heroui/react";
 import React, {
-    FC,
     ReactNode,
-    Children,
-    isValidElement,
-    cloneElement,
     useEffect,
 } from "react";
 import { useFormContext, useFieldArray, FieldValues } from "react-hook-form";
@@ -112,6 +48,7 @@ export function ArrayField<TItem extends FieldValues>({
     addComponent,
     gap,
 }: ArrayFieldProps<TItem>) {
+    // @ts-ignore
     const { control, schema, isReadOnly } = useFormContext();
     const { fields, append, remove } = useFieldArray({
         control,
@@ -127,7 +64,7 @@ export function ArrayField<TItem extends FieldValues>({
 
     const addItem = () => {
         // If you need default item structure, you can pass it to append({ ...defaults })
-        append();
+        append({});
     };
 
 

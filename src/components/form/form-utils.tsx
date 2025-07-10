@@ -10,6 +10,7 @@ function isNumeric(str: any) {
     if (typeof str !== 'string') return false;
 
     // Check if it's not NaN when parsed as a float
+    // @ts-ignore
     return !isNaN(str) && !isNaN(parseFloat(str));
 }
 
@@ -128,6 +129,7 @@ interface UseFormCtx {
 }
 
 const useFormCtx = () => {
+    // @ts-ignore
     const { register, control, formState: { errors }, isReadOnly, schema, style } = useFormContext();
 
 

@@ -2,7 +2,7 @@ import useSWR, { SWRResponse } from 'swr';
 import { z } from 'zod';
 import { useMutationHook } from '../../services/mutation2';
 import { useHeadEnv, useVersionHead } from "../hooks/artifact-head-hooks";
-import {fetcher as fetcher3, VersionHead } from '../../services/fetcher3';
+import {fetcher as fetcher3 } from '../../services/fetcher3';
 
 
 export interface ArtifactLogHeaders {
@@ -70,19 +70,10 @@ export type TurnType = z.infer<typeof TurnSchema>;
 export type HeadType = z.infer<typeof HeadSchema>;
 export type PartitionType = z.infer<typeof PartitionSchema>;
 
-const getHeaders = (headers: ArtifactLogHeaders): Headers => {
-    const requestHeaders = new Headers();
-    requestHeaders.append('head_id', headers.headId);
-    if (headers.branchId) {
-        requestHeaders.append('branch_id', headers.branchId);
-    }
-    return requestHeaders;
-};
-
 // Fetcher functions
-const fetcher = async (url: string, headers: ArtifactLogHeaders) => {
+const fetcher = async (url: string) => {
     const response = await fetch(url, {
-        headers: getHeaders(headers),
+        
     });
 
     if (!response.ok) {
@@ -100,10 +91,10 @@ const fetcher = async (url: string, headers: ArtifactLogHeaders) => {
 
 
 // SWR Hooks
-export const useAllBranches = (headers: ArtifactLogHeaders) => {
+export const useAllBranches = () => {
     return useSWR<BranchType[]>(
-        [BASE_URL + '/branches', headers],
-        ([url, headers]) => fetcher(url, headers).then(data => z.array(BranchSchema).parse(data))
+        [BASE_URL + '/branches'],
+        ([url]) => fetcher(url).then(data => z.array(BranchSchema).parse(data))
     );
 };
 
@@ -111,25 +102,18 @@ export const useAllBranches = (headers: ArtifactLogHeaders) => {
 
 
 
-export const usePartitions = (head: VersionHead) => {
-    const env = useVersionHead(head);
-    return useSWR<PartitionType[]>(
-        [BASE_URL + '/partitions', env],
-        ([url, env]: [string, VersionHead]) => fetcher3<PartitionType[]>(url, {schema: z.array(PartitionSchema), head: env})
-    );
-};
 
-export const useBranchById = (branchId: number, headers: ArtifactLogHeaders) => {
+export const useBranchById = (branchId: number) => {
     return useSWR<BranchType>(
-        branchId ? [BASE_URL + `/branches/${branchId}`, headers] : null,
-        ([url, headers]) => fetcher(url, headers).then(data => BranchSchema.parse(data))
+        branchId ? [BASE_URL + `/branches/${branchId}`] : null,
+        ([url]) => fetcher(url).then(data => BranchSchema.parse(data))
     );
 };
 
 export const useAllTurns = (headers: ArtifactLogHeaders) => {
     return useSWR<TurnType[]>(
         [BASE_URL + '/all_turns', headers],
-        ([url, headers]) => fetcher(url, headers).then(data => z.array(TurnSchema).parse(data))
+        ([url, headers]) => fetcher(url).then(data => z.array(TurnSchema).parse(data))
     );
 };
 
@@ -137,18 +121,18 @@ export const useBranchTurns = (branchId: number | null, partitionId: number): SW
     
     return useSWR<TurnType[]>(
         branchId ? [BASE_URL + `/turns/${branchId}/partition/${partitionId}`] : null,
-        ([url]) => fetcher(url, { branchId: branchId, partitionId: partitionId }).then(data => z.array(TurnSchema).parse(data))
+        ([url]) => fetcher(url).then(data => z.array(TurnSchema).parse(data))
     );
 };
 
 
-export const useUpdateTurn = (turnId: number, head?: VersionHead) => {
+export const useUpdateTurn = (turnId: number) => {
     // const currHead = useVersionHead();
-    return useMutationHook<TurnType, TurnType>(
+    return useMutationHook(
         `${BASE_URL}/turns/update/${turnId}`,
         // env,
+        // @ts-ignore
         {
-            head: head,
             callbacks: {
                 onSuccess: (data) => {
                     // mutate();
@@ -156,54 +140,3 @@ export const useUpdateTurn = (turnId: number, head?: VersionHead) => {
             }
         });
 }
-
-
-
-
-export const useBranchFromTurn = (head?: VersionHead) => {
-    const currHead = useVersionHead(head);
-    const { mutate } = useBranchTurns(currHead.branchId);
-    return useMutationHook<BranchType, BranchType>(
-        `${BASE_URL}/branches`,
-        {         
-            head: currHead,
-            callbacks: {
-                onSuccess: (data) => {
-                    mutate();
-                }
-            }
-        });
-}
-
-// export const useBranchFromTurn = () => {
-//     const env = useHeadEnv();
-//     const { mutate } = useBranchTurns(env.branch_id);
-//     return useMutationHook<BranchType, BranchType>({ 
-//         endpoint: `${BASE_URL}/branches`, 
-//         env,
-//         callbacks: {
-//             onSuccess: (data) => {
-//                 mutate();
-//             }
-//         }
-//     });
-// };
-
-
-
-
-
-// Example usage:
-/*
-const YourComponent = () => {
-    const headers = { head_id: "123" };
-    const { data: branches, error, isLoading } = useAllBranches(headers);
-
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
-    
-    return <div>{branches?.map(branch => <div key={branch.id}>{branch.name}</div>)}</div>;
-};
-*/
-
-
