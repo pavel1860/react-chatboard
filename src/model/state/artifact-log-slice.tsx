@@ -8,8 +8,8 @@ export type ArtifactLogStoreType = {
     setSelectedTurnId: (turnId: number) => void
     mainBranchId: number | null
     setMainBranchId: (mainBranchId: number) => void
-    partitionId: number | null
-    setPartitionId: (partitionId: number | null) => void
+    partitionId: string | null
+    setPartitionId: (partitionId: string | null) => void
     setHeadEnv: (headId: number, branchId: number, mainBranchId: number, turnId: number) => void
     setBranchEnv: (branchId: number, turnId: number) => void
 
@@ -33,7 +33,7 @@ export const createArtifactLogSlice = (artifactViews: string[], defaultView: str
             mainBranchId: 1,
             setMainBranchId: (mainBranchId: number) => set({ mainBranchId: mainBranchId }),
             partitionId: null,
-            setPartitionId: (partitionId: number | null) => set({ partitionId: partitionId }),
+            setPartitionId: (partitionId: string | null) => set({ partitionId: partitionId }),
             setHeadEnv: (headId: number, branchId: number, turnId: number, mainBranchId: number) => set({ selectedHeadId: headId, selectedBranchId: branchId, mainBranchId: mainBranchId, selectedTurnId: turnId }),
             setBranchEnv: (branchId: number, turnId: number) => set({ selectedBranchId: branchId, selectedTurnId: turnId }),
             artifactView: defaultView,

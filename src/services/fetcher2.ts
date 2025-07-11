@@ -8,7 +8,7 @@ export interface VersionEnv {
     headId?: number | null;
     branchId?: number | null;
     turnId?: number | null;
-    partitionId?: number | null;
+    partitionId?: string | null;
 }
 
 
