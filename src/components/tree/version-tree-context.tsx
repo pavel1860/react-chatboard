@@ -8,12 +8,12 @@ interface VersionTreeContextType {
     branchId: number;
     setBranchId: (branchId: number) => void;
     setTraceId: (traceId: string) => void;
-    partitionId: number;
+    partitionId: string;
 }
 
 const VersionTreeContext = createContext<VersionTreeContextType | undefined>(undefined);
 
-export function VersionTreeProvider({ children, refetchChat, branchId, setBranchId, setTraceId, partitionId }: { children: React.ReactNode, refetchChat?: () => void, branchId: number, setBranchId: (branchId: number) => void, setTraceId: (traceId: string) => void, partitionId: number }) {    
+export function VersionTreeProvider({ children, refetchChat, branchId, setBranchId, setTraceId, partitionId }: { children: React.ReactNode, refetchChat?: () => void, branchId: number, setBranchId: (branchId: number) => void, setTraceId: (traceId: string) => void, partitionId: string }) {    
     const [expandedTurns, setExpandedTurns] = useState<Set<number>>(new Set());
 
     const toggleTurn = (turnId: number) => {

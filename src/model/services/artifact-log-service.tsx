@@ -7,7 +7,7 @@ import { useMutationHook } from '../../services/mutation2';
 export interface ArtifactLogHeaders {
     head_id: number;
     branch_id?: number;
-    partition_id?: number;
+    partition_id?: string;
 }
 
 const BASE_URL = '/api/ai/artifact_log';
@@ -50,12 +50,12 @@ export const HeadSchema = z.object({
 
 
 export const ParticipantSchema = z.object({
-    id: z.number(),
-    user_id: z.number(),
+    id: z.string(),
+    user_id: z.string(),
 });
 
 export const PartitionSchema = z.object({
-    id: z.number(),
+    id: z.string(),
     name: z.string(),
     created_at: z.string(),
     updated_at: z.string(),
@@ -116,7 +116,7 @@ export const useAllTurns = (headers: ArtifactLogHeaders) => {
     );
 };
 
-export const useBranchTurns = (branchId: number | null, partitionId: number): SWRResponse<TurnType[]> => {
+export const useBranchTurns = (branchId: number | null, partitionId: string): SWRResponse<TurnType[]> => {
     
     return useSWR<TurnType[]>(
         branchId ? [BASE_URL + `/turns/${branchId}/partition/${partitionId}`] : null,

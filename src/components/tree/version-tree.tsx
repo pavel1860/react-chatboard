@@ -306,7 +306,7 @@ function ForkBranchTree({ branch, indent = 1 }: { branch: any; indent?: number }
 
 // Component for the Master Branch—that is, the top-level tree
 // which uses the `/all_turns` endpoint.
-function MasterBranchTree({ partitionId }: { partitionId: number }) {
+function MasterBranchTree({ partitionId }: { partitionId: string }) {
     // const { head, setSelectedBranchId, selectedBranchId } = useArtifactLog()
     const { branchId, setBranchId } = useVersionTree()
     const mainBranchId = 1
@@ -350,7 +350,7 @@ function MasterBranchTree({ partitionId }: { partitionId: number }) {
 
 
 interface VersionTreeProps {
-    partitionId: number
+    partitionId: string
     branchId: number
     setBranchId: (branchId: number) => void
     setTraceId: (traceId: string) => void
