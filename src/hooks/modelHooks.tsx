@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import useSWR, { SWRResponse, SWRConfiguration } from "swr";
 import useSWRMutation from "swr/mutation";
 
-import { ZodTypeAny, z } from "zod";
+import { ZodObject, ZodTypeAny, z } from "zod";
 import { DefaultFilter, useQueryBuilder } from "../services/query-builder";
 import useSWRInfinite from "swr/infinite";
 import { convertKeysToCamelCase, convertKeysToSnakeCase } from "../model/services/model-context";
@@ -280,19 +280,38 @@ export interface FetchModelListHookConfig<
 }
 
 
-export interface Configuration<Model> extends SWRConfiguration {
+export interface BaseConfiguration extends SWRConfiguration {
     isDisabled?: boolean;    
     headers?: Record<string, string>;
     lazy?: boolean;
-    /**
-     * Optional callback for successful fetch.
-     */
-    onSuccess?: (data: Model[]) => void;
     /**
      * Optional callback for fetch error.
      */
     onError?: (error: any) => void;
 }
+
+export interface SingleConfiguration<Model> extends BaseConfiguration {
+    /**
+     * Optional callback for successful fetch.
+     */
+    onSuccess?: (data: Model) => void;
+}
+
+export interface ListConfiguration<Model> extends BaseConfiguration {
+    /**
+     * Optional callback for successful fetch.
+     */
+    onSuccess?: (data: Model[]) => void;
+}
+
+
+export interface InfiniteConfiguration<Model> extends BaseConfiguration {
+    /**
+     * Optional callback for successful fetch.
+     */
+    onSuccess?: (data: Model[][]) => void;
+}
+
 
 /**
  * Parameters passed into the hook returned by createUseFetchModelListHook.
@@ -302,7 +321,7 @@ export interface UseFetchModelListParams<Model, Ctx> {
     offset?: number;
     orderby?: string;
     direction?: "asc" | "desc";
-    filters?: DefaultFilter<Model>[];
+    filters?: DefaultFilter<Model & Record<string, any>>;
     ctx?: Ctx;
 }
 
@@ -323,7 +342,7 @@ export interface UseFetchModelListReturn<Model> {
      */
     trigger: () => void;
     // Filter-management helpers:
-    filters: DefaultFilter<Model>[];
+    filters: DefaultFilter<Model>;
     where: (filter: DefaultFilter<Model>) => void;
     build: () => void;
     reset: () => void;
@@ -346,7 +365,7 @@ export function createUseFetchModelHook<
 
     return function useFetchModel(
         params: UseFetchModelParams<Ctx>,
-        hookConfig?: Configuration<Model>
+        hookConfig?: SingleConfiguration<Model>
     ): UseFetchModelReturn<Model> {
         const { id, ctx: explicitCtx } = params || {};
         const { headers, lazy = false, isDisabled = false, onSuccess, onError, ...swrOptions } = hookConfig || {};
@@ -390,7 +409,7 @@ export function createUseFetchModelHook<
             },
             {
                 ...swrOptions,
-                onSuccess: (data) => {
+                onSuccess: (data: Model) => {
                     if (onSuccess) onSuccess(data);
                 },
                 onError: (error) => {
@@ -418,7 +437,7 @@ export function createUseFetchModelListHook<
 
     return function useFetchModelList(
         params: UseFetchModelListParams<Model, Ctx>,
-        hookConfig?: Configuration<Model>
+        hookConfig?: ListConfiguration<Model>
     ): UseFetchModelListReturn<Model> {
         const {
             limit,
@@ -439,15 +458,16 @@ export function createUseFetchModelListHook<
             : (defaultListFetcher as typeof defaultListFetcher);
 
         // Filter management via query-builder
-        const { filters, where, build, reset, queryString } = useQueryBuilder<Model>(
-            schema,
+        const { filters, where, build, reset, queryString } = useQueryBuilder<Model & Record<string, any>>(
+            schema as ZodObject<Model & Record<string, any>>,
+            // @ts-ignore
             defaultFilters
         );
 
         // Build the list params object
         const listParams: { limit: number; offset: number; orderby?: string; direction?: "asc" | "desc" } = {
             limit,
-            offset,
+            offset: offset ?? 0,
         };
         if (orderby !== undefined) listParams.orderby = orderby;
         if (direction !== undefined) listParams.direction = direction;
@@ -513,7 +533,9 @@ export function createUseFetchModelListHook<
             isLoading: !swrResult.error && !swrResult.data,
             mutate: swrResult.mutate,
             trigger,
+            // @ts-ignore
             filters,
+            // @ts-ignore
             where,
             build,
             reset,
@@ -540,7 +562,7 @@ export function createUseFetchModelListInfiniteHook<
 
     return function useFetchModelListInfinite(
         params: UseFetchModelListParams<Model, Ctx> & { defaultFilters?: DefaultFilter<Model>[] },
-        hookConfig?: Configuration<Model>
+        hookConfig?: InfiniteConfiguration<Model>
     ) {
         const {
             limit: pageSize,
@@ -560,8 +582,9 @@ export function createUseFetchModelListInfiniteHook<
             : (defaultListFetcher as typeof defaultListFetcher);
 
         // Filter management
-        const { filters, where, build, reset, queryString } = useQueryBuilder<Model>(
-            schema,
+        const { filters, where, build, reset, queryString } = useQueryBuilder<Model & Record<string, any>>(
+            schema as ZodObject<Model & Record<string, any>>,
+            // @ts-ignore
             defaultFilters
         );
 
@@ -726,7 +749,8 @@ export function createUseCreateModelHook<
 
         const mutation = useSWRMutation<Payload, Model, any>(
             buildFinalUrl(baseUrl, ctxToUse),
-            async (url, { arg }) => {
+            async (url: string, { arg }: { arg: Payload }) => {
+                // @ts-ignore
                 const raw = await fetchFn<Model>(url, {
                     headers,
                     payload: arg,
@@ -783,7 +807,8 @@ export function createUseUpdateModelHook<
 
         const mutation = useSWRMutation<Payload, Model, any>(
             buildFinalUrl(baseUrl + "/" + id, ctxToUse),
-            async (url, { arg }) => {
+            async (url: string, { arg }: { arg: Payload }) => {
+                // @ts-ignore
                 const raw = await fetchFn<Model>(url, {
                     // headers,
                     payload: arg,
@@ -831,7 +856,8 @@ export function createUseDeleteModelHook<
 
         const mutation = useSWRMutation<{ id: number | string }, any, any>(
             buildFinalUrl(baseUrl, ctxToUse),
-            async (url, { arg }) => {
+            async (url: string, { arg }: { arg: { id: number | string } }) => {
+                // @ts-ignore
                 const raw = await fetchFn<any>(url, {
                     headers,
                     payload: arg,
@@ -891,7 +917,8 @@ export function createUseMutationHook<
 
         const mutation = useSWRMutation<Req, Res, any>(
             baseUrl,
-            async (url, { arg }) => {
+            async (url: string, { arg }: { arg: Req }) => {
+                // @ts-ignore
                 const raw = await fetchFn<Res>(url, {
                     ctx: ctxToUse,
                     headers,

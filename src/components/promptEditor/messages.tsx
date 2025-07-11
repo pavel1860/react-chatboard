@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import PromptTextEditor from './editors/promptTextEditor2';
+import MarkdownEditor from './editors/markdownEditor';
 import { useDagDisplayRouter } from './state/dagRouterContext'
 import { JsonState } from './stateJsonView';
 import { ModelType } from '../../types/run-tree';
 import { Button, Card, CardBody, CardHeader, Chip, Popover, PopoverContent, PopoverTrigger } from '@heroui/react';
 import { Bot, BrainCircuit, ChevronsDownUp, ChevronsRightLeft, Copy, CopyCheck, Expand, Hammer, Settings, User } from 'lucide-react';
-import { JSONTree } from 'react-json-tree';
 import { useCopyToClipboard } from '../../util/clipboard';
 
 
@@ -18,23 +17,11 @@ interface MessageContentProps {
 }
 
 function MessageContent({message, onChange, notEditable, isCompact}: MessageContentProps) {
-
-    // const [isExpended, setIsExpended] = useState(isCompact)
     const isExpended = !isCompact
 
-    // const content = isExpended ? message.content : message.content.slice(0, 100) + "..."
-
-    // if (!isExpended) {
-    //     return (
-    //         <div key={`${message.id}-${isExpended}`}>
-    //             <Button onClick={() => setIsExpended(true)} isIconOnly variant="light" color='primary' startContent={<Expand />} />
-    //         </div>
-    //     )
-    // }
     return (
-        <div key={`${message.id}-${isExpended}`}>
-            {/* <Button onClick={() => setIsExpended(false)} isIconOnly variant="light" startContent={<ChevronsRightLeft />} /> */}
-            <PromptTextEditor text={message.content} onChange={onChange} notEditable={notEditable} />
+        <div key={`${message.id}-${isExpended}`}>            
+            <MarkdownEditor text={message.content as string} onChange={onChange} notEditable={notEditable} />
         </div>
     )
 }
@@ -174,9 +161,8 @@ export const MessageCard = ({children}: {children: React.ReactNode}) => {
 
 
 
-const ClipboardButton = ({ text, copyText }: { text: string, copyText: string }) => {
+const ClipboardButton = ({ copyText }: { copyText: string }) => {
     const { copied, handleCopy } = useCopyToClipboard(copyText);
-    text = text || ""
     return (
         <Button 
             color="primary" 
@@ -214,7 +200,7 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
                 <MessageRoleTag role={role}/>
                 {message.tool_call_id && <Chip size="sm" startContent={<Hammer size={15} />} variant="bordered" color="default">{message.tool_call_id}</Chip>}
                 {expended && <Button isIconOnly variant="light" color='primary' startContent={<ChevronsDownUp size={15}  />} onPress={() => setExpended(false)} />}
-                <ClipboardButton  copyText={message.content} />
+                <ClipboardButton  copyText={message.content as string} />
                 {/* {expended ? <span>Expended</span> : <span>Compact</span>} */}
             </CardHeader>
             <CardBody>
@@ -223,7 +209,7 @@ export const Message = ({ message, isEditable, controls, isExpended, onChange }:
                 message={message} 
                 notEditable={!isEditable} 
                 isCompact={!expended}
-                onChangeText={onChange}
+                onChange={onChange}
             />}
             {message.tool_calls?.length > 0 && <div className='w-full flex'>
                 {/* <JSONTree data={message.tool_calls} /> */}
@@ -333,7 +319,7 @@ export const GeneratedMessage = ({ message, model, modelType, controls }: Messag
                 >
                     {model}
                 </Chip>
-                <ClipboardButton  copyText={message.content} />
+                <ClipboardButton  copyText={message.content as string} />
             </CardHeader>
             <CardBody>
                 <GeneratedMessageContent message={message} modelType={modelType}/>

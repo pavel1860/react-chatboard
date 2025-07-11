@@ -2,15 +2,13 @@
 import React from "react";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProps } from "./types";
+import { FormProps, UseFormCtx } from "./types";
 
 
 
 
 
-interface UseFormCtx {
-    isReadOnly: boolean
-}
+
 
 
 /**
@@ -80,7 +78,7 @@ export function Form({
             <div className="mt-2">
             {Object.keys(methods.formState.errors).map((field) => (
                 <p key={field} className="text-xs text-red-500">
-                    {field}: {methods.formState.errors[field]?.message}
+                    {field}: {methods.formState.errors[field as keyof UseFormCtx]?.message}
                     {/* {JSON.stringify(methods.formState.errors)} */}
 
                 </p>

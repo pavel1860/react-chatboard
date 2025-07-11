@@ -9,7 +9,7 @@ import { camelToSnake, convertKeysToSnakeCase } from "../model/services/model-co
 
 export interface UseQueryBuilderHook<T extends Record<string, any>> {
     // The array of filter strings (including any default filters)
-    filters: string[];
+    filters: Array<DefaultFilter<T>>;
 
     // Adds a filter condition. The tuple's types are inferred from your Zod schema.
     where: <K extends keyof T>(
@@ -35,8 +35,10 @@ export type FilterOperators<T> = T extends number
 // A tuple representing a condition for a given field.
 export type FilterTuple<T> = [keyof T, FilterOperators<T[keyof T]>, T[keyof T]];
 
+export type MultiFilter<T> = [FilterTuple<T>, 'and' | 'or', FilterTuple<T>]
+
 // A default filter can be a tuple or a logical operator ("and" or "or").
-export type DefaultFilter<T> = FilterTuple<T> | 'and' | 'or';
+export type DefaultFilter<T> = FilterTuple<T> | MultiFilter<T>
 
 /**
  * A React hook for building query parameters with Zod validation.
@@ -47,12 +49,12 @@ export type DefaultFilter<T> = FilterTuple<T> | 'and' | 'or';
  */
 export function useQueryBuilder<T extends Record<string, any>>(
     schema: z.ZodObject<T>,
-    defaultFilters?: DefaultFilter<T>[]
+    defaultFilters?: Array<DefaultFilter<T>>
 ): UseQueryBuilderHook<T> {
     // Pre-populate the filters state if default filters are provided.
-    const initialFilters: Array<FilterTuple<T> | string> = defaultFilters || [];
+    const initialFilters: Array<DefaultFilter<T>> = defaultFilters || [];
 
-    const [filters, setFilters] = useState<Array<FilterTuple<T> | string>>(initialFilters);
+    const [filters, setFilters] = useState<Array<DefaultFilter<T>>>(initialFilters);
 
     /**
      * Adds a filter condition to the query using a tuple.
@@ -88,6 +90,7 @@ export function useQueryBuilder<T extends Record<string, any>>(
     // Create the queryString as a JSON representation
     const queryString = useMemo(() => {
         // const snakeFilters = filters.map(ff => f.map(f => [camelToSnake(f[0]), f[1], f[2]]));
+        // @ts-ignore
         const snakeFilters = filters.map(f => [camelToSnake(f[0]), f[1], f[2]])
         return JSON.stringify(snakeFilters);
         // return JSON.stringify(convertKeysToSnakeCase(filters));

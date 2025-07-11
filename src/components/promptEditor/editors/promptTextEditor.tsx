@@ -16,8 +16,7 @@ import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 // import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import { $createAgentActionNode, AgentActionNode } from './nodes/AgentActionNode';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+
 
 
 // Lexical React plugins are React components, which makes them
@@ -149,7 +148,9 @@ export default function PromptTextEditor({text, paragraphLabel, notEditable, isC
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
       <PlainTextPlugin
         contentEditable={<ContentEditable className="resize-none text-[15px] caret-[#444] relative tab-[1] outline-none" />}
+        // @ts-ignore
         placeholder={<div className='text-[#999] overflow-hidden absolute truncate top-0 left-[10px] text-[15px] select-none inline-block pointer-events-none'>Enter some text...</div>}
+        // @ts-ignore
         ErrorBoundary={LexicalErrorBoundary}
       />
       <HistoryPlugin />

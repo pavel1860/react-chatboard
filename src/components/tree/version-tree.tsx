@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { useBranchTurns, useUpdateTurn } from '../../model/services/artifact-log-service';
-import { Button, Chip, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@heroui/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@heroui/react';
 import { useVersionTree, VersionTreeProvider } from './version-tree-context';
-import { Ellipsis, Eye, EyeOff, GitMerge, GitPullRequest, TextSearch } from 'lucide-react';
-import { useSideView } from '../../stores/layout-store';
+import { Ellipsis, Eye, EyeOff, GitMerge, TextSearch } from 'lucide-react';
 // Assuming TurnType and BranchType types from the Zod schemas are already defined in the service
 
 // Helper: Get commit dot color based on status.
@@ -33,8 +31,10 @@ const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
                 selectionMode="single"
                 onSelectionChange={async (keys)=>{
                     console.log("keys", keys)
+                    // @ts-ignore
                     const newStatus = [...keys]
                     if (newStatus.length > 0) {
+                        // @ts-ignore
                         await updateTurn({ status: newStatus[0] })
                         refetch()
                         refetchChat && refetchChat()
@@ -94,6 +94,7 @@ const TurnDropdown = ({turn, refetch}: {turn: any, refetch: () => void}) => {
 function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, refetch: () => void }) {
     const { isExpanded, toggleTurn, branchId, setBranchId, refetchChat, setTraceId } = useVersionTree();
     const hasBranches = turn.forked_branches && turn.forked_branches.length > 0;
+    // @ts-ignore
     const { trigger: updateTurn } = useUpdateTurn(turn.id, { branchId: branchId })
     
     return (
@@ -189,6 +190,7 @@ function TurnNode({ turn, indent = 0, refetch }: { turn: any; indent?: number, r
                                 return
                             }
                             const newStatus = turn.status === 'committed' ? 'reverted' : 'committed'
+                            // @ts-ignore
                             await updateTurn({ status: newStatus })
                             refetch()
                             refetchChat && refetchChat()

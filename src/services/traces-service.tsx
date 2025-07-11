@@ -2,7 +2,6 @@
 import useSWR from "swr";
 // import { EndpointHook, fetcher, fetchWithResponse, PaginatableEndpointHook } from "./fetcher";
 
-import useSWRInfinite from 'swr/infinite'
 import { build_run_tree, RunTreeContext } from "../types/run-tree";
 import { useEffect, useState } from "react";
 

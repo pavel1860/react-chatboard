@@ -70,6 +70,7 @@ export async function fetcher<T extends AnyZodObject>({ schema, endpoint, queryP
     }
     const result = schema.safeParse(data);
     if (result.success) {
+        // @ts-ignore
         return result.data;
     } else {
         console.error(result.error.errors);

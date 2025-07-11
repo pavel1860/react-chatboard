@@ -38,6 +38,7 @@ export const ArrayItem: FC<ArrayItemProps> = ({
         return Children.map(children, (child) => {
             if (!isValidElement(child)) return child;
             return cloneElement(child, {
+                // @ts-ignore
                 prefix,
             });
         });

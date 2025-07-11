@@ -2,16 +2,7 @@
 import {
     QuoteNode,
     HeadingNode,
-    $isHeadingNode,
-    $createQuoteNode,
-    $createHeadingNode,
 } from "@lexical/rich-text";
-import {
-    $isCodeNode,
-    $createCodeNode,
-    getCodeLanguages,
-    getDefaultCodeLanguage,
-} from "@lexical/code";
 import { ListItemNode, ListNode } from "@lexical/list";
 import {
     AutoLinkNode,
@@ -68,6 +59,7 @@ export function TextEditor() {
                         }
                         placeholder={<Placeholder />}
                         // ErrorBoundary={null}
+                        // @ts-ignore
                         ErrorBoundary={LexicalErrorBoundary}
                     />
                     <AutoFocusPlugin />

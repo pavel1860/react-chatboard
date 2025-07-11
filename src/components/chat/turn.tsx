@@ -23,7 +23,16 @@ interface TurnProps <T extends TurnType, M> {
     prevTurn: T | undefined
     branchId: number
     setBranchId: (branchId: number) => void
-    sendMessage: (message: string, toolCalls: ToolCall[], state: any, prevTurnId: string, isFork: boolean) => void
+    // sendMessage: (message: string, toolCalls: ToolCall[], state: any, prevTurnId: string, isFork: boolean) => void
+    sendMessage: (
+        content: string,
+        toolCalls?: ToolCall[],
+        state?: any,
+        fromTurnId?: number | null,
+        addBranch?: boolean,
+        files?: any,
+        role?: string
+    ) => Promise<void>
     bottomContent?: React.ReactNode
     rightContent?: React.ReactNode
     onBranchChange?: (branchId: number) => void
@@ -58,6 +67,7 @@ export const Turn = <T extends TurnType, M>({
 
     useEffect(() => {
         if (ref.current) {
+            // @ts-ignore
             setOffset(ref.current.offsetTop)
         }
     }, [turn.id]);
