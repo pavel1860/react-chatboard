@@ -33,6 +33,7 @@ interface TurnProps <T extends TurnType, M> {
         files?: any,
         role?: string
     ) => Promise<void>
+    topContent?: React.ReactNode
     bottomContent?: React.ReactNode
     rightContent?: React.ReactNode
     onBranchChange?: (branchId: number) => void
@@ -52,6 +53,7 @@ export const Turn = <T extends TurnType, M>({
         showFooterControls = false, 
         showSideControls = false,
         className = "",
+        topContent,
         bottomContent,
         rightContent,
         onBranchChange,
@@ -130,37 +132,31 @@ export const Turn = <T extends TurnType, M>({
     }
 
     return (
-        <div key={turn.id} ref={ref} className={cn("flex w-full pb-5", className)}>            
+        <div key={turn.id} ref={ref} className={cn("flex w-full pb-5")}>                        
             <div className="flex-1">
-                {items.map((item, idx) => itemRender(item, idx, items))}
+                {topContent && <div className="flex flex-row items-center gap-2 justify-between">
+                    {topContent}
+                </div>}
+                <div className={cn("flex flex-col justify-start", className)}>
+                    {items.map((item, idx) => itemRender(item, idx, items))}
+                </div>
                 {showFooterControls && <div className="flex flex-row items-center gap-2 justify-between">
-                    {/* <div className="text-sm text-gray-400">chat idx: {index}</div> */}
-                    {/* <div className="text-sm text-gray-400">Turn {turn.id}</div>
-                    <div className="text-sm text-gray-400">Status: {turn.status}</div>
-                    <div className="text-sm text-gray-400">Branch: {turn.branchId}</div>
-                    <Divider orientation="vertical" className="mx-3"/> */}
-                    <div className="text-sm text-gray-400">next: {nextBranch}</div>
+                    {bottomContent}
+                    {/* <div className="text-sm text-gray-400">next: {nextBranch}</div>
                     <div className="text-sm text-gray-400">prev: {prevBranch}</div>
-                    <Button variant={showRawData ? "solid" : "light"} className="text-sm text-gray-400" onPress={() => setShowRawData(!showRawData)} size="sm">{showRawData ? "Hide Raw" : "Raw"}</Button>
-                    <div className="flex gap-2 w-full px-10">
-                        {/* <div className="text-sm text-gray-400">offset: {offset}</div> */}
-                        {/* <div className="text-sm text-gray-400">Turn {turn.id}</div> */}
-                        {/* <div className="text-sm text-gray-400">Partition: {turn.partitionId}</div> */}
-                        {bottomContent}
-                        {/* <div className="text-sm text-gray-400">Index: {turn.index}</div> */}
+                    <Button variant={showRawData ? "solid" : "light"} className="text-sm text-gray-400" onPress={() => setShowRawData(!showRawData)} size="sm">{showRawData ? "Hide Raw" : "Raw"}</Button> */}
+                    {/* <div className="flex gap-2 w-full px-10">                        
                         
-                        {/* {forkedBranches.length > 0 && <div className="text-sm text-gray-400"> ({forkedBranches.join(", ")})</div>} */}
-                    </div>                    
-                    <div className="text-sm text-gray-400 flex flex-row items-center gap-2">
+                    </div>                     */}
+                    {/* <div className="text-sm text-gray-400 flex flex-row items-center gap-2">
                         {prevBranch ? <Button isIconOnly variant="light" onPress={handlePrevBranch} size="sm">
                             <Icon icon="mdi:arrow-left" className="text-gray-400" />
                         </Button> :  <div className="w-8">&nbsp;</div>}
-                        {forkedBranches.length > 0 && <span> {prevBranch ? fbLookup[turn.branchId] + 1 : 1}/{forkedBranches.length} </span>}
-                        {/* {forkedBranches.length > 0 && <span> {prevBranch}/{nextBranch} </span>} */}
+                        {forkedBranches.length > 0 && <span> {prevBranch ? fbLookup[turn.branchId] + 1 : 1}/{forkedBranches.length} </span>}                        
                         {nextBranch ? <Button isIconOnly variant="light" onPress={handleNextBranch} size="sm">
                             <Icon icon="mdi:arrow-right" className="text-gray-400" />
                         </Button> : <div className="w-8">&nbsp;</div>}
-                    </div>
+                    </div> */}
                 </div>}
                 {showRawData && <JSONTree data={turn} />}
             </div>
@@ -168,20 +164,7 @@ export const Turn = <T extends TurnType, M>({
                 {rightContent}
             </div>}
 
-            
-            
-            {/* {showSideControls && <div>
-                <Button 
-                    isIconOnly
-                    variant="light"                                    
-                    onPress={() => {
-                        if (prevTurn) {
-                            sendMessage(items[0].content, items[0].toolCalls, items[0].state, prevTurn.id, true)
-                        }
-                    }}>
-                    <Icon icon="mdi:refresh" />
-                </Button>
-            </div>} */}
+
         </div>
     )
 }
