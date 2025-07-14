@@ -11,6 +11,8 @@ import { JSONTree } from "react-json-tree"
 
 
 
+
+
 interface TurnProps <T extends TurnType, M> {
     children: (item: M, index: number, items: M[]) => React.ReactNode
     className?: string
@@ -142,13 +144,13 @@ export const Turn = <T extends TurnType, M>({
                 </div>
                 {showFooterControls && <div className="flex flex-row items-center gap-2 justify-between">
                     {bottomContent}
-                    {/* <div className="text-sm text-gray-400">next: {nextBranch}</div>
-                    <div className="text-sm text-gray-400">prev: {prevBranch}</div>
-                    <Button variant={showRawData ? "solid" : "light"} className="text-sm text-gray-400" onPress={() => setShowRawData(!showRawData)} size="sm">{showRawData ? "Hide Raw" : "Raw"}</Button> */}
+                    {/* <div className="text-sm text-gray-400">next: {nextBranch}</div> */}
+                    {/* <div className="text-sm text-gray-400">prev: {prevBranch}</div> */}
+                    <Button variant={showRawData ? "solid" : "light"} className="text-sm text-gray-400" onPress={() => setShowRawData(!showRawData)} size="sm">{showRawData ? "Hide Raw" : "Raw"}</Button>
                     {/* <div className="flex gap-2 w-full px-10">                        
                         
                     </div>                     */}
-                    {/* <div className="text-sm text-gray-400 flex flex-row items-center gap-2">
+                    <div className="text-sm text-gray-400 flex flex-row items-center gap-2">
                         {prevBranch ? <Button isIconOnly variant="light" onPress={handlePrevBranch} size="sm">
                             <Icon icon="mdi:arrow-left" className="text-gray-400" />
                         </Button> :  <div className="w-8">&nbsp;</div>}
@@ -156,7 +158,7 @@ export const Turn = <T extends TurnType, M>({
                         {nextBranch ? <Button isIconOnly variant="light" onPress={handleNextBranch} size="sm">
                             <Icon icon="mdi:arrow-right" className="text-gray-400" />
                         </Button> : <div className="w-8">&nbsp;</div>}
-                    </div> */}
+                    </div>
                 </div>}
                 {showRawData && <JSONTree data={turn} />}
             </div>
