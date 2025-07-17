@@ -24,6 +24,7 @@ interface TurnProps <T extends TurnType, M> {
     nextTurn: T | undefined
     prevTurn: T | undefined
     branchId: number
+    isSelected?: boolean
     setBranchId: (branchId: number) => void
     // sendMessage: (message: string, toolCalls: ToolCall[], state: any, prevTurnId: string, isFork: boolean) => void
     sendMessage: (
@@ -39,6 +40,7 @@ interface TurnProps <T extends TurnType, M> {
     bottomContent?: React.ReactNode
     rightContent?: React.ReactNode
     onBranchChange?: (branchId: number) => void
+    evaluators?: React.ReactNode
 }
 
 
@@ -59,6 +61,8 @@ export const Turn = <T extends TurnType, M>({
         bottomContent,
         rightContent,
         onBranchChange,
+        evaluators,
+        isSelected = false,
     }: TurnProps<T, M>) => {
 
     const [forkedBranches, setForkedBranches] = useState<number[]>([])
@@ -160,11 +164,16 @@ export const Turn = <T extends TurnType, M>({
                         </Button> : <div className="w-8">&nbsp;</div>}
                     </div>
                 </div>}
+                {evaluators && isSelected && <div className="flex flex-col items-center justify-start">
+                    {evaluators}
+                </div>}
                 {showRawData && <JSONTree data={turn} />}
             </div>
             {rightContent && <div className="flex flex-col items-center justify-start">
                 {rightContent}
             </div>}
+
+            
 
 
         </div>
