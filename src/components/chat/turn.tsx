@@ -138,12 +138,12 @@ export const Turn = <T extends TurnType, M>({
     }
 
     return (
-        <div key={turn.id} ref={ref} className={cn("flex w-full pb-5")}>                        
+        <div key={turn.id} ref={ref} className={cn("flex w-full pb-5", className)}>                        
             <div className="flex-1">
                 {topContent && <div className="flex flex-row items-center gap-2 justify-between">
                     {topContent}
                 </div>}
-                <div className={cn("flex flex-col justify-start", className)}>
+                <div className={cn("flex flex-col justify-start")}>
                     {items.map((item, idx) => itemRender(item, idx, items))}
                 </div>
                 {showFooterControls && <div className="flex flex-row items-center gap-2 justify-between">
