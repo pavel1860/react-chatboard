@@ -1,8 +1,9 @@
-import { Button, cn, Divider } from "@heroui/react"
+import { Button, cn, Divider, Spinner, Card, CardBody, Chip } from "@heroui/react"
 import { useEffect, useRef, useState } from "react"
 import { Icon } from "@iconify-icon/react"
 import { ToolCall, TurnType } from "./schema"
 import { JSONTree } from "react-json-tree"
+
 
 
 
@@ -39,9 +40,60 @@ interface TurnProps <T extends TurnType, M> {
     topContent?: React.ReactNode
     bottomContent?: React.ReactNode
     rightContent?: React.ReactNode
+    handleApproval?: (status: "committed" | "reverted") => void
     onBranchChange?: (branchId: number) => void
     evaluators?: React.ReactNode
+    refetchChat?: () => void
 }
+
+interface TurnApprovalProps {
+    onApprove?: () => void
+    onReject?: () => void
+    isProcessing?: boolean
+    message?: string
+}
+
+export const TurnApproval = ({ 
+    onApprove, 
+    onReject, 
+    isProcessing = false,
+    message = "awaiting approval"
+}: TurnApprovalProps) => {
+
+    return (
+        <div className="font-mono text-xs bg-gray-50 border border-gray-200 p-2 rounded">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Icon icon="mdi:clock" className="text-gray-500" />
+                    <span className="text-gray-700">{message}</span>
+                    {isProcessing && <Spinner size="sm" />}
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        color="success"
+                        onPress={onApprove}
+                        disabled={isProcessing}
+                        className="text-sm font-mono px-3 py-1 h-7 min-w-0 font-bold"
+                    >
+                        ✓
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        color="danger"
+                        onPress={onReject}
+                        disabled={isProcessing}
+                        className="text-sm font-mono px-3 py-1 h-7 min-w-0 font-bold"
+                    >
+                        ✗
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
+} 
 
 
 export const Turn = <T extends TurnType, M>({
@@ -63,6 +115,8 @@ export const Turn = <T extends TurnType, M>({
         onBranchChange,
         evaluators,
         isSelected = false,
+        refetchChat,
+        handleApproval,
     }: TurnProps<T, M>) => {
 
     const [forkedBranches, setForkedBranches] = useState<number[]>([])
@@ -72,6 +126,9 @@ export const Turn = <T extends TurnType, M>({
     const [showRawData, setShowRawData] = useState(false);
     const ref = useRef(null);
     const [offset, setOffset] = useState(null);
+
+
+
 
     useEffect(() => {
         if (ref.current) {
@@ -137,12 +194,29 @@ export const Turn = <T extends TurnType, M>({
         return null
     }
 
+    const isStaged = turn.status === "staged"
+
     return (
-        <div key={turn.id} ref={ref} className={cn("flex w-full pb-5", className)}>                        
-            <div className="flex-1">
+        <div 
+            key={turn.id} 
+            ref={ref} 
+            className={cn(
+                "flex w-full pb-5",
+                isStaged && "border-l-4 border-orange-400 bg-orange-50/30 rounded-r-lg p-2",
+                className
+            )}
+        >                        
+            <div className="flex-1">                
                 {topContent && <div className="flex flex-row items-center gap-2 justify-between">
                     {topContent}
+                    
                 </div>}
+                {isStaged && (
+                    <div className="flex items-center gap-2 mb-2 font-mono text-xs text-orange-600">
+                        <Icon icon="mdi:clock-outline" className="text-orange-500" />
+                        <span>STAGED FOR APPROVAL</span>
+                    </div>
+                )}
                 <div className={cn("flex flex-col justify-start")}>
                     {items.map((item, idx) => itemRender(item, idx, items))}
                 </div>
@@ -151,6 +225,7 @@ export const Turn = <T extends TurnType, M>({
                     {/* <div className="text-sm text-gray-400">next: {nextBranch}</div> */}
                     {/* <div className="text-sm text-gray-400">prev: {prevBranch}</div> */}
                     <Button variant={showRawData ? "solid" : "light"} className="text-sm text-gray-400" onPress={() => setShowRawData(!showRawData)} size="sm">{showRawData ? "Hide Raw" : "Raw"}</Button>
+                    
                     {/* <div className="flex gap-2 w-full px-10">                        
                         
                     </div>                     */}
@@ -164,6 +239,7 @@ export const Turn = <T extends TurnType, M>({
                         </Button> : <div className="w-8">&nbsp;</div>}
                     </div>
                 </div>}
+                {turn.status === "staged" && <TurnApproval onApprove={() => handleApproval?.("committed", refetchChat)} onReject={() => handleApproval?.("reverted", refetchChat)} />}
                 {evaluators && isSelected && <div className="flex flex-col items-center justify-start">
                     {evaluators}
                 </div>}
