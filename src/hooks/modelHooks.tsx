@@ -227,7 +227,7 @@ export interface FetchModelHookConfig<Model, Ctx extends { branchId: number }> {
  * Parameters passed into the hook returned by createUseFetchModelHook.
  */
 export interface UseFetchModelParams<Ctx> {
-    id?: number | string;
+    id?: number | string | null;
     ctx?: Ctx;
 }
 
@@ -364,7 +364,7 @@ export function createUseFetchModelHook<
     const { url: baseUrl, schema, fetcher: customFetcher } = config;
 
     return function useFetchModel(
-        params: UseFetchModelParams<Ctx>,
+        params: Partial<UseFetchModelParams<Ctx>>,
         hookConfig?: SingleConfiguration<Model>
     ): UseFetchModelReturn<Model> {
         const { id, ctx: explicitCtx } = params || {};
@@ -747,7 +747,7 @@ export function createUseCreateModelHook<
             : ((url: string, cfg: any) =>
                 defaultMutationFetcher<Ctx, any>(url, { method: "POST", ...cfg })) as typeof defaultMutationFetcher;
 
-        const mutation = useSWRMutation<Payload, Model, any>(
+        const mutation = useSWRMutation<Model, Model, any, any, Partial<Payload>>(
             buildFinalUrl(baseUrl, ctxToUse),
             async (url: string, { arg }: { arg: Payload }) => {
                 // @ts-ignore
@@ -769,7 +769,7 @@ export function createUseCreateModelHook<
 }
 
 
-export interface MutateModelHookConfig<Model, Payload extends { id: number | string }, Ctx extends { branchId: number }> {
+export interface MutateModelHookConfig<Model, Payload, Ctx extends { branchId: number }> {
     url: string;
     schema: ZodTypeAny;
     fetcher?: <T>(
@@ -779,7 +779,7 @@ export interface MutateModelHookConfig<Model, Payload extends { id: number | str
 }
 
 
-export interface UseMutateModelParams<Model, Payload extends { id: number | string }, Ctx extends { branchId: number }> {
+export interface UseMutateModelParams<Model, Payload, Ctx extends { branchId: number }> {
     id?: number | string;
     ctx?: Ctx;
 }
@@ -791,7 +791,7 @@ export interface UseMutateModelParams<Model, Payload extends { id: number | stri
  */
 export function createUseUpdateModelHook<
     Model,
-    Payload extends { id: number | string },
+    Payload,
     Ctx extends { branchId: number }
 >(config: MutateModelHookConfig<Model, Payload, Ctx>) {
     const { url: baseUrl, schema, fetcher: customFetcher } = config;
@@ -805,7 +805,7 @@ export function createUseUpdateModelHook<
             : ((url: string, cfg: any) =>
                 defaultMutationFetcher<Ctx, any>(url, { method: "PUT", ...cfg })) as typeof defaultMutationFetcher;
 
-        const mutation = useSWRMutation<Payload, Model, any>(
+        const mutation = useSWRMutation<Payload, Model, any, any, Payload>(
             buildFinalUrl(baseUrl + "/" + id, ctxToUse),
             async (url: string, { arg }: { arg: Payload }) => {
                 // @ts-ignore
