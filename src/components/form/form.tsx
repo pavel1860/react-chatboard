@@ -76,14 +76,13 @@ export function Form({
                 // alignItems: "flex-start"
             }}>{children}</form>
             <div className="mt-2">
-            {Object.keys(methods.formState.errors).map((field) => (
-                <p key={field} className="text-xs text-red-500">
-                    {field}: {methods.formState.errors[field as keyof UseFormCtx]?.message}
-                    {/* {JSON.stringify(methods.formState.errors)} */}
-
-                </p>
-                ))}
-            </div>
+                {/* {Object.keys(methods.formState.errors).map((field) => (
+                    <p key={field} className="text-xs text-red-500">
+                        {field}: {methods.formState.errors[field as keyof UseFormCtx]?.message}                       
+                    </p>
+                    ))} */}
+                <ErrorList errors={methods.formState.errors} />
+                </div>
         </FormProvider>
     );
 }
@@ -91,3 +90,17 @@ export function Form({
 
 
 
+
+
+
+export function ErrorList({errors, prefix = ""}: {errors: any, prefix?: string}){    
+    return (
+        <div className="mt-2">
+            {Object.keys(errors).map((field) => (
+                <p key={field} className="text-xs text-red-500">
+                    {prefix}{field}: {Array.isArray(errors[field as keyof UseFormCtx]) ? errors[field as keyof UseFormCtx].map((errItem: any, index: number) => <ErrorList errors={errItem} prefix={`${index}.`} />) : errors[field as keyof UseFormCtx]?.message}
+                </p>
+            ))}
+        </div>
+    )
+}

@@ -61,7 +61,7 @@ export default function InfiniteChat<M>({
     }, [items])
 
     return (
-        <ScrollShadow visibility = {shadowVisibility}>
+        // <ScrollShadow visibility = {shadowVisibility}>
         <div id="scrollableDiv" 
             className={cn(
                 "flex flex-col-reverse items-stretch w-full flex-grow scrollbar-thumb-only", 
@@ -91,7 +91,7 @@ export default function InfiniteChat<M>({
             </InfiniteScroll>
             
         </div>
-        </ScrollShadow>
+        // </ScrollShadow>
     )
 }
 

@@ -62,9 +62,9 @@ export function ArrayField<TItem extends FieldValues>({
         }
     }, [field, schema])
 
-    const addItem = () => {
+    const addItem = (item?: TItem) => {
         // If you need default item structure, you can pass it to append({ ...defaults })
-        append({});
+        append(item || {});
     };
 
 

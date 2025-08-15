@@ -916,7 +916,7 @@ export function createUseMutationHook<
                 defaultMutationFetcher<Ctx, any>(url, { method, ...cfg })) as typeof defaultMutationFetcher;
 
         const mutation = useSWRMutation<Req, Res, any>(
-            baseUrl,
+            buildFinalUrl(baseUrl, ctxToUse),
             async (url: string, { arg }: { arg: Req }) => {
                 // @ts-ignore
                 const raw = await fetchFn<Res>(url, {
@@ -929,6 +929,7 @@ export function createUseMutationHook<
         );
 
         const auxTrigger = useCallback((payload: Req) => {
+            console.log("ctx", ctxToUse)
             const parsedPayload = parseSchema(payloadSchema, payload)
             mutation.trigger(parsedPayload)
         }, [mutation, payloadSchema])
