@@ -42,6 +42,72 @@ const BranchSchema = z.object({
 })
 
 
+export const BlockChunkSchema = z.object({
+    index: z.number(),
+    content: z.string(),
+    logprob: z.number().optional().nullable(),
+    Type: z.string(),
+  });
+  
+export const BlockSentSchema = z.object({
+    index: z.number(),
+    hasEol: z.boolean().optional(),
+    sepList: z.array(z.string()).optional(),
+    blocks: z.array(BlockChunkSchema).optional(),
+    Type: z.literal("BlockSent"),
+});
+  
+  // Forward declare with z.lazy
+export const BlockSchema: z.ZodType<any> = z.lazy(() =>
+z.object({
+    root: BlockSentSchema,
+//   children: BlockListSchema.optional(), // can hold nested blocks
+    children: z.array(z.union([BlockSchema, BlockSentSchema])),
+    role: z.string().nullable().optional(),
+    styles: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional(),
+    attrs: z.record(z.any()).optional(),
+    index: z.number().optional(),
+    Type: z.literal("Block"),
+    id: z.string().nullable().optional(),
+})
+);
+  
+export const BlockListSchema: z.ZodType<any> = z.lazy(() =>
+z.object({
+    blocks: z.array(
+    z.union([BlockSchema, BlockSentSchema, BlockChunkSchema])
+    ),
+    defaultSep: z.string().optional(),
+    index: z.number().optional(),
+    Type: z.literal("BlockList").optional(),
+    })
+);
+
+
+export const SpanChildSchema: z.ZodType<any> = z.lazy(() =>
+z.object({
+    type: z.enum(["span", "block"]),
+    data: z.union([SpanSchema, BlockSchema]),
+    index: z.number(),
+})
+);
+
+
+export const SpanSchema: z.ZodType<any> = z.object({
+    id: z.string(),
+    name: z.string(),
+    parentSpanId: z.string().nullable().optional(),
+    turnId: z.number(),
+    branchId: z.number(),
+    startTime: z.any(),
+    endTime: z.any(),
+    metadata: z.any().nullable().optional(),
+    status: z.enum(["running", "completed", "failed"]),
+    children: z.array(SpanChildSchema),
+})
+
+
 
 
 const TurnPayloadSchema = z.object({
@@ -64,6 +130,8 @@ const TurnSchema = z.object({
     ).nullable(),
     ...TurnPayloadSchema.shape,
     forkedBranches: z.array(z.number()),
+    // spans: z.array(SpanSchema).optional().nullable(),
+    span: SpanSchema.nullable(),
 })
 
 
@@ -73,6 +141,11 @@ const TurnSchema = z.object({
 
 
 
+export type BlockType = z.infer<typeof BlockSchema>
+export type BlockListType = z.infer<typeof BlockListSchema>
+export type BlockSentType = z.infer<typeof BlockSentSchema>
+export type BlockChunkType = z.infer<typeof BlockChunkSchema>
+export type SpanType = z.infer<typeof SpanSchema>
 
 export type TurnType = z.infer<typeof TurnSchema>
 export type TurnPayloadType = z.infer<typeof TurnPayloadSchema>
