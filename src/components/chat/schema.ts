@@ -85,10 +85,22 @@ z.object({
 );
 
 
-export const SpanChildSchema: z.ZodType<any> = z.lazy(() =>
+export const LogSchema = z.object({
+    id: z.number(),
+    createdAt: z.preprocess(
+        (val) => typeof val === "string" ? new Date(val) : val,
+        z.date()
+    ),
+    message: z.string(),
+    level: z.enum(["info", "warning", "error"]),
+})
+
+
+export const SpanEventSchema: z.ZodType<any> = z.lazy(() =>
 z.object({
-    type: z.enum(["span", "block"]),
-    data: z.union([SpanSchema, BlockSchema]),
+    id: z.number(),
+    eventType: z.enum(["block", "span", "log", "model"]),
+    data: z.union([SpanSchema, BlockSchema, LogSchema]),
     index: z.number(),
 })
 );
@@ -104,7 +116,7 @@ export const SpanSchema: z.ZodType<any> = z.object({
     endTime: z.any(),
     metadata: z.any().nullable().optional(),
     status: z.enum(["running", "completed", "failed"]),
-    children: z.array(SpanChildSchema),
+    events: z.array(SpanEventSchema),
 })
 
 
@@ -145,8 +157,10 @@ export type BlockType = z.infer<typeof BlockSchema>
 export type BlockListType = z.infer<typeof BlockListSchema>
 export type BlockSentType = z.infer<typeof BlockSentSchema>
 export type BlockChunkType = z.infer<typeof BlockChunkSchema>
-export type SpanType = z.infer<typeof SpanSchema>
 
+export type SpanType = z.infer<typeof SpanSchema>
+export type SpanEventSchema = z.infer<typeof SpanEventSchema>
+export type LogSchema = z.infer<typeof LogSchema>
 export type TurnType = z.infer<typeof TurnSchema>
 export type TurnPayloadType = z.infer<typeof TurnPayloadSchema>
 
