@@ -53,7 +53,7 @@ export const BlockSentSchema = z.object({
     index: z.number(),
     hasEol: z.boolean().optional(),
     sepList: z.array(z.string()).optional(),
-    blocks: z.array(BlockChunkSchema).optional(),
+    children: z.array(BlockChunkSchema).optional(),
     Type: z.literal("BlockSent"),
 });
   
@@ -63,6 +63,7 @@ z.object({
     root: BlockSentSchema,
 //   children: BlockListSchema.optional(), // can hold nested blocks
     children: z.array(z.union([BlockSchema, BlockSentSchema])),
+    postfix: BlockSentSchema.optional().nullable(),
     role: z.string().nullable().optional(),
     styles: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
@@ -75,7 +76,7 @@ z.object({
   
 export const BlockListSchema: z.ZodType<any> = z.lazy(() =>
 z.object({
-    blocks: z.array(
+    children: z.array(
     z.union([BlockSchema, BlockSentSchema, BlockChunkSchema])
     ),
     defaultSep: z.string().optional(),
@@ -99,7 +100,7 @@ export const LogSchema = z.object({
 export const SpanEventSchema: z.ZodType<any> = z.lazy(() =>
 z.object({
     id: z.number(),
-    eventType: z.enum(["block", "span", "log", "model"]),
+    eventType: z.enum(["block", "span", "log", "model", "stream"]),
     data: z.union([SpanSchema, BlockSchema, LogSchema]),
     index: z.number(),
 })
