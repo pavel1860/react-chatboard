@@ -43,45 +43,48 @@ const BranchSchema = z.object({
 
 
 export const BlockChunkSchema = z.object({
+    Type: z.string(),
     index: z.number(),
     content: z.string(),
-    logprob: z.number().optional().nullable(),
-    Type: z.string(),
+    logprob: z.number().optional().nullable(),    
   });
   
 export const BlockSentSchema = z.object({
+    Type: z.literal("BlockSent"),
     index: z.number(),
+    children: z.array(BlockChunkSchema).optional(),
     hasEol: z.boolean().optional(),
     sepList: z.array(z.string()).optional(),
-    children: z.array(BlockChunkSchema).optional(),
-    Type: z.literal("BlockSent"),
+    
+    
 });
   
   // Forward declare with z.lazy
 export const BlockSchema: z.ZodType<any> = z.lazy(() =>
 z.object({
+    Type: z.literal("Block"),
+    index: z.number().optional(),
+    tags: z.array(z.string()).optional(),
     root: BlockSentSchema,
-//   children: BlockListSchema.optional(), // can hold nested blocks
     children: z.array(z.union([BlockSchema, BlockSentSchema])),
     postfix: BlockSentSchema.optional().nullable(),
     role: z.string().nullable().optional(),
-    styles: z.array(z.string()).optional(),
-    tags: z.array(z.string()).optional(),
+    styles: z.array(z.string()).optional(),    
     attrs: z.record(z.any()).optional(),
-    index: z.number().optional(),
-    Type: z.literal("Block"),
+    
+    
     id: z.string().nullable().optional(),
 })
 );
   
 export const BlockListSchema: z.ZodType<any> = z.lazy(() =>
 z.object({
+    Type: z.literal("BlockList").optional(),
+    index: z.number().optional(),
     children: z.array(
     z.union([BlockSchema, BlockSentSchema, BlockChunkSchema])
     ),
     defaultSep: z.string().optional(),
-    index: z.number().optional(),
-    Type: z.literal("BlockList").optional(),
     })
 );
 
@@ -101,7 +104,7 @@ export const SpanEventSchema: z.ZodType<any> = z.lazy(() =>
 z.object({
     id: z.number(),
     eventType: z.enum(["block", "span", "log", "model", "stream"]),
-    data: z.union([SpanSchema, BlockSchema, LogSchema]),
+    data: z.union([SpanSchema, BlockSchema, LogSchema]).nullable().optional(),
     index: z.number(),
 })
 );
@@ -126,8 +129,8 @@ export const SpanSchema: z.ZodType<any> = z.object({
 const TurnPayloadSchema = z.object({
     index: z.number(),
     status: z.string(),
-    message: z.string().nullable(),    
-    traceId: z.string().nullable(),
+    message: z.string().nullable().optional(),    
+    traceId: z.string().nullable().optional(),
     branchId: z.number(),
 })
 
