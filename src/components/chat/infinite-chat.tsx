@@ -65,12 +65,12 @@ export default function InfiniteChat<M>({
         <div id="scrollableDiv" 
             className={cn(
                 "flex flex-col-reverse items-stretch w-full flex-grow scrollbar-thumb-only", 
-                // "overflow-auto"
-                items?.length > 0 ? "overflow-auto" : "overflow-hidden"
+                "overflow-auto"
+                // items?.length > 0 ? "overflow-auto" : "overflow-hidden"
             )}
             >                
                 {/* <div>has more: {hasMore.toString()}</div> */}
-            {loading && <Spinner classNames={{label: "text-foreground mt-4"}} variant="wave" />}
+            {/* {loading && <Spinner classNames={{label: "text-foreground mt-4"}} variant="wave" />} */}
             <InfiniteScroll
                 dataLength={ items.length }
                 next={fetchMore}

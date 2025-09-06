@@ -218,13 +218,19 @@ export const Turn = <T extends TurnType, M>({
                     </div>
                 )}
                 <div className={cn("flex flex-col justify-start")}>
-                    {items.map((item, idx) => itemRender(item, idx, items))}
+                    {items.map((item, idx) => {                        
+                        if (!item){
+                            console.log(`Turn(${turn.id}) item`, item)
+                        }
+                        return itemRender(item, idx, items)
+                    })}
                 </div>
                 {showFooterControls && <div className="flex flex-row items-center gap-2 justify-between">
                     {bottomContent}
                     {/* <div className="text-sm text-gray-400">next: {nextBranch}</div> */}
                     {/* <div className="text-sm text-gray-400">prev: {prevBranch}</div> */}
                     <Button variant={showRawData ? "solid" : "light"} className="text-sm text-gray-400" onPress={() => setShowRawData(!showRawData)} size="sm">{showRawData ? "Hide Raw" : "Raw"}</Button>
+                    <div className="text-sm text-gray-400">Turn {turn.id}</div>
                     
                     {/* <div className="flex gap-2 w-full px-10">                        
                         
