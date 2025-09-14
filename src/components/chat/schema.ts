@@ -44,6 +44,7 @@ const BranchSchema = z.object({
 
 export const BlockChunkSchema = z.object({
     Type: z.string(),
+    // path: z.array(z.number()),
     index: z.number(),
     content: z.string(),
     logprob: z.number().optional().nullable(),    
@@ -51,22 +52,21 @@ export const BlockChunkSchema = z.object({
   
 export const BlockSentSchema = z.object({
     Type: z.literal("BlockSent"),
-    index: z.number(),
+    index: z.number().optional().nullable(),
+    // path: z.array(z.number()),
+    content: z.string().nullable().optional(),
     children: z.array(BlockChunkSchema).optional(),
-    hasEol: z.boolean().optional(),
-    sepList: z.array(z.string()).optional(),
-    
-    
 });
   
   // Forward declare with z.lazy
 export const BlockSchema: z.ZodType<any> = z.lazy(() =>
 z.object({
     Type: z.literal("Block"),
-    index: z.number().optional(),
+    path: z.array(z.number()).optional(),
     tags: z.array(z.string()).optional(),
-    root: BlockSentSchema,
-    children: z.array(z.union([BlockSchema, BlockSentSchema])),
+    content: BlockSentSchema,
+    // children: z.array(z.union([BlockSchema, BlockSentSchema])),
+    children: z.array(BlockSchema),
     postfix: BlockSentSchema.optional().nullable(),
     role: z.string().nullable().optional(),
     styles: z.array(z.string()).optional(),    

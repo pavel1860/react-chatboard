@@ -65,8 +65,9 @@ export default function InfiniteChat<M>({
         <div id="scrollableDiv" 
             className={cn(
                 "flex flex-col-reverse items-stretch w-full flex-grow scrollbar-thumb-only", 
-                "overflow-auto"
-                // items?.length > 0 ? "overflow-auto" : "overflow-hidden"
+                // "overflow-hidden",
+                // "overflow-auto"
+                items?.length > 0 ? "overflow-auto" : "overflow-hidden"
             )}
             >                
                 {/* <div>has more: {hasMore.toString()}</div> */}
