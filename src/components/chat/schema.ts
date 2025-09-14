@@ -118,6 +118,7 @@ export const SpanSchema: z.ZodType<any> = z.object({
     branchId: z.number(),
     startTime: z.any(),
     endTime: z.any(),
+    tags: z.array(z.string()).optional().nullable(),
     metadata: z.any().nullable().optional(),
     status: z.enum(["running", "completed", "failed"]),
     events: z.array(SpanEventSchema),
