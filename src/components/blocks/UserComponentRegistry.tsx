@@ -1,6 +1,6 @@
 // UserComponentRegistry.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { BlockType, BlockSentType, BlockChunkType, SpanType } from "react-chatboard/src/components/chat/schema";
+import { BlockType, BlockSentType, BlockChunkType, SpanType } from "../chat/schema";
 import { BasicBlock, BasicSpan } from "./defaultComponents";
 
 type BlockRendererFn = (block: BlockType | BlockSentType | BlockChunkType) => React.ReactNode;
@@ -8,14 +8,14 @@ type SpanRendererFn = (span: SpanType) => React.ReactNode;
 // type Registry = Record<string, RendererFn>;
 
 
-type BlockConfig = {
+export type BlockConfig = {
   component: BlockRendererFn;
   isHidden: boolean | null;
   isWrapper: boolean;
 }
 
 
-type SpanConfig = {
+export type SpanConfig = {
   component: SpanRendererFn;
   isHidden: boolean | null;
   isWrapper: boolean;
@@ -24,13 +24,13 @@ type SpanConfig = {
 
 
 
-type RegistryProps = {
+export type RegistryProps = {
   span: Record<string, Partial<SpanConfig> | SpanRendererFn | null>;
   block: Record<string, Partial<BlockConfig> | BlockRendererFn | null>;
 };
 
 
-type Registry = {
+export type Registry = {
   span: Record<string, SpanConfig >;
   block: Record<string, BlockConfig >;
 };
@@ -115,7 +115,7 @@ const parseRegistry = (props: RegistryProps): Registry => {
 
 
 
-interface ComponentProviderProps {
+export interface ComponentProviderProps {
   plainMode: boolean;
   setPlainMode: (plainMode: boolean) => void;
   
