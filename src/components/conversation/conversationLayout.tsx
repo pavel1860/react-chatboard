@@ -18,6 +18,7 @@ import AdminChatView from "../../components/chat/AdminChatView";
 import { AdminNavigationBar } from "./adminNavBar";
 import { useWindowSize } from "../../components/layout/screenUtils";
 import { DebugPannel } from "../../components/chat/debug";
+import { useTestSelection } from "../evaluation/evaluators";
 
 
 
@@ -176,6 +177,19 @@ const DebugButton = () => {
 }
 
 
+const TestButton = () => {
+    
+    return (
+        <Button 
+            variant="light" 
+            href="/tests"
+            isIconOnly
+            startContent={<Icon icon="solar:test-tube-linear" height={20} width={20} />}
+        />
+    )
+}
+
+
 const CHAT_VIEW_WIDTH = 38.5;
 
 // #################### actual #####################
@@ -209,7 +223,7 @@ export function DesktopLayout({ sidebar, header, chatView, inputView, children, 
                 </SideLayoutDrawer>}
                 {/* Left chat panel */}
                 <div className={cn("flex flex-col items-center transition-all duration-300", isArtifactViewOpen ? "w-1/2" : "w-full")}>
-                    {header && <div className="w-full flex justify-end">{header} <DebugButton /></div>}
+                    {header && <div className="w-full flex justify-end">{header} <DebugButton /> <TestButton /></div>}
                     <LayoutPane>{chatView}</LayoutPane>
                     <LayoutFooter className="pt-0">{inputView}</LayoutFooter>
                 </div>
@@ -521,6 +535,7 @@ export function ConversationLayout({ header, children, hideFooter = false, chatV
             // chatView={chatView || <ChatView />}
             chatView={chatView || <ChatBlockView />}
             sidebar={sidebar}
+            rightSidebar={<AdminNavigationBar isVertical hideLabels />}
             inputView={
                 !hideFooter && (inputView || <ChatInput
                     bgColor="#F4F4F5"

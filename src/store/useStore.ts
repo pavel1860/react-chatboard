@@ -21,6 +21,8 @@ interface StoreState {
   conversationId: string | null;
   turnId: number | null;
   branchId: number;
+  isTestMode: boolean;
+  
   testTurns: {turn: TurnType, evaluators: EvaluatorConfigType[]}[];
   artifactView: ArtifactViewType;
   isArtifactViewOpen: boolean;  
@@ -37,6 +39,7 @@ interface StoreState {
   setConversationId: (id: string | null) => void;
   setRefUserId: (id: string | null) => void;
   setTurnId: (id: number | null) => void;
+  setIsTestMode: (isTestMode: boolean) => void;
   addTestTurn: (turn: TurnType, evaluators: EvaluatorConfigType[]) => void;
   removeTestTurn: (turnId: number) => void;
   addEvaluator: (turnId: number, evaluator: EvaluatorConfigType) => void;
@@ -73,6 +76,8 @@ export const useStore = create<StoreState>()(
       branchId: 1,
       setBranchId: (id: number) => set({ branchId: id }),
       conversationId: null,
+      isTestMode: false,
+      setIsTestMode: (isTestMode: boolean) => set({ isTestMode }),
       testTurns: [],
       addTestTurn: (turn: TurnType, evaluators: EvaluatorConfigType[]) => set({ testTurns: [...get().testTurns, { turn, evaluators }] }),
       removeTestTurn: (turnId: number) => set({ testTurns: get().testTurns.filter((turn) => turn.turn.id !== turnId) }),

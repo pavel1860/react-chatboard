@@ -1,6 +1,7 @@
 // import { MessageType, useChat } from "@/providers/chat-provider"
 import InfiniteChat from "./infinite-chat"
 import {
+    Button,
     cn,
 } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
@@ -11,8 +12,11 @@ import { useCtx } from "../../providers/ctx-provider";
 import { Turn } from "./turn";
 import { ChoiceType, MessageType, TurnType, useTurnApproval } from "../../services/turnService";
 import StreamingSpanViewer from "./streamingSpan";
+import { Icon } from "@iconify-icon/react";
 import { SpanType } from "./schema";
 import { SpanContainer } from "../blocks/UserSpan";
+import { EvaluatorsWrapper, TestCheckbox, useTestSelection } from "../evaluation/evaluators";
+import { useStore } from "../../store/useStore";
 
 
 
@@ -55,6 +59,9 @@ function useIsLargeScreen() {
     return isLargeScreen;
 }
 
+
+
+
 export default function ChatView() {
     // const { requestId: streamingRequestId } = useStream();
 
@@ -72,6 +79,11 @@ export default function ChatView() {
 
     const ctx = useCtx()
 
+    const [showSelection, setShowSelection] = useState(false)
+
+    const { testTurns, addTestTurn, removeTestTurn } = useStore()
+
+    const { selectedTurns, selectForTest, deselectForTest, isTestMode } = useTestSelection(turns)
 
 
     const { trigger: updateTurn } = useTurnApproval()
@@ -118,7 +130,7 @@ export default function ChatView() {
                     >
 
 
-                        {(turn, index, turns) => (
+                        {(turn, index, turns, nextTurn, prevTurn, isLast) => (
                             turn.span && <Turn
                                 key={turn.id}
                                 turn={turn as TurnType}
@@ -131,6 +143,7 @@ export default function ChatView() {
                                 setBranchId={() => { }}
                                 sendMessage={sendMessage}
                                 refetchChat={refetch}
+                                showSideControls
                                 className={cn({"pb-20": index === 0})}
                                 handleApproval={async (status: "committed" | "reverted") => {
                                     const updatedTurn = await updateTurn({ id: turn.id, status })
@@ -138,6 +151,34 @@ export default function ChatView() {
                                     refetch()
                                     console.log("refetched")
                                 }}
+                                rightContent={
+                                    <>
+                                        {!isTestMode && <Button
+                                            isIconOnly
+                                            variant="light"
+                                            onPress={() => {
+                                                if (prevTurn) {
+                                                    // sendMessage(turn.messages[0].content, turn.messages[0].toolCalls, turn.messages[0].state, prevTurn.id, true)
+                                                }
+                                            }}>
+                                            <Icon icon="mdi:refresh" />
+                                        </Button>}
+            
+                                        {/* {showSelection && <Checkbox icon={<Icon icon="solar:test-tube-bold" />} size="lg" >
+                                    </Checkbox>} */}
+                                        {isTestMode && <TestCheckbox isSelected={selectedTurns[turn.id]} onSelectChange={(isSelected) => {
+                                            if (isSelected) {
+                                                selectForTest(turn)
+                                            } else {
+                                                deselectForTest(turn)
+                                            }
+                                        }} />}
+            
+                                    </>
+                                }
+                                evaluators={
+                                    <EvaluatorsWrapper turnId={turn.id} />
+                                }
                             >
                                 {(span: SpanType, index, spans) => {
  

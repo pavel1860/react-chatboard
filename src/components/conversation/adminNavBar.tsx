@@ -3,6 +3,7 @@ import {  Tab, Tabs } from "@heroui/react";
 import { useCtx } from "../../providers/ctx-provider";
 import { useRouter } from "next/router";
 import { Icon } from "@iconify-icon/react";
+import { useSession } from "next-auth/react";
 
 
 
@@ -36,6 +37,9 @@ export const AdminNavigationBar = ({hideLabels=false, isVertical=false}: AdminNa
     const router = useRouter()
     const { refUserId, partitionId } = useCtx()
     const { isArtifactViewOpen, setIsArtifactViewOpen } = useStore()
+    const { data: session, status } = useSession()
+
+    const userId = refUserId || session?.user?.id
 
     return (
         <Tabs
@@ -44,17 +48,18 @@ export const AdminNavigationBar = ({hideLabels=false, isVertical=false}: AdminNa
             selectedKey={getTabKeyFromPath(router.pathname)} 
             color="primary"
             variant="light"
+            isDisabled={status !== "authenticated" || !userId}
             onSelectionChange={()=>{
                 if (!isArtifactViewOpen){
                     setIsArtifactViewOpen(true)
                 }
             }}>
-            <Tab key="/artifact" href={`/admin/user/${refUserId}/conversation/${partitionId}`} title={<span className="text-sm flex flex-row items-center gap-2" ><Icon icon="mdi:home-search-outline" width={20} height={20} /> {hideLabels ? "" : "Artifact"}</span>} />
-            <Tab key="/tests" href={`/admin/user/${refUserId}/conversation/${partitionId}/tests`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="solar:test-tube-line-duotone" width={20} height={20} /> {hideLabels ? "" : "Test"}</span>} />
-            <Tab key="/info" href={`/admin/user/${refUserId}/conversation/${partitionId}/info`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="solar:user-rounded-linear" width={20} height={20} /> {hideLabels ? "" : "Info"}</span>} />
+            <Tab key="/artifact" href={`/admin/user/${userId}/conversation/${partitionId}`} title={<span className="text-sm flex flex-row items-center gap-2" ><Icon icon="mdi:home-search-outline" width={20} height={20} /> {hideLabels ? "" : "Artifact"}</span>} />
+            <Tab key="/tests" href={`/admin/user/${userId}/conversation/${partitionId}/tests`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="solar:test-tube-line-duotone" width={20} height={20} /> {hideLabels ? "" : "Test"}</span>} />
+            <Tab key="/info" href={`/admin/user/${userId}/conversation/${partitionId}/info`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="solar:user-rounded-linear" width={20} height={20} /> {hideLabels ? "" : "Info"}</span>} />
             {/* <Tab key="/thread" href={`/admin/user/${refUserId}/conversation/${partitionId}/thread`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="solar:card-linear" width={20} height={20} /> {hideLabels ? "" : "Raw"}</span>} /> */}
-            <Tab key="/versioning" href={`/admin/user/${refUserId}/conversation/${partitionId}/versioning`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="pajamas:branch" width={20} height={20} /> {hideLabels ? "" : "Versioning"}</span>} />
-            <Tab key="/traces" href={`/admin/user/${refUserId}/conversation/${partitionId}/tracer`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="solar:plaaylist-minimalistic-linear" width={20} height={20} /> {hideLabels ? "" : "Traces"}</span>} />
+            <Tab key="/versioning" href={`/admin/user/${userId}/conversation/${partitionId}/versioning`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="pajamas:branch" width={20} height={20} /> {hideLabels ? "" : "Versioning"}</span>} />
+            <Tab key="/traces" href={`/admin/user/${userId}/conversation/${partitionId}/tracer`} title={<span className="text-sm flex flex-row items-center gap-2"><Icon icon="solar:plaaylist-minimalistic-linear" width={20} height={20} /> {hideLabels ? "" : "Traces"}</span>} />
         </Tabs>
     )
 }

@@ -84,7 +84,7 @@ const TurnEvaluatorSchema = z.object({
 
 
 const TestTurnSchema = z.object({
-    turn: TurnSchema,
+    // turn: TurnSchema,
     evaluators: z.array(EvaluatorConfigSchema),
 })
 

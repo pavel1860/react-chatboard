@@ -67,10 +67,13 @@ export function useSyncUrlParams() {
 }
 
 
+interface CtxProviderProps {
+    children: React.ReactNode;
+}
 
 
 
-const CtxProvider = ({ children }: { children: React.ReactNode }) => {
+const CtxProvider = ({ children }: CtxProviderProps) => {
 
     const { data: session, status } = useSession()
 
