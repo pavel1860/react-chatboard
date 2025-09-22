@@ -6,7 +6,7 @@ import { devtools } from "zustand/middleware";
 
 
 
-type ArtifactViewType = null;
+type ArtifactViewType = string | null;
 
 type PendingMessageType = {
   message: MessageType;

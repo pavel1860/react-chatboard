@@ -1,20 +1,12 @@
 import { useRef, useState } from "react";
-import objectPath from "object-path";
 
 import { 
-  $setBlock,
   $insertBlock,
   $buildBlock,
-  $getBlock,
-  $countBlocks,
-  $isBlockType,
-  $mapBlocks,
-  $forEachBlock,
   $buildChunk,
   $buildSent,
   $isPostfix,
   $insertPostfix,
-  $insertRootBlock,
   $insertBlockChunk,
 } from "./blockUtils";
 
@@ -39,7 +31,7 @@ export function useExecutionBuilder() {
       roots.current.push(span);
       // stack.current.push(span);
     } else {
-      const parentEvent = stack.current.at(-1).events.find(e => e.id == streamEvent.parentEventId)
+      const parentEvent = stack.current.at(-1).events.find((e: any) => e.id == streamEvent.parentEventId)
       if (!parentEvent) {
         throw new Error(`Parent event not found for event ${streamEvent.index} ${streamEvent.parentEventId} ${streamEvent.name} ${streamEvent.type}`);
       }

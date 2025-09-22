@@ -97,7 +97,7 @@ export function ArrayField<TItem extends FieldValues>({
                 );
             })}
 
-            { isReadOnly ? null : addComponent ? addComponent(addItem) : <Button isDisabled={isReadOnly} onPress={addItem} variant="light" size="sm" color="primary">+ Add Item</Button>}
+            { isReadOnly ? null : addComponent ? addComponent(addItem) : <Button isDisabled={isReadOnly} onPress={() => addItem()} variant="light" size="sm" color="primary">+ Add Item</Button>}
             
         </div>
     );

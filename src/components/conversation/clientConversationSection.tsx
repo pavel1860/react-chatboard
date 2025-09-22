@@ -72,7 +72,7 @@ export default function ConversationSection() {
     } = useConversationList({
         limit: 10, 
         offset: 0, 
-        filters: [["platform", "==", "whatsapp"]]
+        filters: ["platform", "==", "whatsapp"]
     })
     const { trigger: createConversation, isMutating } = useCreateConversation();
 

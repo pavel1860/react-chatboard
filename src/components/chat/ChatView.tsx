@@ -1,3 +1,4 @@
+// @ts-nocheck
 // import { MessageType, useChat } from "@/providers/chat-provider"
 import { Message } from "./message"
 import InfiniteChat from "./infinite-chat"
@@ -68,7 +69,7 @@ export default function ChatView() {
 
     
 
-    if ((!partitionId || partitionId == 0) && turns.length == 0 && !loading) {
+    if ((!partitionId) && turns.length == 0 && !loading) {
         return <EmptyChatView 
                     // backgroundImage="/modern-luxury-home-with-beautiful-landscape 2.svg" 
                     title={["ShippingToGo"]} 

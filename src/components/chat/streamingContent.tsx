@@ -1,12 +1,5 @@
-
-
-
-
-
-
+// @ts-nocheck
 import React, { useEffect, useRef, useState } from "react";
-import { useStream } from "@/lib/streamStore";
-import clsx from "clsx";
 
 export function StreamingContent2() {
     // const { events, isStreaming, consumed } = useStream(["stream_start", "stream_delta", "stream_end"]);

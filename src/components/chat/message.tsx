@@ -1,9 +1,9 @@
 import { Avatar, Button, Card, CardBody, Divider } from "@heroui/react"
 import Choices from "../../../../src/components/chat/choices/choices"
-import MarkdownEditor from "react-chatboard/src/components/promptEditor/editors/markdownEditor"
+import MarkdownEditor from "../../components/promptEditor/editors/markdownEditor"
 import { PropertySearchToolCall } from "../../../../src/components/chat/tool-calls/PropertySearchToolCall"
-import { MessageType, ChoiceType } from "@/services/turnService"
-import { ToolCall } from "react-chatboard/src/components/chat/schema"
+import { MessageType, ChoiceType } from "../../services/turnService"
+import { ToolCall } from "../../components/chat/schema"
 import { StreamingContent } from "./streamingContent"
 
 

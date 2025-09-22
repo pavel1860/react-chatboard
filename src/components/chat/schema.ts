@@ -53,7 +53,7 @@ export const BlockChunkSchema = z.object({
 export const BlockSentSchema = z.object({
     Type: z.literal("BlockSent"),
     index: z.number().optional().nullable(),
-    // path: z.array(z.number()),
+    path: z.array(z.number()),
     content: z.string().nullable().optional(),
     children: z.array(BlockChunkSchema).optional(),
 });

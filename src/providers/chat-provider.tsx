@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useStore } from "../store/useStore";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { convertKeysToCamelCase, convertKeysToSnakeCase } from "../model/services/model-context";

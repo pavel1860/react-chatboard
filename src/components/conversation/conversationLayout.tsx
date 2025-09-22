@@ -168,7 +168,7 @@ const DebugButton = () => {
     return (
         <Button 
             variant="light" 
-            onPress={() => setIsDebugMode(!isDebugMode)}
+            onPress={() => setIsDebugMode && setIsDebugMode(!isDebugMode)}
             isIconOnly
             startContent={<Icon icon="solar:bug-linear" height={20} width={20} />}
         />

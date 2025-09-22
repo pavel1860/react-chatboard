@@ -40,7 +40,7 @@ interface TurnProps <T extends TurnType, M> {
     topContent?: React.ReactNode
     bottomContent?: React.ReactNode
     rightContent?: React.ReactNode
-    handleApproval?: (status: "committed" | "reverted") => void
+    handleApproval?: (status: "committed" | "reverted", refetchChat?: () => void) => void
     onBranchChange?: (branchId: number) => void
     evaluators?: React.ReactNode
     refetchChat?: () => void
