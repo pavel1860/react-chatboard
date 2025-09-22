@@ -26,7 +26,7 @@ export const DefaultBlock = (block: BlockType) => (
         ))}
     </div> */}
     {block.root && <DefaultSentence {...block.root} />}
-    {block.children?.map((child, i) =>
+    {block.children?.map((child: BlockType, i: number) =>
       child.Type === "Block" ? (
         <DefaultBlock key={i} {...child} />
       ) : child.Type === "BlockSent" ? (
@@ -61,7 +61,7 @@ export const useBlock = (block: BlockType) => {
 
 
 
-interface SpanProps {
+export interface SpanProps {
   children: React.ReactNode
   span: SpanType
 }
@@ -85,7 +85,7 @@ export const HiddenSpan = ({children, span}: SpanProps) => {
 }
 
 
-interface BlockProps {
+export interface BlockProps {
   children: React.ReactNode
   block: BlockType
 }

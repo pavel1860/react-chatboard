@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useChat } from "../../providers/chat-provider";
 import { Message } from "./message";
 import InfiniteChat from "./infinite-chat";

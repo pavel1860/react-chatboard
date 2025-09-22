@@ -340,7 +340,7 @@ function useSendMessage(
                 // })
                 const baseUrl = process.env.NEXT_PUBLIC_BOT_API_BASE_URL
 
-                const url = buildNestedUrl(`${baseUrl}/api/complete`, {
+                const url = buildNestedUrl(`${baseUrl}/api/pirate/complete`, {
                     ctx: convertKeysToSnakeCase(ctx),
                 })
 

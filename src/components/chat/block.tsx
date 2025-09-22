@@ -45,7 +45,7 @@ const SentenceView: React.FC<{
   depth: number;
   showMetadata?: boolean;
 }> = ({ sent, depth, showMetadata = false }) => {
-  const chunks = sent.blocks || [];
+  const chunks = sent.children || [];
   
   // Generate nesting indicators - reduced spacing
   const nestingIndicators = [];
@@ -63,7 +63,7 @@ const SentenceView: React.FC<{
         <div className="flex items-center text-xs text-gray-500 mb-1">
           {/* {nestingIndicators} */}
           <span className="text-gray-400">sent[{sent.index}]</span>
-          {sent.hasEol && <span className="ml-2 text-blue-400">eol</span>}
+          {sent.children && sent.children.length > 0 && <span className="ml-2 text-blue-400">eol</span>}
         </div>
       )}
       
@@ -73,7 +73,7 @@ const SentenceView: React.FC<{
           {chunks.map((chunk, i) => (
             <ChunkText key={i} chunk={chunk} />
           ))}
-          {sent.hasEol && "\n"}
+          {sent.children && sent.children.length > 0 && "\n"}
         </div>
       </div>
     </div>

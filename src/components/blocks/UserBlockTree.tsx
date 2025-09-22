@@ -1,8 +1,7 @@
 // UserBlockTree.tsx
 import React from "react";
-import { BlockType, BlockSentType, BlockChunkType } from "./schema";
-import { useBlockConfig, useComponentConfig, useComponentRegistry } from "./UserComponentRegistry";
-import { useVisibility } from "./UserVisibilityContext";
+import { BlockType, BlockSentType, BlockChunkType } from "../chat/schema";
+import { useComponentConfig, useComponentRegistry } from "./UserComponentRegistry";
 import { cn } from "@heroui/react";
 import { HiddenBlock, useBlock } from "./defaultComponents";
 

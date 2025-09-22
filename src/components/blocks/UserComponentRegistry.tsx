@@ -135,7 +135,11 @@ const RegistryContext = createContext<ComponentProviderProps>({
     },
   debugOutlines: false,
   setDebugOutlines: () => {},
-  getComponent: () => ({}),
+  getComponent: () => ({
+    component: () => null,
+    isHidden: true,
+    isWrapper: false
+  }),
 });
 
 export function UserComponentProvider({

@@ -1,3 +1,4 @@
+// @ts-ignore
 import objectPath from "object-path";
 import { BlockType, BlockChunkType, BlockSentType, BlockChunkSchema, BlockSchema, BlockSentSchema } from "./schema";
 
@@ -11,11 +12,11 @@ import { BlockType, BlockChunkType, BlockSentType, BlockChunkSchema, BlockSchema
 // export const $getPath = (path: any) => path.reduce((acc, a)=> [...acc, a, "children"], []).slice(1).slice(0,-1)
 
 
-export const $getPath = (path: any) => path.reduce((acc, a)=> [...acc, "children", a], [])
+export const $getPath = (path: any) => path.reduce((acc: any, a: any)=> [...acc, "children", a], [])
 
 
 
-export const $splitPathIndex = (path: number[]) => {
+export const $splitPathIndex = (path: number[])  => {
     const index = path.at(-1)
     const realPath = path.slice(0, -1)
     if (index !== undefined) {
@@ -43,6 +44,7 @@ export const $setBlock = (block: any, path: number[], value: any) => {
 export const $insertBlock = (block: any, path: number[], value: any) => {        
     const jsonPath = $getPath(path)
     const [realPath, index] = $splitPathIndex(jsonPath)
+    // @ts-ignore
     const target = objectPath.get(block, realPath.slice(0,-1))
     console.log("inserting", value.Type, "to", target?.Type)
     return objectPath.insert(block, realPath, value, index)

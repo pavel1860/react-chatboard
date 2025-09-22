@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { RegistryProps, UserComponentProvider } from "../components/blocks/UserComponentRegistry"
 import { ChatProvider } from "./chat-provider"
 import { CtxProvider } from "./ctx-provider"
@@ -24,6 +24,10 @@ interface ChatboardProviderProps {
 
 
 export const ChatboardProvider = ({Component, children, registry, extra, session}: ChatboardProviderProps) => {
+
+    useEffect(() => {
+        console.log("registry", registry)
+    }, [registry])
     
     return (
         <SessionProvider
