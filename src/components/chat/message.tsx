@@ -1,28 +1,10 @@
 import { Avatar, Button, Card, CardBody, Divider } from "@heroui/react"
-import Choices from "../../../../src/components/chat/choices/choices"
+
 import MarkdownEditor from "../../components/promptEditor/editors/markdownEditor"
-import { PropertySearchToolCall } from "../../../../src/components/chat/tool-calls/PropertySearchToolCall"
 import { MessageType, ChoiceType } from "../../services/turnService"
 import { ToolCall } from "../../components/chat/schema"
 import { StreamingContent } from "./streamingContent"
 
-
-const FRONT_TOOL_CALLS = new Set([
-  "ChangeUserView",
-  "PresentAvatarTool",
-  "PropertySearchTool",
-]);
-
-function renderToolCalls(toolCalls: ToolCall[]) {
-  console.log(toolCalls);
-  return toolCalls
-    .filter((tc) => FRONT_TOOL_CALLS.has(tc.name))
-    .map((tc) => {
-      if (tc.name === "PropertySearchTool") {
-        return <PropertySearchToolCall toolCall={tc} />;
-      }
-    });
-}
 
 interface MessageProps {
   message: MessageType;
@@ -72,12 +54,12 @@ export const Message = ({
         </CardBody>
       </Card>
       {/* {renderToolCalls(message.toolCalls)} */}
-      {showChoices &&
+      {/* {showChoices &&
         onChoice &&
         message.choices?.choices.length &&
         message.choices?.choices.length > 0 && (
           <Choices message={message} onChoice={onChoice} />
-        )}
+        )} */}
     </div>
   );
 };

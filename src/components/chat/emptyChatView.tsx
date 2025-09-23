@@ -1,16 +1,11 @@
-// import { ArtifactCtxType, MessageType, useChat } from "@/providers/chat-provider";
-// import AvatarChoices from "./choices/avatarChoices";
-// import { ToolCall } from "react-chatboard/src/chat/chat-context";
 import { useEffect, useRef, useState } from "react";
 import { cn, Spinner } from "@heroui/react";
-// import EmptyChatView from "@/components/chat/emptyChatView";
 import { useCreateConversation } from "../../services/conversationService";
 import { Button, Divider, Link } from "@heroui/react";
 import { ChatInput } from "../../components/editor/input";
 import { useCallback } from "react";
 import { useStore } from "../../store/useStore";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { useCtx } from "../../providers/ctx-provider";
 import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -75,7 +70,6 @@ interface EmptyChatViewProps {
 export default function EmptyChatView({ backgroundImage, title, messages, companyName, hideTermsAndServices }: EmptyChatViewProps) {
   const { setPendingMessage, setArtifactView } = useStore();
   const { trigger: createConversation } = useCreateConversation();
-  const router = useRouter();
   const { branchId, setBranchId, setConversationId } = useCtx();
 
   const { onAuthOpenChange, isArtifactViewOpen, setIsArtifactViewOpen } = useStore();

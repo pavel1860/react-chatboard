@@ -1,6 +1,6 @@
 // UserChunk.tsx
 import React, { useEffect, useState } from "react";
-import { BlockChunkType } from "react-chatboard/src/components/chat/schema";
+import { BlockChunkType } from "../chat/schema";
 
 export const UserChunk: React.FC<{ chunk: BlockChunkType; animate?: boolean }> = ({ chunk, animate = true }) => {
   const [displayed, setDisplayed] = useState("");

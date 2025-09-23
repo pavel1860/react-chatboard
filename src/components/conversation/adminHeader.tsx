@@ -1,7 +1,7 @@
 import { Button, Chip, Avatar } from "@heroui/react"
 import { LayoutHeader } from "./conversationLayout"
 import { useLayout } from "../../hooks/layout-hook";
-import { Icon } from "@iconify/react";
+import { Icon } from "@iconify-icon/react";
 import { useCtx } from "../../providers/ctx-provider";
 import { useUser } from "../../services/userService";
 

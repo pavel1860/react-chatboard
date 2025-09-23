@@ -1,7 +1,7 @@
 import { useStore } from "../../store/useStore";
 import {  Tab, Tabs } from "@heroui/react";
 import { useCtx } from "../../providers/ctx-provider";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 import { Icon } from "@iconify-icon/react";
 import { useSession } from "next-auth/react";
 
@@ -34,18 +34,18 @@ interface AdminNavigationBarProps {
 
 export const AdminNavigationBar = ({hideLabels=false, isVertical=false}: AdminNavigationBarProps) => {
 
-    const router = useRouter()
+    const pathname = usePathname()
     const { refUserId, partitionId } = useCtx()
     const { isArtifactViewOpen, setIsArtifactViewOpen } = useStore()
     const { data: session, status } = useSession()
-
+    // @ts-ignore
     const userId = refUserId || session?.user?.id
 
     return (
         <Tabs
             isVertical={isVertical}
             aria-label="Tabs" 
-            selectedKey={getTabKeyFromPath(router.pathname)} 
+            selectedKey={getTabKeyFromPath(pathname)} 
             color="primary"
             variant="light"
             isDisabled={status !== "authenticated" || !userId}

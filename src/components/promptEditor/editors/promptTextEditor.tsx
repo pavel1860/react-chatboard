@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {$getRoot, $getSelection, $createParagraphNode, $createTextNode, TextNode} from 'lexical';
 import {useEffect, useState} from 'react';
 

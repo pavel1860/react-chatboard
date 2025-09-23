@@ -1,11 +1,11 @@
 import { Button } from "@heroui/react";
 import { LayoutHeader } from "./conversationLayout";
-import { useLayout } from "react-chatboard/src/hooks/layout-hook";
-import { Icon } from "@iconify/react";
+import { useLayout } from "../../hooks/layout-hook";
+import { Icon } from "@iconify-icon/react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useStore } from "react-chatboard/src/store/useStore";
-import { useConversationRouter } from "react-chatboard/src/hooks/conversation-hook";
+import { useStore } from "../../store/useStore";
+import { useConversationRouter } from "../../hooks/conversation-hook";
 
 export const PropertyHeader = () => {
   const { setIsSidebarOpen } = useLayout();

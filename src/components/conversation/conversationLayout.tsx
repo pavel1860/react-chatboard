@@ -3,7 +3,6 @@ import { useBotState, useStore } from "../../store/useStore";
 // import { LayoutPane, LayoutContent, SplitLayout } from "react-chatboard/src/components/layout/layout";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { Button, cn, Divider } from "@heroui/react";
-import { useRouter } from "next/router";
 
 import { Icon } from "@iconify-icon/react";
 
@@ -59,7 +58,7 @@ interface LayoutHeaderProps {
 }
 
 export const LayoutHeader = ({ children, href, startContent, endContent, onClick, className, size = "md" }: LayoutHeaderProps) => {
-    const router = useRouter();
+    // const router = useRouter();
     const { setIsArtifactViewOpen } = useConversationRouter()
 
     return (
@@ -77,7 +76,7 @@ export const LayoutHeader = ({ children, href, startContent, endContent, onClick
             <button
                 onClick={() => {
                     console.log("onClick", href, onClick);
-                    href && router.push(href);
+                    // href && router.push(href);
                     if (onClick) {
                         onClick();
                     } else {

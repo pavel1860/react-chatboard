@@ -1,5 +1,4 @@
 import { AnyZodObject, z, ZodSchema, ZodTypeAny } from "zod";
-import { useModelEnv } from "../state/model-env";
 import { buildModelContextHeaders, convertKeysToCamelCase, ModelContextType } from "../model/services/model-context";
 
 

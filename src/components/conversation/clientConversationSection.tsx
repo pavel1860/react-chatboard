@@ -1,7 +1,6 @@
 import { Switch, User } from "@heroui/react";
 import { ConversationType, useConversationList, useConversation, useCreateConversation } from "../../services/conversationService"
 import { Listbox, ListboxItem } from "@heroui/react";
-import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useCtx } from "../../providers/ctx-provider";
 import { useConversationRouter } from "../../hooks/conversation-hook";
