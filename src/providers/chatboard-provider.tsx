@@ -5,6 +5,7 @@ import { CtxProvider } from "./ctx-provider"
 import Layout from "../components/layout/Layout";
 import { SessionProvider } from "next-auth/react";
 import { CookiesProvider } from "react-cookie";
+import { Button } from "@heroui/react";
 
 
 interface ChatboardProviderProps {
@@ -40,13 +41,13 @@ export const ChatboardProvider = ({Component, children, registry, extra, session
                 <CtxProvider>
                     <ChatProvider>
                         <UserComponentProvider registry={registry} >
-                            <Layout
+                            {/* <Layout
                                 extra={extra}
                                 header={Component.header}
                                 layoutProps={Component.layoutProps}
-                                >
+                                > */}                                
                                 {children}
-                            </Layout>
+                            {/* </Layout> */}
                         </UserComponentProvider>
                     </ChatProvider>
                 </CtxProvider>
