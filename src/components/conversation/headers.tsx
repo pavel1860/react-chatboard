@@ -1,10 +1,10 @@
 import { Button } from "@heroui/react";
 import { LayoutHeader } from "./conversationLayout";
-import { useLayout } from "react-chatboard/src/hooks/layout-hook";
-import { Icon } from "@iconify/react";
+import { useLayout } from "../../hooks/layout-hook";
+import { Icon } from "@iconify-icon/react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useStore } from "react-chatboard/src/store/useStore";
+import { useStore } from "../../store/useStore";
 
 
 export const MarketPlaceHeader = () => {

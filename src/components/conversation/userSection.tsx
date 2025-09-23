@@ -1,5 +1,5 @@
 import { Spinner, Switch } from "@heroui/react";
-import { Icon } from "@iconify/react";
+import { Icon } from "@iconify-icon/react";
 import { Listbox, ListboxItem } from "@heroui/react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";

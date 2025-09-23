@@ -1,4 +1,4 @@
-import { useStore } from "react-chatboard/src/store/useStore";
+import { useStore } from "../store/useStore";
 
 
 

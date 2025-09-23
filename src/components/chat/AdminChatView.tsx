@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { useChat } from "../../providers/chat-provider";
 import { Message } from "./message";
 import InfiniteChat from "./infinite-chat";
@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { EvaluatorConfigType, TurnEvaluatorSchema } from "../../services/testService";
 import { ArrayField, Form, FormWatcher, InputField, TextField } from "../form";
 import { StreamingContent } from "./streamingContent";
+import { useStore } from "../../store/useStore";
 
 
 

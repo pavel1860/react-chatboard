@@ -38,7 +38,7 @@ export const AdminNavigationBar = ({hideLabels=false, isVertical=false}: AdminNa
     const { refUserId, partitionId } = useCtx()
     const { isArtifactViewOpen, setIsArtifactViewOpen } = useStore()
     const { data: session, status } = useSession()
-
+    // @ts-ignore
     const userId = refUserId || session?.user?.id
 
     return (

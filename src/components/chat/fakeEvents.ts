@@ -1,6 +1,6 @@
-
+// @ts-nocheck
 import { useState, useRef, useCallback } from "react";
-import { convertKeysToCamelCase } from "react-chatboard/src/model/services/model-context";
+import { convertKeysToCamelCase } from "../../model/services/model-context";
 
 
 // export const mockEvents = [

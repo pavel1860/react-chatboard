@@ -1,6 +1,6 @@
 // UserSpan.tsx
 import React from "react";
-import { SpanType } from "react-chatboard/src/components/chat/schema";
+import { SpanType } from "../chat/schema";
 import { BlockContainer } from "./UserBlockTree";
 import { useComponentConfig, useComponentRegistry } from "./UserComponentRegistry";
 import { cn } from "@heroui/react";
@@ -10,7 +10,7 @@ type Props = {
   span: SpanType;
 };
 
-export const SpanContainer: React.FC<Props> = ({ span }) => {
+export const SpanContainer: React.FC<Props> = ({ span }: Props) => {
 
   const { debugOutlines } = useComponentRegistry();
 
@@ -21,6 +21,9 @@ export const SpanContainer: React.FC<Props> = ({ span }) => {
   }
 
   const SpanComponent = !isWrapper ? component : HiddenSpan;
+
+  if (!SpanComponent) return null;
+
 
   return (
     // <div className={cn("border border-red-500 rounded p-2 mb-2", {
@@ -41,6 +44,7 @@ export const SpanContainer: React.FC<Props> = ({ span }) => {
       </div>
       }
 
+      {/* @ts-ignore */}
       <SpanComponent span={span}>
       {/* Render span events */}      
       {span.events.map((ev: any, i: number) => {

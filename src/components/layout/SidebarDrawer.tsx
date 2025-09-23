@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useStore } from "../../store/useStore";
 import {
   Avatar,

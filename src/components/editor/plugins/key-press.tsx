@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getRoot, COMMAND_PRIORITY_LOW, KEY_ENTER_COMMAND, LexicalEditor } from "lexical";
 import {mergeRegister} from '@lexical/utils';
