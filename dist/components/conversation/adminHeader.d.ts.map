@@ -1,1 +1,0 @@
-{"version":3,"file":"adminHeader.d.ts","sourceRoot":"","sources":["../../../src/components/conversation/adminHeader.tsx"],"names":[],"mappings":"AAQA,UAAU,sBAAsB;IAC5B,QAAQ,CAAC,EAAE,KAAK,CAAC,SAAS,CAAA;IAC1B,WAAW,CAAC,EAAE,MAAM,CAAA;CACvB;AAED,eAAO,MAAM,sBAAsB,GAAI,2BAA2B,sBAAsB,4CAwDvF,CAAA"}

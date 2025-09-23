@@ -1,1 +1,0 @@
-{"version":3,"file":"UserBlockTree.d.ts","sourceRoot":"","sources":["../../../src/components/blocks/UserBlockTree.tsx"],"names":[],"mappings":"AACA,OAAO,KAAK,MAAM,OAAO,CAAC;AAC1B,OAAO,EAAE,SAAS,EAAE,aAAa,EAAE,cAAc,EAAE,MAAM,gBAAgB,CAAC;AAW1E,KAAK,mBAAmB,GAAG;IACzB,KAAK,EAAE,SAAS,GAAG,aAAa,GAAG,cAAc,CAAC;CACnD,CAAC;AAGF,eAAO,MAAM,cAAc,EAAE,KAAK,CAAC,EAAE,CAAC,mBAAmB,CAsCxD,CAAC"}

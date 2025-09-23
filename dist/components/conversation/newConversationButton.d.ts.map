@@ -1,1 +1,0 @@
-{"version":3,"file":"newConversationButton.d.ts","sourceRoot":"","sources":["../../../src/components/conversation/newConversationButton.tsx"],"names":[],"mappings":"AAKA,UAAU,0BAA0B;IAChC,UAAU,EAAE,OAAO,CAAC;IACpB,UAAU,CAAC,EAAE,OAAO,CAAC;IACrB,OAAO,EAAE,MAAM,IAAI,CAAC;CACvB;AAID,MAAM,CAAC,OAAO,UAAU,qBAAqB,CAAC,EAAE,OAAO,EAAE,UAAU,EAAE,UAAkB,EAAE,EAAE,0BAA0B,2CA0CpH"}

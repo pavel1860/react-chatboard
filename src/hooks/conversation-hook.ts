@@ -1,7 +1,8 @@
 import { useCtx } from "../providers/ctx-provider";
 import { useStore } from "../store/useStore";
 import { useParams } from "next/navigation";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
 

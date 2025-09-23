@@ -1,1 +1,0 @@
-{"version":3,"file":"layout-hook.js","sourceRoot":"","sources":["../../src/hooks/layout-hook.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,mBAAmB,CAAC;AAQ7C,MAAM,CAAC,MAAM,SAAS,GAAG,GAAG,EAAE;IAE1B,MAAM,EAAE,aAAa,EAAE,gBAAgB,EAAE,GAAG,QAAQ,EAAE,CAAC;IAEvD,OAAO;QACH,aAAa;QACb,gBAAgB;KACnB,CAAA;AACL,CAAC,CAAA"}

@@ -1,7 +1,6 @@
 import { Spinner, Switch } from "@heroui/react";
 import { Icon } from "@iconify-icon/react";
 import { Listbox, ListboxItem } from "@heroui/react";
-import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useCreateUser, UserType, useUserList } from "../../services/userService";
 import { useAdminCtx, useCtx } from "../../providers/ctx-provider";
@@ -42,7 +41,7 @@ export default function UserSection() {
 
 
 
-    const router = useRouter()
+    // const router = useRouter()
 
     if (isLoading) {
         return <Spinner />
@@ -92,7 +91,7 @@ export default function UserSection() {
                             if (refUserId !== user.id) {
                                 setBranchId(1)
                                 setRefUserId(user.id)                                
-                                router.push(`/admin/user/${user.id}`)
+                                // router.push(`/admin/user/${user.id}`)
                             }
                             setIsUserListOpen(false)
                         }}   
